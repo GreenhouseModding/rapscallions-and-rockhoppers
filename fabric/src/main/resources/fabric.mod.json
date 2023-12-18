@@ -23,6 +23,9 @@
     "entrypoints": {
         "main": [
             "dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppersFabric"
+        ],
+        "client": [
+            "dev.greenhouseteam.rapscallionsandrockhoppers.client.RapscallionsAndRockhoppersFabricClient"
         ]
     },
     "mixins": [
