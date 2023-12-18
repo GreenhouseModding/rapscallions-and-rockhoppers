@@ -1,6 +1,6 @@
-package com.example.examplemod.platform;
+package dev.greenhouseteam.rapscallionsandrockhoppers.platform;
 
-import com.example.examplemod.platform.services.IPlatformHelper;
+import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IPlatformHelper;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLLoader;
 

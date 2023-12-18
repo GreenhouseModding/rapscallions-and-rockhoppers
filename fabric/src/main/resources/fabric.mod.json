@@ -7,16 +7,22 @@
     "authors": [
         "${mod_author}"
     ],
+    "contributors": [
+        "MerchantPug",
+        "Omniv",
+        "UltrusBot"
+    ],
     "contact": {
-        "homepage": "https://fabricmc.net/",
-        "sources": "https://github.com/FabricMC/fabric-example-mod"
+        "homepage": "https://modrinth.com/mod/rapscallions-and-rockhoppers",
+        "sources": "https://github.com/GreenhouseTeam/rapscallions-and-rockhoppers",
+        "issues": "https://github.com/GreenhouseTeam/rapscallions-and-rockhoppers/issues"
     },
     "license": "${license}",
     "icon": "assets/${mod_id}/${mod_id}.png",
     "environment": "*",
     "entrypoints": {
         "main": [
-            "com.example.examplemod.ExampleMod"
+            "dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppersFabric"
         ]
     },
     "mixins": [
@@ -24,13 +30,10 @@
         "${mod_id}.fabric.mixins.json"
     ],
     "depends": {
-        "fabricloader": ">=0.14",
+        "fabricloader": ">=0.15",
         "fabric-api": "*",
-        "minecraft": "1.20.2",
+        "minecraft": "1.20.4",
         "java": ">=17"
-    },
-    "suggests": {
-        "another-mod": "*"
     }
 }
   

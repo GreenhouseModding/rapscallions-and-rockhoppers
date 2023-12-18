@@ -1,6 +1,9 @@
-package com.example.examplemod.platform.services;
+package dev.greenhouseteam.rapscallionsandrockhoppers.platform.services;
+
+import dev.greenhouseteam.rapscallionsandrockhoppers.platform.ServiceUtil;
 
 public interface IPlatformHelper {
+    IPlatformHelper PLATFORM = ServiceUtil.load(IPlatformHelper.class);
 
     /**
      * Gets the name of the current platform

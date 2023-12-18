@@ -1,8 +1,10 @@
-package com.example.examplemod.platform;
+package dev.greenhouseteam.rapscallionsandrockhoppers.platform;
 
-import com.example.examplemod.platform.services.IPlatformHelper;
+import com.google.auto.service.AutoService;
+import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IPlatformHelper;
 import net.fabricmc.loader.api.FabricLoader;
 
+@AutoService(IPlatformHelper.class)
 public class FabricPlatformHelper implements IPlatformHelper {
 
     @Override
