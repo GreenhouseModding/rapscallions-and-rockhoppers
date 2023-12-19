@@ -74,6 +74,6 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 		this.animate(penguin.waddleAnimationState, PenguinAnimation.WADDLE_BODY, delta, animationSpeed);
 		this.animate(penguin.waddleExpandAnimationState, PenguinAnimation.WADDLE_ARMS_EXTEND, delta, animationSpeed);
 		this.animate(penguin.waddleRetractAnimationState, PenguinAnimation.WADDLE_ARMS_RETRACT, delta, animationSpeed);
-		this.animateWalk(PenguinAnimation.WADDLE_FEET, limbSwing, limbSwingAmount, 4.5F, 32.5F);
+		this.animateWalk(PenguinAnimation.WADDLE_FEET, limbSwing, limbSwingAmount, 4.5F, 40.0F);
 	}
 }
