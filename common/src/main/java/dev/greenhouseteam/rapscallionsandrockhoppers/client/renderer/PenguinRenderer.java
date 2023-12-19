@@ -17,6 +17,6 @@ public class PenguinRenderer extends MobRenderer<Penguin, PenguinModel> {
 
     @Override
     public ResourceLocation getTextureLocation(Penguin penguin) {
-        return PENGUIN_TEXTURE;
+        return penguin.isShocked() ? SURPRISED_PENGUIN_TEXTURE : PENGUIN_TEXTURE;
     }
 }
