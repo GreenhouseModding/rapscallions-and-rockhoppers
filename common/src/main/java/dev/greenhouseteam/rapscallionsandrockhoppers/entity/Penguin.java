@@ -44,7 +44,7 @@ public class Penguin extends Animal {
 
     @Override
     public void registerGoals() {
-        this.goalSelector.addGoal(1, new PenguinPanicGoal(this, 1.75));
+        this.goalSelector.addGoal(1, new PenguinPanicGoal(this, 2.0));
         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0));
         this.goalSelector.addGoal(3, new TemptGoal(this, 1.25, FOOD_ITEMS, false));
         this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.2));
