@@ -11,7 +11,6 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 
 public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("modid", "penguin"), "main");
@@ -20,7 +19,6 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 	private final ModelPart body;
 	private final ModelPart head;
 	private final ModelPart brows;
-	private boolean waddleState = false;
 
 	public PenguinModel(ModelPart root) {
 		super(0.5F, 24.0F);
@@ -68,14 +66,14 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 		}
 
 		this.animate(penguin.idleAnimationState, PenguinAnimation.IDLE, delta, 0.5F);
-		this.animateWaddle(penguin, delta, limbSwing, limbSwingAmount, 2.5F, penguin.isShocked() ? 1.25F : 1.0F);
+		this.animateWaddle(penguin, delta, limbSwing, limbSwingAmount, penguin.isShocked() ? 1.25F : 1.0F);
 		this.animate(penguin.shockArmAnimationState, PenguinAnimation.SHOCK_ARMS, delta, 1.25F);
 	}
 
-	protected void animateWaddle(Penguin penguin, float delta, float limbSwing, float limbSwingAmount, float maxFeetAnimationSpeed, float animationSpeed) {
+	protected void animateWaddle(Penguin penguin, float delta, float limbSwing, float limbSwingAmount, float animationSpeed) {
 		this.animate(penguin.waddleAnimationState, PenguinAnimation.WADDLE_BODY, delta, animationSpeed);
 		this.animate(penguin.waddleExpandAnimationState, PenguinAnimation.WADDLE_ARMS_EXTEND, delta, animationSpeed);
 		this.animate(penguin.waddleRetractAnimationState, PenguinAnimation.WADDLE_ARMS_RETRACT, delta, animationSpeed);
-		this.animateWalk(PenguinAnimation.WADDLE_FEET, limbSwing, limbSwingAmount, maxFeetAnimationSpeed, 20.0F);
+		this.animateWalk(PenguinAnimation.WADDLE_FEET, limbSwing, limbSwingAmount, 4.5F, 32.5F);
 	}
 }
