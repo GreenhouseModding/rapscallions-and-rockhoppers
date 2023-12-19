@@ -23,6 +23,6 @@ public class RapscallionsAndRockhoppersEntityTypes {
     }
 
     public static void createMobAttributes(BiConsumer<EntityType<? extends LivingEntity>, AttributeSupplier> consumer) {
-        consumer.accept(PENGUIN, Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 8.0).add(Attributes.MOVEMENT_SPEED, 0.2F).build());
+        consumer.accept(PENGUIN, Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 8.0).add(Attributes.MOVEMENT_SPEED, 0.12F).build());
     }
 }
