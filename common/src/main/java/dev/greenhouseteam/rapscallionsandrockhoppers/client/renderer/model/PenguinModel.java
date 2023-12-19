@@ -5,15 +5,22 @@ import net.minecraft.client.model.AgeableHierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.*;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.model.geom.builders.CubeListBuilder;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("modid", "penguin"), "main");
+
 	private final ModelPart root;
 	private final ModelPart body;
 	private final ModelPart head;
 	private final ModelPart brows;
+	private boolean waddleState = false;
 
 	public PenguinModel(ModelPart root) {
 		super(0.5F, 24.0F);
@@ -52,13 +59,25 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 	}
 
 	@Override
-	public void setupAnim(Penguin penguin, float legSwing, float legSwingAmount, float delta, float yRot, float xRot) {
+	public void setupAnim(Penguin penguin, float limbSwing, float limbSwingAmount, float delta, float yRot, float xRot) {
+		this.root().getAllParts().forEach(ModelPart::resetPose);
 		if (penguin.isShocked()) {
 			this.brows.setPos(0.0F, -0.75F, 0.0F);
 		} else {
 			this.brows.setPos(0.0F, 0.0F, 0.0F);
 		}
-		this.head.xRot = xRot * (float) (Math.PI / 180.0);
-		this.head.yRot = yRot * (float) (Math.PI / 180.0);
+
+		this.animate(penguin.idleAnimationState, PenguinAnimation.IDLE, delta, 0.5F);
+		this.animateWaddle(penguin, delta, limbSwing, limbSwingAmount, penguin.isShocked() ? 1.25F : 1.0F);
+		this.animate(penguin.shockArmAnimationState, PenguinAnimation.SHOCK_ARMS, delta, 1.25F);
+	}
+
+	protected void animateWaddle(Penguin penguin, float delta, float limbSwing, float limbSwingAmount, float maxAnimationSpeed) {
+		this.animate(penguin.waddleAnimationState, PenguinAnimation.WADDLE_BODY, delta, maxAnimationSpeed);
+		this.animate(penguin.waddleExpandAnimationState, PenguinAnimation.WADDLE_ARMS_EXTEND, delta, maxAnimationSpeed);
+		this.animate(penguin.waddleRetractAnimationState, PenguinAnimation.WADDLE_ARMS_RETRACT, delta, maxAnimationSpeed);
+		if (penguin.waddleAnimationState.isStarted()) {
+			this.animateWalk(PenguinAnimation.WADDLE_FEET, limbSwing, limbSwingAmount, maxAnimationSpeed, 2.5F);
+		}
 	}
 }

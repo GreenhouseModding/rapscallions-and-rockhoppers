@@ -9,6 +9,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
 import net.minecraft.world.entity.ai.goal.FollowParentGoal;
@@ -30,6 +31,12 @@ public class Penguin extends Animal {
             Items.INK_SAC, Items.GLOW_INK_SAC
     );
     private static final EntityDataAccessor<Integer> DATA_SHOCKED_TIME = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
+    public final AnimationState idleAnimationState = new AnimationState();
+    public final AnimationState waddleAnimationState = new AnimationState();
+    public final AnimationState shockArmAnimationState = new AnimationState();
+    public final AnimationState waddleExpandAnimationState = new AnimationState();
+    public final AnimationState waddleRetractAnimationState = new AnimationState();
+    private boolean animationArmState = false;
 
     public Penguin(EntityType<? extends Animal> entityType, Level level) {
         super(entityType, level);
@@ -83,9 +90,31 @@ public class Penguin extends Animal {
     @Override
     public void tick() {
         super.tick();
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             if (this.getShockedTime() > 0) {
                 this.setShockedTime(this.getShockedTime() - 1);
+            }
+        } else {
+            if (this.isInWaterOrBubble()) {
+                this.idleAnimationState.stop();
+                this.waddleAnimationState.stop();
+                this.waddleExpandAnimationState.stop();
+                this.waddleRetractAnimationState.stop();
+                this.shockArmAnimationState.stop();
+            } else {
+                this.idleAnimationState.animateWhen(!this.walkAnimation.isMoving(), this.tickCount);
+                this.waddleAnimationState.animateWhen(this.walkAnimation.isMoving(), this.tickCount);
+                this.shockArmAnimationState.animateWhen(this.isShocked() && !this.isDeadOrDying(), this.tickCount);
+
+                if (!this.animationArmState && this.walkAnimation.isMoving()) {
+                    this.waddleRetractAnimationState.stop();
+                    this.waddleExpandAnimationState.startIfStopped(this.tickCount);
+                     this.animationArmState = true;
+                } else if (this.animationArmState && !this.walkAnimation.isMoving()) {
+                    this.waddleExpandAnimationState.stop();
+                    this.waddleRetractAnimationState.startIfStopped(this.tickCount);
+                    this.animationArmState = false;
+                }
             }
         }
     }
@@ -97,6 +126,7 @@ public class Penguin extends Animal {
     }
 
     public void setShockedTime(int shockedTime) {
+        this.animationArmState = true;
         this.getEntityData().set(DATA_SHOCKED_TIME, shockedTime);
     }
 
