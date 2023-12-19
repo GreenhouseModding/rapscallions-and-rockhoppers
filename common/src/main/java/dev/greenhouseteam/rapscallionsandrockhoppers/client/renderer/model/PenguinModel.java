@@ -11,12 +11,16 @@ import net.minecraft.resources.ResourceLocation;
 public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("modid", "penguin"), "main");
 	private final ModelPart root;
+	private final ModelPart body;
+	private final ModelPart head;
 	private final ModelPart brows;
 
 	public PenguinModel(ModelPart root) {
 		super(0.5F, 24.0F);
 		this.root = root.getChild("root");
-		this.brows = this.root.getChild("body").getChild("head").getChild("brows");
+		this.body = this.root.getChild("body");
+		this.head = this.body.getChild("head");
+		this.brows = this.head.getChild("brows");
 	}
 
 	public static LayerDefinition createLayer() {
@@ -54,5 +58,7 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 		} else {
 			this.brows.setPos(0.0F, 0.0F, 0.0F);
 		}
+		this.head.xRot = xRot * (float) (Math.PI / 180.0);
+		this.head.yRot = yRot * (float) (Math.PI / 180.0);
 	}
 }
