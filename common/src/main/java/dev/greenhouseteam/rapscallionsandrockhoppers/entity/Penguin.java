@@ -62,7 +62,7 @@ public class Penguin extends Animal {
 
     @Override
     public SoundEvent getAmbientSound() {
-        if (!this.isInWaterOrBubble()) {
+        if (this.isInWaterOrBubble()) {
             return null;
         }
         return RapscallionsAndRockhoppersSoundEvents.PENGUIN_AMBIENT;
