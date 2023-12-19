@@ -1,21 +1,17 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.registry;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-
-import java.util.function.BiConsumer;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import org.apache.logging.log4j.util.TriConsumer;
 
 public class RapscallionsAndRockhoppersSoundEvents {
-    public static final EntityType<Penguin> PENGUIN = EntityType.Builder.of(Penguin::new, MobCategory.CREATURE).sized(0.6F, 1.1F).clientTrackingRange(10).build(RapscallionsAndRockhoppers.asResource("penguin").toString());
+    public static final SoundEvent PENGUIN_AMBIENT = SoundEvent.createVariableRangeEvent(RapscallionsAndRockhoppers.asResource("entity.penguin.ambient"));
 
-
-    public static void createMobAttributes(BiConsumer<EntityType<? extends LivingEntity>, AttributeSupplier> consumer) {
-        consumer.accept(PENGUIN, Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 8.0).add(Attributes.MOVEMENT_SPEED, 0.4F).build());
+    public static void registerSoundEvents(TriConsumer<Registry<SoundEvent>, ResourceLocation, SoundEvent> consumer) {
+        consumer.accept(BuiltInRegistries.SOUND_EVENT, RapscallionsAndRockhoppers.asResource("entity.penguin.ambient"), PENGUIN_AMBIENT);
     }
+
 }

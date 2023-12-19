@@ -1,6 +1,7 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSoundEvents;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
@@ -14,6 +15,8 @@ public class RapscallionsAndRockhoppersEvents {
         public static void registerContent(RegisterEvent event) {
             if (event.getRegistryKey() == Registries.ENTITY_TYPE)
                 RapscallionsAndRockhoppersEntityTypes.registerEntityTypes((registry, resource, entityType) -> event.register(registry.key(), resource, () -> entityType));
+            else if (event.getRegistryKey() == Registries.SOUND_EVENT)
+                RapscallionsAndRockhoppersSoundEvents.registerSoundEvents((registry, resource, soundEvent) -> event.register(registry.key(), resource, () -> soundEvent));
         }
 
         @SubscribeEvent

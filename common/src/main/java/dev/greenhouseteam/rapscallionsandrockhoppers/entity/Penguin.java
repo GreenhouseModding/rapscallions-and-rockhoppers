@@ -2,11 +2,13 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.entity;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinPanicGoal;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSoundEvents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.AnimationState;
@@ -14,7 +16,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
 import net.minecraft.world.entity.ai.goal.FollowParentGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.PanicGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.TemptGoal;
@@ -57,6 +58,14 @@ public class Penguin extends Animal {
     @Override
     public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob ageableMob) {
         return RapscallionsAndRockhoppersEntityTypes.PENGUIN.create(level);
+    }
+
+    @Override
+    public SoundEvent getAmbientSound() {
+        if (!this.isInWaterOrBubble()) {
+            return null;
+        }
+        return RapscallionsAndRockhoppersSoundEvents.PENGUIN_AMBIENT;
     }
 
     @Override

@@ -1,0 +1,10 @@
+{
+  "entity.penguin.ambient": {
+    "subtitle": "subtitles.rapscallionsandrockhoppers.entity.penguin.ambient",
+    "sounds": [
+      "rapscallionsandrockhoppers:mob/penguin/say1",
+      "rapscallionsandrockhoppers:mob/penguin/say2",
+      "rapscallionsandrockhoppers:mob/penguin/say3"
+    ]
+  }
+}
