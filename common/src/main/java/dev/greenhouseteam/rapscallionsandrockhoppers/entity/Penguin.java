@@ -73,6 +73,16 @@ public class Penguin extends Animal {
     }
 
     @Override
+    public SoundEvent getHurtSound(DamageSource damageSource) {
+        return RapscallionsAndRockhoppersSoundEvents.PENGUIN_HURT;
+    }
+
+    @Override
+    public SoundEvent getDeathSound() {
+        return RapscallionsAndRockhoppersSoundEvents.PENGUIN_DEATH;
+    }
+
+    @Override
     public float getWalkTargetValue(BlockPos pos, LevelReader level) {
         return level.getBlockState(pos.below()).is(Blocks.STONE) || level.getFluidState(pos).is(FluidTags.WATER) ? 10.0F : level.getPathfindingCostFromLightLevels(pos);
     }

@@ -6,5 +6,19 @@
       "rapscallionsandrockhoppers:mob/penguin/say2",
       "rapscallionsandrockhoppers:mob/penguin/say3"
     ]
+  },
+  "entity.penguin.death": {
+    "sounds": [
+      "rapscallionsandrockhoppers:mob/penguin/death1",
+      "rapscallionsandrockhoppers:mob/penguin/death2"
+    ],
+    "subtitle": "subtitles.rapscallionsandrockhoppers.entity.penguin.death"
+  },
+  "entity.penguin.hurt": {
+    "sounds": [
+      "rapscallionsandrockhoppers:mob/penguin/hurt1",
+      "rapscallionsandrockhoppers:mob/penguin/hurt2"
+    ],
+    "subtitle": "subtitles.rapscallionsandrockhoppers.entity.penguin.hurt"
   }
 }
