@@ -1,7 +1,7 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.client.renderer.model;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
-import net.minecraft.client.model.HierarchicalModel;
+import net.minecraft.client.model.AgeableHierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -12,11 +12,12 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.resources.ResourceLocation;
 
-public class PenguinModel extends HierarchicalModel<Penguin> {
+public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("modid", "penguin"), "main");
 	private final ModelPart root;
 
 	public PenguinModel(ModelPart root) {
+		super(0.5F, 24.0F);
 		this.root = root.getChild("root");
 	}
 
