@@ -68,14 +68,14 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 		}
 
 		this.animate(penguin.idleAnimationState, PenguinAnimation.IDLE, delta, 0.5F);
-		this.animateWaddle(penguin, delta, limbSwing, limbSwingAmount, penguin.isShocked() ? 1.25F : 1.0F);
+		this.animateWaddle(penguin, delta, limbSwing, limbSwingAmount, 2.5F, penguin.isShocked() ? 1.25F : 1.0F);
 		this.animate(penguin.shockArmAnimationState, PenguinAnimation.SHOCK_ARMS, delta, 1.25F);
 	}
 
-	protected void animateWaddle(Penguin penguin, float delta, float limbSwing, float limbSwingAmount, float maxAnimationSpeed) {
-		this.animate(penguin.waddleAnimationState, PenguinAnimation.WADDLE_BODY, delta, maxAnimationSpeed);
-		this.animate(penguin.waddleExpandAnimationState, PenguinAnimation.WADDLE_ARMS_EXTEND, delta, maxAnimationSpeed);
-		this.animate(penguin.waddleRetractAnimationState, PenguinAnimation.WADDLE_ARMS_RETRACT, delta, maxAnimationSpeed);
-		this.animateWalk(PenguinAnimation.WADDLE_FEET, limbSwing, limbSwingAmount, maxAnimationSpeed, 2.5F);
+	protected void animateWaddle(Penguin penguin, float delta, float limbSwing, float limbSwingAmount, float maxFeetAnimationSpeed, float animationSpeed) {
+		this.animate(penguin.waddleAnimationState, PenguinAnimation.WADDLE_BODY, delta, animationSpeed);
+		this.animate(penguin.waddleExpandAnimationState, PenguinAnimation.WADDLE_ARMS_EXTEND, delta, animationSpeed);
+		this.animate(penguin.waddleRetractAnimationState, PenguinAnimation.WADDLE_ARMS_RETRACT, delta, animationSpeed);
+		this.animateWalk(PenguinAnimation.WADDLE_FEET, limbSwing, limbSwingAmount, maxFeetAnimationSpeed, 20.0F);
 	}
 }
