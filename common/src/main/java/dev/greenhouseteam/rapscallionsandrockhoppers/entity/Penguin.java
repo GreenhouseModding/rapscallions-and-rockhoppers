@@ -238,6 +238,10 @@ public class Penguin extends Animal {
         return this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE && this.getStumbleTicksBeforeGettingUp() + GET_UP_ANIMATION_LENGTH > this.getStumbleTicks();
     }
 
+    public boolean isStumblingAndNotGettingUp() {
+        return this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE && this.getStumbleTicksBeforeGettingUp() > this.getStumbleTicks();
+    }
+
     public void seWalkStartTime(int walkStartTime) {
         this.walkStartTime = walkStartTime;
     }
