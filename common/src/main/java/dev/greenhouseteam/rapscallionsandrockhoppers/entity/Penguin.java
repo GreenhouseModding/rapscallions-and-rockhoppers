@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class Penguin extends Animal {
     public static final int STUMBLE_ANIMATION_LENGTH = 15;
-    public static final int GET_UP_ANIMATION_LENGTH = 20;
+    public static final int GET_UP_ANIMATION_LENGTH = 16;
     private static final Ingredient FOOD_ITEMS = Ingredient.of(
             Items.INK_SAC, Items.GLOW_INK_SAC
     );
@@ -54,7 +54,7 @@ public class Penguin extends Animal {
     private boolean animationArmState = false;
     private boolean previousStumbleValue = false;
     private boolean hasSlid = false;
-    private int previousStumbleTickCount = 0;
+    private int walkStartTime = Integer.MIN_VALUE;
 
     public Penguin(EntityType<? extends Animal> entityType, Level level) {
         super(entityType, level);
@@ -134,6 +134,16 @@ public class Penguin extends Animal {
     @Override
     public void tick() {
         super.tick();
+
+        if (this.getDeltaMovement().lengthSqr() > 1.0E-7 && !this.isStumbling()) {
+            if (this.getWalkStartTime() == Integer.MIN_VALUE) {
+                this.seWalkStartTime(this.tickCount);
+            }
+        } else {
+            if (this.getWalkStartTime() != Integer.MIN_VALUE) {
+                this.seWalkStartTime(Integer.MIN_VALUE);
+            }
+        }
 
         if (!this.level().isClientSide()) {
             if (this.getShockedTime() > 0) {
@@ -228,12 +238,12 @@ public class Penguin extends Animal {
         return this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE && this.getStumbleTicksBeforeGettingUp() + GET_UP_ANIMATION_LENGTH > this.getStumbleTicks();
     }
 
-    public void setPreviousStumbleTickCount(int stumbleTime) {
-        this.previousStumbleTickCount = stumbleTime;
+    public void seWalkStartTime(int walkStartTime) {
+        this.walkStartTime = walkStartTime;
     }
 
-    public int getPreviousStumbleTickCount() {
-        return this.previousStumbleTickCount;
+    public int getWalkStartTime() {
+        return this.walkStartTime;
     }
 
     public void setHasSlid(boolean slideValue) {
