@@ -15,7 +15,9 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.AnimationState;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
 import net.minecraft.world.entity.ai.goal.FollowParentGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -43,6 +45,7 @@ public class Penguin extends Animal {
     private static final EntityDataAccessor<Integer> DATA_SHOCKED_TIME = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_STUMBLE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<OptionalInt> DATA_STUMBLE_TICKS_BEFORE_GETTING_UP = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.OPTIONAL_UNSIGNED_INT);
+
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState waddleAnimationState = new AnimationState();
     public final AnimationState shockArmAnimationState = new AnimationState();
@@ -147,6 +150,12 @@ public class Penguin extends Animal {
             }
         }
 
+        if (this.isStumbling()) {
+            if (this.getStumbleTicksBeforeGettingUp().isPresent() && (this.getStumbleTicks() == STUMBLE_ANIMATION_LENGTH + 2 || this.getStumbleTicks() == this.getStumbleTicksBeforeGettingUp().getAsInt() + 5)) {
+                this.refreshDimensions();
+            }
+        }
+
         if (!this.level().isClientSide()) {
             if (this.getShockedTime() > 0) {
                 this.setShockedTime(this.getShockedTime() - 1);
@@ -199,6 +208,14 @@ public class Penguin extends Animal {
 
             }
         }
+    }
+
+    @Override
+    public EntityDimensions getDimensions(Pose pose) {
+        if (this.getStumbleTicksBeforeGettingUp().isPresent() && this.getStumbleTicks() >= STUMBLE_ANIMATION_LENGTH + 2 && this.getStumbleTicks() < this.getStumbleTicksBeforeGettingUp().getAsInt() + 5) {
+            return super.getDimensions(pose).scale(1.33F, 0.5F);
+        }
+        return super.getDimensions(pose);
     }
 
     @Override
