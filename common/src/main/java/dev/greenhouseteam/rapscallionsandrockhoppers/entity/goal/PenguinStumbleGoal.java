@@ -18,7 +18,8 @@ public class PenguinStumbleGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        return !this.isRunning && !this.penguin.isInWaterOrBubble() && this.penguin.getDeltaMovement().horizontalDistanceSqr() > 1.0E-7 && this.penguin.tickCount > 400 + this.penguin.getPreviousStumbleTickCount() && this.penguin.getRandom().nextInt(40) == 0;
+        int randomChance = Mth.clamp(40 - (((this.penguin.tickCount - this.penguin.getPreviousStumbleTickCount()) / Math.max(1, this.penguin.getPreviousStumbleTickCount()) * 80) / 40), 5, 40);
+        return !this.isRunning && !this.penguin.isInWaterOrBubble() && this.penguin.getDeltaMovement().horizontalDistanceSqr() > 1.0E-7 && this.penguin.tickCount > 400 + this.penguin.getPreviousStumbleTickCount() && this.penguin.getRandom().nextInt(randomChance) == 0;
     }
 
     @Override
