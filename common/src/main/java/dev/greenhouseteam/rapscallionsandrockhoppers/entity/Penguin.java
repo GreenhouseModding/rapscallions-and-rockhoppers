@@ -1,6 +1,7 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.entity;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinPanicGoal;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinStumbleGoal;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSoundEvents;
 import net.minecraft.core.BlockPos;
@@ -32,16 +33,28 @@ import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
 public class Penguin extends Animal {
+    public static final int STUMBLE_ANIMATION_LENGTH = 15;
+    public static final int GET_UP_ANIMATION_LENGTH = 20;
     private static final Ingredient FOOD_ITEMS = Ingredient.of(
             Items.INK_SAC, Items.GLOW_INK_SAC
     );
     private static final EntityDataAccessor<Integer> DATA_SHOCKED_TIME = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_STUMBLE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_STUMBLE_TICKS_BEFORE_GETTING_UP = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState waddleAnimationState = new AnimationState();
     public final AnimationState shockArmAnimationState = new AnimationState();
     public final AnimationState waddleExpandAnimationState = new AnimationState();
     public final AnimationState waddleRetractAnimationState = new AnimationState();
+    public final AnimationState stumbleAnimationState = new AnimationState();
+    public final AnimationState stumbleGroundAnimationState = new AnimationState();
+    public final AnimationState stumbleFallingAnimationState = new AnimationState();
+    public final AnimationState stumbleGetUpAnimationState = new AnimationState();
+
     private boolean animationArmState = false;
+    private boolean previousStumbleValue = false;
+    private boolean hasSlid = false;
+    private int previousStumbleTickCount = 0;
 
     public Penguin(EntityType<? extends Animal> entityType, Level level) {
         super(entityType, level);
@@ -49,6 +62,7 @@ public class Penguin extends Animal {
 
     @Override
     public void registerGoals() {
+        this.goalSelector.addGoal(0, new PenguinStumbleGoal(this));
         this.goalSelector.addGoal(1, new PenguinPanicGoal(this, 2.0));
         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0));
         this.goalSelector.addGoal(3, new TemptGoal(this, 1.25, FOOD_ITEMS, false));
@@ -101,6 +115,8 @@ public class Penguin extends Animal {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.getEntityData().define(DATA_SHOCKED_TIME, 0);
+        this.getEntityData().define(DATA_STUMBLE_TICKS, 0);
+        this.getEntityData().define(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP, Integer.MIN_VALUE);
     }
 
     @Override
@@ -118,6 +134,7 @@ public class Penguin extends Animal {
     @Override
     public void tick() {
         super.tick();
+
         if (!this.level().isClientSide()) {
             if (this.getShockedTime() > 0) {
                 this.setShockedTime(this.getShockedTime() - 1);
@@ -130,19 +147,44 @@ public class Penguin extends Animal {
                 this.waddleRetractAnimationState.stop();
                 this.shockArmAnimationState.stop();
             } else {
-                this.idleAnimationState.animateWhen(!this.walkAnimation.isMoving(), this.tickCount);
-                this.waddleAnimationState.animateWhen(this.walkAnimation.isMoving(), this.tickCount);
-                this.shockArmAnimationState.animateWhen(this.isShocked() && !this.isDeadOrDying(), this.tickCount);
+                this.idleAnimationState.animateWhen(!this.walkAnimation.isMoving() && !this.isStumbling(), this.tickCount);
+                this.waddleAnimationState.animateWhen(this.walkAnimation.isMoving() && !this.isStumbling(), this.tickCount);
+                this.shockArmAnimationState.animateWhen(this.isShocked() && !this.isStumbling() && !this.isDeadOrDying(), this.tickCount);
 
-                if (!this.animationArmState && this.walkAnimation.isMoving()) {
-                    this.waddleRetractAnimationState.stop();
-                    this.waddleExpandAnimationState.startIfStopped(this.tickCount);
-                     this.animationArmState = true;
-                } else if (this.animationArmState && !this.walkAnimation.isMoving()) {
-                    this.waddleExpandAnimationState.stop();
-                    this.waddleRetractAnimationState.startIfStopped(this.tickCount);
-                    this.animationArmState = false;
+                if (this.isStumbling()) {
+                    this.stumbleFallingAnimationState.animateWhen(this.getDeltaMovement().y() < -0.1, this.tickCount);
+
+                    if (this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE) {
+                        if (this.getStumbleTicks() > STUMBLE_ANIMATION_LENGTH) {
+                            this.stumbleAnimationState.stop();
+                            this.stumbleGroundAnimationState.animateWhen(this.getStumbleTicks() <= this.getStumbleTicksBeforeGettingUp(), this.tickCount);
+                            this.stumbleGetUpAnimationState.animateWhen(this.getStumbleTicks() > this.getStumbleTicksBeforeGettingUp(), this.tickCount);
+                        } else if (!this.previousStumbleValue) {
+                            this.stumbleAnimationState.start(this.tickCount);
+                            this.waddleRetractAnimationState.stop();
+                            this.waddleExpandAnimationState.stop();
+                            this.animationArmState = false;
+                            this.previousStumbleValue = true;
+                        }
+                    }
+                } else if (!this.isStumbling() && this.previousStumbleValue) {
+                    this.stumbleAnimationState.stop();
+                    this.stumbleGroundAnimationState.stop();
+                    this.stumbleGetUpAnimationState.stop();
+                    this.stumbleFallingAnimationState.stop();
+                    this.previousStumbleValue = false;
+                } else {
+                    if (!this.animationArmState && this.walkAnimation.isMoving()) {
+                        this.waddleRetractAnimationState.stop();
+                        this.waddleExpandAnimationState.startIfStopped(this.tickCount);
+                        this.animationArmState = true;
+                    } else if (this.animationArmState && !this.walkAnimation.isMoving()) {
+                        this.waddleExpandAnimationState.stop();
+                        this.waddleRetractAnimationState.startIfStopped(this.tickCount);
+                        this.animationArmState = false;
+                    }
                 }
+
             }
         }
     }
@@ -164,5 +206,41 @@ public class Penguin extends Animal {
 
     public boolean isShocked() {
         return this.getShockedTime() > 0;
+    }
+
+    public void setStumbleTicks(int stumbleTime) {
+        this.getEntityData().set(DATA_STUMBLE_TICKS, stumbleTime);
+    }
+
+    public int getStumbleTicks() {
+        return this.getEntityData().get(DATA_STUMBLE_TICKS);
+    }
+
+    public void setStumbleTicksBeforeGettingUp(int ticksBeforeGettingUp) {
+        this.getEntityData().set(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP, ticksBeforeGettingUp);
+    }
+
+    public int getStumbleTicksBeforeGettingUp() {
+        return this.getEntityData().get(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP);
+    }
+
+    public boolean isStumbling() {
+        return this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE && this.getStumbleTicksBeforeGettingUp() + GET_UP_ANIMATION_LENGTH > this.getStumbleTicks();
+    }
+
+    public void setPreviousStumbleTickCount(int stumbleTime) {
+        this.previousStumbleTickCount = stumbleTime;
+    }
+
+    public int getPreviousStumbleTickCount() {
+        return this.previousStumbleTickCount;
+    }
+
+    public void setHasSlid(boolean slideValue) {
+        this.hasSlid = slideValue;
+    }
+
+    public boolean getHasSlid() {
+        return this.hasSlid;
     }
 }

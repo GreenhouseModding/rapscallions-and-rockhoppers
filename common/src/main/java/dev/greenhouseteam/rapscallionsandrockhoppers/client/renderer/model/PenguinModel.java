@@ -1,6 +1,9 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.client.renderer.model;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
+import dev.greenhouseteam.rapscallionsandrockhoppers.mixin.client.HierarchicalModelAccessor;
+import net.minecraft.client.animation.AnimationDefinition;
+import net.minecraft.client.animation.KeyframeAnimations;
 import net.minecraft.client.model.AgeableHierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -11,6 +14,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.AnimationState;
 
 public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("modid", "penguin"), "main");
@@ -19,6 +23,8 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 	private final ModelPart body;
 	private final ModelPart head;
 	private final ModelPart brows;
+
+	private long previousStumbleTime = Long.MIN_VALUE;
 
 	public PenguinModel(ModelPart root) {
 		super(0.5F, 24.0F);
@@ -66,14 +72,49 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 		}
 
 		this.animate(penguin.idleAnimationState, PenguinAnimation.IDLE, delta, 0.5F);
-		this.animateWaddle(penguin, delta, limbSwing, limbSwingAmount, penguin.isShocked() ? 1.25F : 1.0F);
+		this.animateWaddle(penguin, delta, limbSwing, limbSwingAmount, penguin.isShocked() ? 1.0F : 0.8F);
 		this.animate(penguin.shockArmAnimationState, PenguinAnimation.SHOCK_ARMS, delta, 1.25F);
+		this.animateStumble(penguin, delta, 1.0F);
+
+		this.moveHead(penguin, yRot, xRot);
 	}
 
-	protected void animateWaddle(Penguin penguin, float delta, float limbSwing, float limbSwingAmount, float animationSpeed) {
+	private void animateWaddle(Penguin penguin, float delta, float limbSwing, float limbSwingAmount, float animationSpeed) {
 		this.animate(penguin.waddleAnimationState, PenguinAnimation.WADDLE_BODY, delta, animationSpeed);
 		this.animate(penguin.waddleExpandAnimationState, PenguinAnimation.WADDLE_ARMS_EXTEND, delta, animationSpeed);
 		this.animate(penguin.waddleRetractAnimationState, PenguinAnimation.WADDLE_ARMS_RETRACT, delta, animationSpeed);
 		this.animateWalk(PenguinAnimation.WADDLE_FEET, limbSwing, limbSwingAmount, 4.5F, 40.0F);
+	}
+
+	private void animateStumble(Penguin penguin, float delta, float animationSpeed) {
+		this.animate(penguin.stumbleAnimationState, PenguinAnimation.STUMBLE, delta, animationSpeed);
+		if (penguin.stumbleFallingAnimationState.isStarted()) {
+			if (this.previousStumbleTime == Long.MIN_VALUE) {
+				this.previousStumbleTime = penguin.stumbleGroundAnimationState.getAccumulatedTime();
+			}
+			this.animateAtSpecificFrame(penguin.stumbleGroundAnimationState, PenguinAnimation.STUMBLE_LAND, this.previousStumbleTime, delta, animationSpeed);
+		} else {
+			if (this.previousStumbleTime != Long.MIN_VALUE) {
+				this.previousStumbleTime = Long.MIN_VALUE;
+			}
+			this.animate(penguin.stumbleGroundAnimationState, PenguinAnimation.STUMBLE_LAND, delta, animationSpeed);
+		}
+		this.animate(penguin.stumbleFallingAnimationState, PenguinAnimation.STUMBLE_FALLING, delta, animationSpeed);
+		this.animate(penguin.stumbleGetUpAnimationState, PenguinAnimation.GET_UP, delta, animationSpeed);
+	}
+
+	private void moveHead(Penguin penguin, float yRot, float xRot) {
+		if (!canAnimateHead(penguin)) return;
+		this.head.xRot = xRot * (float) (Math.PI / 180.0);
+		this.head.yRot = yRot * (float) (Math.PI / 180.0);
+	}
+
+	private boolean canAnimateHead(Penguin penguin) {
+		return !penguin.isStumbling();
+	}
+
+	private void animateAtSpecificFrame(AnimationState state, AnimationDefinition definition, long time, float delta, float animationSpeed) {
+		state.updateTime(delta, animationSpeed);
+		state.ifStarted(st -> KeyframeAnimations.animate(this, definition, time, 1.0F, HierarchicalModelAccessor.rapscallionsandrockhoppers$ANIMATION_VECTOR_CACHE()));
 	}
 }
