@@ -6,6 +6,7 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.EnumSet;
+import java.util.OptionalInt;
 
 public class PenguinStumbleGoal extends Goal {
     private final Penguin penguin;
@@ -46,14 +47,14 @@ public class PenguinStumbleGoal extends Goal {
     @Override
     public void start() {
         this.penguin.setStumbleTicks(0);
-        this.penguin.setStumbleTicksBeforeGettingUp(this.penguin.getRandom().nextIntBetweenInclusive(60, 120));
+        this.penguin.setStumbleTicksBeforeGettingUp(OptionalInt.of(this.penguin.getRandom().nextIntBetweenInclusive(60, 120)));
         this.isRunning = true;
     }
 
     @Override
     public void stop() {
         this.penguin.setStumbleTicks(0);
-        this.penguin.setStumbleTicksBeforeGettingUp(Integer.MIN_VALUE);
+        this.penguin.setStumbleTicksBeforeGettingUp(OptionalInt.empty());
         this.penguin.setHasSlid(false);
         this.isRunning = false;
     }

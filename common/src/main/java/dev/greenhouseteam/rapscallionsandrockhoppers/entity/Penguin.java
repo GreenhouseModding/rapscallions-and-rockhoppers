@@ -32,6 +32,8 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.OptionalInt;
+
 public class Penguin extends Animal {
     public static final int STUMBLE_ANIMATION_LENGTH = 15;
     public static final int GET_UP_ANIMATION_LENGTH = 16;
@@ -40,7 +42,7 @@ public class Penguin extends Animal {
     );
     private static final EntityDataAccessor<Integer> DATA_SHOCKED_TIME = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_STUMBLE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> DATA_STUMBLE_TICKS_BEFORE_GETTING_UP = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<OptionalInt> DATA_STUMBLE_TICKS_BEFORE_GETTING_UP = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.OPTIONAL_UNSIGNED_INT);
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState waddleAnimationState = new AnimationState();
     public final AnimationState shockArmAnimationState = new AnimationState();
@@ -116,7 +118,7 @@ public class Penguin extends Animal {
         super.defineSynchedData();
         this.getEntityData().define(DATA_SHOCKED_TIME, 0);
         this.getEntityData().define(DATA_STUMBLE_TICKS, 0);
-        this.getEntityData().define(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP, Integer.MIN_VALUE);
+        this.getEntityData().define(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP, OptionalInt.empty());
     }
 
     @Override
@@ -164,11 +166,11 @@ public class Penguin extends Animal {
                 if (this.isStumbling()) {
                     this.stumbleFallingAnimationState.animateWhen(this.getDeltaMovement().y() < -0.1, this.tickCount);
 
-                    if (this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE) {
+                    if (this.getStumbleTicksBeforeGettingUp().isPresent()) {
                         if (this.getStumbleTicks() > STUMBLE_ANIMATION_LENGTH) {
                             this.stumbleAnimationState.stop();
-                            this.stumbleGroundAnimationState.animateWhen(this.getStumbleTicks() <= this.getStumbleTicksBeforeGettingUp(), this.tickCount);
-                            this.stumbleGetUpAnimationState.animateWhen(this.getStumbleTicks() > this.getStumbleTicksBeforeGettingUp(), this.tickCount);
+                            this.stumbleGroundAnimationState.animateWhen(this.getStumbleTicks() <= this.getStumbleTicksBeforeGettingUp().getAsInt(), this.tickCount);
+                            this.stumbleGetUpAnimationState.animateWhen(this.getStumbleTicks() > this.getStumbleTicksBeforeGettingUp().getAsInt(), this.tickCount);
                         } else if (!this.previousStumbleValue) {
                             this.stumbleAnimationState.start(this.tickCount);
                             this.waddleRetractAnimationState.stop();
@@ -226,20 +228,20 @@ public class Penguin extends Animal {
         return this.getEntityData().get(DATA_STUMBLE_TICKS);
     }
 
-    public void setStumbleTicksBeforeGettingUp(int ticksBeforeGettingUp) {
+    public void setStumbleTicksBeforeGettingUp(OptionalInt ticksBeforeGettingUp) {
         this.getEntityData().set(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP, ticksBeforeGettingUp);
     }
 
-    public int getStumbleTicksBeforeGettingUp() {
+    public OptionalInt   getStumbleTicksBeforeGettingUp() {
         return this.getEntityData().get(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP);
     }
 
     public boolean isStumbling() {
-        return this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE && this.getStumbleTicksBeforeGettingUp() + GET_UP_ANIMATION_LENGTH > this.getStumbleTicks();
+        return this.getStumbleTicksBeforeGettingUp().isPresent() && this.getStumbleTicksBeforeGettingUp().getAsInt() + GET_UP_ANIMATION_LENGTH > this.getStumbleTicks();
     }
 
     public boolean isStumblingAndNotGettingUp() {
-        return this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE && this.getStumbleTicksBeforeGettingUp() > this.getStumbleTicks();
+        return this.getStumbleTicksBeforeGettingUp().isPresent() && this.getStumbleTicksBeforeGettingUp().getAsInt() > this.getStumbleTicks();
     }
 
     public void seWalkStartTime(int walkStartTime) {
