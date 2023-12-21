@@ -20,5 +20,13 @@
       "rapscallionsandrockhoppers:mob/penguin/hurt2"
     ],
     "subtitle": "subtitles.rapscallionsandrockhoppers.entity.penguin.hurt"
+  },
+  "entity.penguin.jump": {
+    "sounds": [
+      "mob/dolphin/jump1",
+      "mob/dolphin/jump2",
+      "mob/dolphin/jump3"
+    ],
+    "subtitle": "subtitles.rapscallionsandrockhoppers.entity.penguin.hurt"
   }
 }

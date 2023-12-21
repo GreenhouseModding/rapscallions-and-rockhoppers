@@ -2,5 +2,6 @@
   "entity.rapscallionsandrockhoppers.penguin": "Penguin",
   "subtitles.rapscallionsandrockhoppers.entity.penguin.ambient": "Penguin honks",
   "subtitles.rapscallionsandrockhoppers.entity.penguin.death": "Penguin dies",
-  "subtitles.rapscallionsandrockhoppers.entity.penguin.hurt": "Penguin hurts"
+  "subtitles.rapscallionsandrockhoppers.entity.penguin.hurt": "Penguin hurts",
+  "subtitles.rapscallionsandrockhoppers.entity.pengui.jump": "Penguin jumps"
 }
