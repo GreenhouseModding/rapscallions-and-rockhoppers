@@ -1,9 +1,11 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.platform.services;
 
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.RapscallionsAndRockhoppersPacketS2C;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.ServiceUtil;
+import net.minecraft.world.entity.Entity;
 
 public interface IPlatformHelper {
-    IPlatformHelper PLATFORM = ServiceUtil.load(IPlatformHelper.class);
+    IPlatformHelper INSTANCE = ServiceUtil.load(IPlatformHelper.class);
 
     /**
      * Gets the name of the current platform
@@ -36,4 +38,6 @@ public interface IPlatformHelper {
 
         return isDevelopmentEnvironment() ? "development" : "production";
     }
+
+    void sendS2CTracking(RapscallionsAndRockhoppersPacketS2C packet, Entity entity);
 }

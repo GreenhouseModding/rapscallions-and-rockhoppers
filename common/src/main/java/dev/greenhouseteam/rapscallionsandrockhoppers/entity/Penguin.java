@@ -1,6 +1,7 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.entity;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinPanicGoal;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinShoveGoal;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinStumbleGoal;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSoundEvents;
@@ -41,12 +42,14 @@ import java.util.OptionalInt;
 public class Penguin extends Animal {
     public static final int STUMBLE_ANIMATION_LENGTH = 15;
     public static final int GET_UP_ANIMATION_LENGTH = 16;
+    public static final int SHOVE_ANIMATION_LENGTH = 15;
     private static final Ingredient FOOD_ITEMS = Ingredient.of(
             Items.INK_SAC, Items.GLOW_INK_SAC
     );
     private static final EntityDataAccessor<Integer> DATA_SHOCKED_TIME = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_STUMBLE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<OptionalInt> DATA_STUMBLE_TICKS_BEFORE_GETTING_UP = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.OPTIONAL_UNSIGNED_INT);
+    private static final EntityDataAccessor<OptionalInt> DATA_SHOVE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.OPTIONAL_UNSIGNED_INT);
 
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState waddleAnimationState = new AnimationState();
@@ -57,6 +60,7 @@ public class Penguin extends Animal {
     public final AnimationState stumbleGroundAnimationState = new AnimationState();
     public final AnimationState stumbleFallingAnimationState = new AnimationState();
     public final AnimationState stumbleGetUpAnimationState = new AnimationState();
+    public final AnimationState shoveAnimationState = new AnimationState();
 
     private boolean animationArmState = false;
     private boolean previousStumbleValue = false;
@@ -73,6 +77,7 @@ public class Penguin extends Animal {
     public void registerGoals() {
         this.stumbleGoal =  new PenguinStumbleGoal(this);
         this.goalSelector.addGoal(0, this.stumbleGoal);
+        this.goalSelector.addGoal(0, new PenguinShoveGoal(this));
         this.goalSelector.addGoal(1, new PenguinPanicGoal(this, 2.0));
         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0));
         this.goalSelector.addGoal(3, new TemptGoal(this, 1.25, FOOD_ITEMS, false));
@@ -127,6 +132,7 @@ public class Penguin extends Animal {
         this.getEntityData().define(DATA_SHOCKED_TIME, 0);
         this.getEntityData().define(DATA_STUMBLE_TICKS, 0);
         this.getEntityData().define(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP, OptionalInt.empty());
+        this.getEntityData().define(DATA_SHOVE_TICKS, OptionalInt.empty());
     }
 
     @Override
@@ -156,14 +162,12 @@ public class Penguin extends Animal {
             if (this.getShockedTime() > 0) {
                 this.setShockedTime(this.getShockedTime() - 1);
             }
-            if ((this.getDeltaMovement().horizontalDistanceSqr() > 0.0F || this.getDeltaMovement().y() > 0.0) && !this.isStumbling()) {
+            if ((this.getDeltaMovement().horizontalDistanceSqr() > 0.005F || this.getDeltaMovement().y() > 0.0) && !this.isStumbling()) {
                 if (this.getWalkStartTime() == Integer.MIN_VALUE) {
-                    this.seWalkStartTime(this.tickCount);
+                    this.setWalkStartTime(this.tickCount);
                 }
-            } else {
-                if (this.getWalkStartTime() != Integer.MIN_VALUE) {
-                    this.seWalkStartTime(Integer.MIN_VALUE);
-                }
+            } else if (this.getWalkStartTime() != Integer.MIN_VALUE) {
+                this.setWalkStartTime(Integer.MIN_VALUE);
             }
         } else {
             if (this.isInWaterOrBubble()) {
@@ -200,6 +204,7 @@ public class Penguin extends Animal {
                     this.stumbleFallingAnimationState.stop();
                     this.previousStumbleValue = false;
                 } else {
+                    this.shoveAnimationState.animateWhen(this.getShoveTicks().isPresent(), this.tickCount);
                     if (!this.animationArmState && this.walkAnimation.isMoving()) {
                         this.waddleRetractAnimationState.stop();
                         this.waddleExpandAnimationState.startIfStopped(this.tickCount);
@@ -225,12 +230,16 @@ public class Penguin extends Animal {
             if (max >= 0.01F) {
                 this.setYRot(entity.getYRot());
                 if (!this.level().isClientSide()) {
-                    this.stumbleGoal.startWithoutStumbleTicks();
+                    this.stumbleWithoutInitialAnimation();
                 }
             }
         } else {
             super.push(entity);
         }
+    }
+
+    public void stumbleWithoutInitialAnimation() {
+        this.stumbleGoal.startWithoutInitialAnimation();
     }
 
     @Override
@@ -276,6 +285,18 @@ public class Penguin extends Animal {
         return this.getEntityData().get(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP);
     }
 
+    public void setShoveTicks(OptionalInt shoveTicks) {
+        this.getEntityData().set(DATA_SHOVE_TICKS, shoveTicks);
+    }
+    
+    public void incrementShoveTicks() {
+        this.getEntityData().set(DATA_SHOVE_TICKS, OptionalInt.of(this.getShoveTicks().orElse(-1) + 1));
+    }
+
+    public OptionalInt getShoveTicks() {
+        return this.getEntityData().get(DATA_SHOVE_TICKS);
+    }
+
     public boolean isStumbling() {
         return this.getStumbleTicksBeforeGettingUp().isPresent() && this.getStumbleTicksBeforeGettingUp().getAsInt() + GET_UP_ANIMATION_LENGTH > this.getStumbleTicks();
     }
@@ -284,7 +305,7 @@ public class Penguin extends Animal {
         return this.getStumbleTicksBeforeGettingUp().isPresent() && this.getStumbleTicksBeforeGettingUp().getAsInt() > this.getStumbleTicks();
     }
 
-    public void seWalkStartTime(int walkStartTime) {
+    public void setWalkStartTime(int walkStartTime) {
         this.walkStartTime = walkStartTime;
     }
 
