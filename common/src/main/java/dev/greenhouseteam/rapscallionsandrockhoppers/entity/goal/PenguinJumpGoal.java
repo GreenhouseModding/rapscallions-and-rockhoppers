@@ -11,7 +11,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 
 public class PenguinJumpGoal extends JumpGoal {
-    private static final int[] STEPS_TO_CHECK = new int[]{0, 1, 4, 5, 6, 7};
+    private static final int[] STEPS_TO_CHECK = new int[]{0, 1, 6, 7, 8, 9, 10};
     private final Penguin penguin;
     private final int interval;
     private boolean breached;
@@ -23,7 +23,7 @@ public class PenguinJumpGoal extends JumpGoal {
 
     @Override
     public boolean canUse() {
-        if (this.penguin.getRandom().nextInt(this.interval) != 0) {
+        if (this.penguin.getRandom().nextInt(this.interval) != 0 || !this.penguin.isInWaterOrBubble()) {
             return false;
         } else {
             Direction direction = this.penguin.getMotionDirection();
@@ -43,12 +43,20 @@ public class PenguinJumpGoal extends JumpGoal {
 
     private boolean waterIsClear(BlockPos pos, int x, int z, int step) {
         BlockPos blockPos = pos.offset(x * step, 0, z * step);
+        while (this.penguin.level().getFluidState(blockPos).is(FluidTags.WATER)) {
+            blockPos = blockPos.offset(0, 1, 0);
+        }
+        blockPos = blockPos.offset(0, -1, 0);
         return this.penguin.level().getFluidState(blockPos).is(FluidTags.WATER) && !this.penguin.level().getBlockState(blockPos).blocksMotion();
     }
 
     private boolean surfaceIsClear(BlockPos pos, int x, int z, int step) {
-        return this.penguin.level().getBlockState(pos.offset(x * step, 1, z * step)).isAir()
-                && this.penguin.level().getBlockState(pos.offset(x * step, 2, z * step)).isAir();
+        BlockPos blockPos = pos.offset(x * step, 1, z * step);
+        while (this.penguin.level().getFluidState(blockPos).is(FluidTags.WATER)) {
+            blockPos = blockPos.offset(0, 1, 0);
+        }
+        return this.penguin.level().getBlockState(blockPos).isAir()
+                && this.penguin.level().getBlockState(blockPos).isAir();
     }
 
     @Override

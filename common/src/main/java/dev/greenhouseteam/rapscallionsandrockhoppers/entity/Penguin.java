@@ -3,6 +3,7 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.entity;
 import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinJumpGoal;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinPanicGoal;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinShoveGoal;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinStrollGoal;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinSwapBetweenWaterAndLandGoal;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinStumbleGoal;
@@ -18,14 +19,18 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingLookControl;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
@@ -39,12 +44,14 @@ import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Pufferfish;
+import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
@@ -58,6 +65,7 @@ import java.util.OptionalInt;
 public class Penguin extends Animal {
     public static final int STUMBLE_ANIMATION_LENGTH = 15;
     public static final int GET_UP_ANIMATION_LENGTH = 16;
+    public static final int SHOVE_ANIMATION_LENGTH = 15;
 
     public static final String TAG_SHOCKED_TIME = "shocked_time";
     public static final String TAG_POINT_OF_INTEREST = "point_of_interest";
@@ -67,6 +75,7 @@ public class Penguin extends Animal {
     private static final EntityDataAccessor<Integer> DATA_SHOCKED_TIME = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_STUMBLE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<OptionalInt> DATA_STUMBLE_TICKS_BEFORE_GETTING_UP = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.OPTIONAL_UNSIGNED_INT);
+    private static final EntityDataAccessor<OptionalInt> DATA_SHOVE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.OPTIONAL_UNSIGNED_INT);
 
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState waddleAnimationState = new AnimationState();
@@ -79,6 +88,7 @@ public class Penguin extends Animal {
     public final AnimationState stumbleGetUpAnimationState = new AnimationState();
     public final AnimationState swimIdleAnimationState = new AnimationState();
     public final AnimationState swimAnimationState = new AnimationState();
+    public final AnimationState shoveAnimationState = new AnimationState();
 
     private boolean animationArmState = false;
     private boolean previousStumbleValue = false;
@@ -96,23 +106,53 @@ public class Penguin extends Animal {
         this.moveControl = new SmoothSwimmingMoveControl(this, 80, 20, 2.0F, 1.0F, false);
         this.lookControl = new SmoothSwimmingLookControl(this, 20);
         this.setPathfindingMalus(BlockPathTypes.WATER, 4.0F);
+        this.setMaxUpStep(1.0F);
     }
 
     @Override
     public void registerGoals() {
         this.stumbleGoal =  new PenguinStumbleGoal(this);
         this.goalSelector.addGoal(0, this.stumbleGoal);
+        this.goalSelector.addGoal(0, new PenguinShoveGoal(this));
         this.goalSelector.addGoal(0, new BreathAirGoal(this));
-        this.goalSelector.addGoal(1, new PenguinPanicGoal(this, 2.0));
+        this.goalSelector.addGoal(1, new PenguinPanicGoal(this, 2.5));
         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0));
         this.goalSelector.addGoal(3, new TemptGoal(this, 1.25, FOOD_ITEMS, false));
         this.goalSelector.addGoal(4, new PenguinSwapBetweenWaterAndLandGoal(this));
         this.goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, 1.0F));
-        this.goalSelector.addGoal(5, new PenguinJumpGoal(this, 120));
-        this.goalSelector.addGoal(6, new PenguinStrollGoal(this));
+        this.goalSelector.addGoal(5, new PenguinStrollGoal(this));
+        this.goalSelector.addGoal(6, new PenguinJumpGoal(this, 10));
         this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(9, new AvoidEntityGoal<>(this, Pufferfish.class, 2.0F, 1.0, 1.0));
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.getEntityData().define(DATA_SHOCKED_TIME, 0);
+        this.getEntityData().define(DATA_STUMBLE_TICKS, 0);
+        this.getEntityData().define(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP, OptionalInt.empty());
+        this.getEntityData().define(DATA_SHOVE_TICKS, OptionalInt.empty());
+    }
+
+    @Override
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficultyInstance, MobSpawnType mobSpawnType, @javax.annotation.Nullable SpawnGroupData spawnGroupData, @javax.annotation.Nullable CompoundTag tag) {
+        Optional<BlockPos> optionalPos = level.getEntitiesOfClass(Penguin.class, this.getBoundingBox().inflate(20.0F, 10.0F, 20.0F)).stream().map(Penguin::getPointOfInterest).filter(Objects::nonNull).findFirst();
+
+        if (optionalPos.isEmpty() && level.getFluidState(this.blockPosition()).is(FluidTags.WATER)) {
+            optionalPos = Optional.of(this.blockPosition());
+        }
+
+        if (optionalPos.isEmpty()) {
+            optionalPos = BlockPos.betweenClosedStream(
+                    this.blockPosition().getX() - 24, this.blockPosition().getY() - 12, this.blockPosition().getZ() - 24,
+                    this.blockPosition().getX() + 24, this.blockPosition().getY() + 12, this.blockPosition().getZ() + 24
+            ).filter(pos -> level.getFluidState(pos).is(FluidTags.WATER)).map(BlockPos::immutable).min(Comparator.comparing(pos -> pos.distManhattan(this.blockPosition())));
+        }
+
+        optionalPos.ifPresent(this::setPointOfInterest);
+        return super.finalizeSpawn(level, difficultyInstance, mobSpawnType, spawnGroupData, tag);
     }
 
     @Override
@@ -175,14 +215,6 @@ public class Penguin extends Animal {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.getEntityData().define(DATA_SHOCKED_TIME, 0);
-        this.getEntityData().define(DATA_STUMBLE_TICKS, 0);
-        this.getEntityData().define(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP, OptionalInt.empty());
-    }
-
-    @Override
     public void addAdditionalSaveData(CompoundTag compoundTag) {
         super.addAdditionalSaveData(compoundTag);
         compoundTag.putInt(TAG_SHOCKED_TIME, this.getShockedTime());
@@ -236,26 +268,13 @@ public class Penguin extends Animal {
             this.setPose(Pose.STANDING);
         }
 
-        if (this.pointOfInterest == null && this.tickCount % 400 == 0) {
-            Optional<BlockPos> optionalPos = this.level().getEntitiesOfClass(Penguin.class, this.getBoundingBox().inflate(20.0F, 10.0F, 20.0F)).stream().map(Penguin::getPointOfInterest).filter(Objects::nonNull).findFirst();
-
-            if (optionalPos.isEmpty()) {
-                optionalPos = BlockPos.betweenClosedStream(
-                        this.blockPosition().getX() - 24, this.blockPosition().getY() - 12, this.blockPosition().getZ() - 24,
-                        this.blockPosition().getX() + 24, this.blockPosition().getY() + 12, this.blockPosition().getZ() + 24
-                ).filter(pos -> this.level().getFluidState(pos).is(FluidTags.WATER)).map(BlockPos::immutable).min(Comparator.comparing(pos -> pos.distManhattan(this.blockPosition())));
-            }
-
-            optionalPos.ifPresent(this::setPointOfInterest);
-        }
-
         if (!this.level().isClientSide()) {
             if (this.getShockedTime() > 0) {
                 this.setShockedTime(this.getShockedTime() - 1);
             }
 
             if (!this.isInWaterOrBubble()) {
-                if ((this.getDeltaMovement().horizontalDistanceSqr() > 0.0F || this.getDeltaMovement().y() > 0.0) && !this.isStumbling()) {
+                if ((this.getDeltaMovement().horizontalDistanceSqr() > 0.005F || this.getDeltaMovement().y() > 0.0) && !this.isStumbling()) {
                     if (this.getWalkStartTime() == Integer.MIN_VALUE) {
                         this.setWalkStartTime(this.tickCount);
                     }
@@ -299,6 +318,7 @@ public class Penguin extends Animal {
                     this.stumbleFallingAnimationState.stop();
                     this.previousStumbleValue = false;
                 } else {
+                    this.shoveAnimationState.animateWhen(this.getShoveTicks().isPresent(), this.tickCount);
                     if (!this.animationArmState && this.walkAnimation.isMoving()) {
                         this.waddleRetractAnimationState.stop();
                         this.waddleExpandAnimationState.startIfStopped(this.tickCount);
@@ -357,7 +377,7 @@ public class Penguin extends Animal {
             return true;
         }
 
-        return this.pointOfInterest.distManhattan(pos) > 24.0F;
+        return this.pointOfInterest.distManhattan(pos) > 14;
     }
 
     @Override
@@ -369,7 +389,7 @@ public class Penguin extends Animal {
             if (max >= 0.01F) {
                 this.setYRot(entity.getYRot());
                 if (!this.level().isClientSide()) {
-                    this.stumbleGoal.startWithoutStumbleTicks();
+                    this.stumbleWithoutInitialAnimation();
                 }
 
                 max = Math.sqrt(max);
@@ -407,7 +427,7 @@ public class Penguin extends Animal {
     public boolean isWithinRestriction(BlockPos pos) {
         if (this.getRestrictRadius() == -1.0F) {
             if (this.getPointOfInterest() != null) {
-                return this.getPointOfInterest().distSqr(pos) < (32 * 32);
+                return this.getPointOfInterest().distManhattan(pos) < 10;
             }
             return true;
         } else {
@@ -419,6 +439,10 @@ public class Penguin extends Animal {
     protected void actuallyHurt(DamageSource damageSource, float amount) {
         super.actuallyHurt(damageSource, amount);
         this.setShockedTime(this.random.nextInt(60, 120));
+    }
+
+    public void stumbleWithoutInitialAnimation() {
+        this.stumbleGoal.startWithoutInitialAnimation();
     }
 
     public void setShockedTime(int shockedTime) {
@@ -448,6 +472,18 @@ public class Penguin extends Animal {
 
     public OptionalInt getStumbleTicksBeforeGettingUp() {
         return this.getEntityData().get(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP);
+    }
+
+    public void setShoveTicks(OptionalInt shoveTicks) {
+        this.getEntityData().set(DATA_SHOVE_TICKS, shoveTicks);
+    }
+
+    public void incrementShoveTicks() {
+        this.getEntityData().set(DATA_SHOVE_TICKS, OptionalInt.of(this.getShoveTicks().orElse(-1) + 1));
+    }
+
+    public OptionalInt getShoveTicks() {
+        return this.getEntityData().get(DATA_SHOVE_TICKS);
     }
 
     public boolean isStumbling() {

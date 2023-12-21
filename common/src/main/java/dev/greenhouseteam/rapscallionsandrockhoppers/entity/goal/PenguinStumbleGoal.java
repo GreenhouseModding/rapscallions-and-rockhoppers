@@ -27,7 +27,7 @@ public class PenguinStumbleGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
-        return this.penguin.isStumbling();
+        return this.penguin.isStumbling() && !this.penguin.isInWaterOrBubble();
     }
 
     @Override
@@ -46,9 +46,11 @@ public class PenguinStumbleGoal extends Goal {
 
     @Override
     public void start() {
-        this.penguin.setStumbleTicks(0);
-        this.penguin.setStumbleTicksBeforeGettingUp(OptionalInt.of(this.penguin.getRandom().nextIntBetweenInclusive(30, 60)));
-        this.isRunning = true;
+        if (!this.isRunning) {
+            this.penguin.setStumbleTicks(0);
+            this.penguin.setStumbleTicksBeforeGettingUp(OptionalInt.of(this.penguin.getRandom().nextIntBetweenInclusive(30, 60)));
+            this.isRunning = true;
+        }
     }
 
     @Override
@@ -59,8 +61,9 @@ public class PenguinStumbleGoal extends Goal {
         this.isRunning = false;
     }
 
-    public void startWithoutStumbleTicks() {
-        this.start();
-        this.penguin.setStumbleTicks(Penguin.STUMBLE_ANIMATION_LENGTH + 1);
+    public void startWithoutInitialAnimation() {
+        this.penguin.setStumbleTicks(Penguin.STUMBLE_ANIMATION_LENGTH);
+        this.penguin.setStumbleTicksBeforeGettingUp(OptionalInt.of(this.penguin.getRandom().nextIntBetweenInclusive(30, 60)));
+        this.isRunning = true;
     }
 }
