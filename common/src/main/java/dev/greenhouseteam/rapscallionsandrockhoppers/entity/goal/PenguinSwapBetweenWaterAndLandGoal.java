@@ -8,7 +8,7 @@ import net.minecraft.world.entity.ai.util.RandomPos;
 import net.minecraft.world.phys.Vec3;
 
 public class PenguinSwapBetweenWaterAndLandGoal extends RandomStrollGoal {
-    private static final float SWAP_WATER_OR_LAND_CHANCE = 0.1F;
+    private static final int SWAP_WATER_OR_LAND_CHANCE = 1200;
 
     public PenguinSwapBetweenWaterAndLandGoal(Penguin penguin) {
         super(penguin, 1.0F);
@@ -16,7 +16,7 @@ public class PenguinSwapBetweenWaterAndLandGoal extends RandomStrollGoal {
 
     @Override
     public boolean canUse() {
-        return !this.mob.isInWaterOrBubble() && ((Penguin)this.mob).getPointOfInterest() != null && this.mob.getRandom().nextFloat() <= SWAP_WATER_OR_LAND_CHANCE && super.canUse();
+        return !this.mob.isInWaterOrBubble() && ((Penguin)this.mob).getPointOfInterest() != null && this.mob.getRandom().nextInt(SWAP_WATER_OR_LAND_CHANCE) == 0 && super.canUse();
     }
 
     @Override
