@@ -47,7 +47,7 @@ public class PenguinStumbleGoal extends Goal {
     @Override
     public void start() {
         this.penguin.setStumbleTicks(0);
-        this.penguin.setStumbleTicksBeforeGettingUp(OptionalInt.of(this.penguin.getRandom().nextIntBetweenInclusive(60, 120)));
+        this.penguin.setStumbleTicksBeforeGettingUp(OptionalInt.of(this.penguin.getRandom().nextIntBetweenInclusive(30, 60)));
         this.isRunning = true;
     }
 
