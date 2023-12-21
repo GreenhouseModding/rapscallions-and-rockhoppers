@@ -145,15 +145,6 @@ public class Penguin extends Animal {
     public void tick() {
         super.tick();
 
-        if (this.getDeltaMovement().lengthSqr() > 1.0E-7 && !this.isStumbling()) {
-            if (this.getWalkStartTime() == Integer.MIN_VALUE) {
-                this.seWalkStartTime(this.tickCount);
-            }
-        } else {
-            if (this.getWalkStartTime() != Integer.MIN_VALUE) {
-                this.seWalkStartTime(Integer.MIN_VALUE);
-            }
-        }
 
         if (this.isStumbling()) {
             if (this.getStumbleTicksBeforeGettingUp().isPresent() && (this.getStumbleTicks() == STUMBLE_ANIMATION_LENGTH + 2 || this.getStumbleTicks() == this.getStumbleTicksBeforeGettingUp().getAsInt() + 5)) {
@@ -164,6 +155,15 @@ public class Penguin extends Animal {
         if (!this.level().isClientSide()) {
             if (this.getShockedTime() > 0) {
                 this.setShockedTime(this.getShockedTime() - 1);
+            }
+            if ((this.getDeltaMovement().horizontalDistanceSqr() > 0.0F || this.getDeltaMovement().y() > 0.0) && !this.isStumbling()) {
+                if (this.getWalkStartTime() == Integer.MIN_VALUE) {
+                    this.seWalkStartTime(this.tickCount);
+                }
+            } else {
+                if (this.getWalkStartTime() != Integer.MIN_VALUE) {
+                    this.seWalkStartTime(Integer.MIN_VALUE);
+                }
             }
         } else {
             if (this.isInWaterOrBubble()) {
@@ -272,7 +272,7 @@ public class Penguin extends Animal {
         this.getEntityData().set(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP, ticksBeforeGettingUp);
     }
 
-    public OptionalInt   getStumbleTicksBeforeGettingUp() {
+    public OptionalInt getStumbleTicksBeforeGettingUp() {
         return this.getEntityData().get(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP);
     }
 

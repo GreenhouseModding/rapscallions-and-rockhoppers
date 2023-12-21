@@ -9,11 +9,11 @@ import java.util.EnumSet;
 import java.util.OptionalInt;
 
 public class PenguinStumbleGoal extends Goal {
-    private static final int BASE_STUMBLE_CHANCE = 30;
+    private static final int STUMBLE_CHANCE = 60;
     private static final int REQUIRED_WALKING_TIME = 80;
 
     private final Penguin penguin;
-    private boolean isRunning;
+    private boolean isRunning = false;
 
     public PenguinStumbleGoal(Penguin penguin) {
         this.penguin = penguin;
@@ -22,8 +22,7 @@ public class PenguinStumbleGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        int randomChance = BASE_STUMBLE_CHANCE - Mth.clamp((((this.penguin.tickCount - (REQUIRED_WALKING_TIME + this.penguin.getWalkStartTime())) / BASE_STUMBLE_CHANCE)), 0, 75);
-        return this.isRunning || !this.penguin.isInWaterOrBubble() && this.penguin.getWalkStartTime() != Integer.MIN_VALUE && this.penguin.tickCount > REQUIRED_WALKING_TIME + this.penguin.getWalkStartTime() && this.penguin.getRandom().nextInt(randomChance) == 0;
+        return this.isRunning || !this.penguin.isInWaterOrBubble() && this.penguin.getWalkStartTime() != Integer.MIN_VALUE && this.penguin.tickCount > REQUIRED_WALKING_TIME + this.penguin.getWalkStartTime() && this.penguin.getRandom().nextInt(STUMBLE_CHANCE) == 0;
     }
 
     @Override
