@@ -33,15 +33,13 @@ public class PenguinStumbleGoal extends Goal {
     @Override
     public void tick() {
         this.penguin.getNavigation().stop();
-        if (this.penguin.getStumbleTicks() > Penguin.STUMBLE_ANIMATION_LENGTH) {
-            if (!this.penguin.getHasSlid()) {
-                float i = (float) (Math.PI / 180.0F);
-                float x = -Mth.sin(this.penguin.getYRot() * i) * Mth.cos(this.penguin.getXRot() * i);
-                float z =  Mth.cos(this.penguin.getYRot() * i) * Mth.cos(this.penguin.getXRot() * i);
-                this.penguin.addDeltaMovement(new Vec3(x, 0, z).normalize().multiply(0.6, 0.0, 0.6));
-                this.penguin.hurtMarked = true;
-                this.penguin.setHasSlid(true);
-            }
+        if (this.penguin.getStumbleTicks() > Penguin.STUMBLE_ANIMATION_LENGTH && !this.penguin.getHasSlid()) {
+            float i = Mth.PI / 180.0F;
+            float x = -Mth.sin(this.penguin.getYRot() * i) * Mth.cos(this.penguin.getXRot() * i);
+            float z = Mth.cos(this.penguin.getYRot() * i) * Mth.cos(this.penguin.getXRot() * i);
+            this.penguin.addDeltaMovement(new Vec3(x, 0, z).normalize().multiply(0.6, 0.0, 0.6));
+            this.penguin.hurtMarked = true;
+            this.penguin.setHasSlid(true);
         }
         this.penguin.setStumbleTicks(this.penguin.getStumbleTicks() + 1);
     }
