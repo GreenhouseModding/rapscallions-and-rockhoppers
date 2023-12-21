@@ -427,7 +427,8 @@ public class Penguin extends Animal {
     public boolean isWithinRestriction(BlockPos pos) {
         if (this.getRestrictRadius() == -1.0F) {
             if (this.getPointOfInterest() != null) {
-                return this.getPointOfInterest().distManhattan(pos) < 10;
+                int radius = this.previousWaterValue ? 24 : 12;
+                return this.getPointOfInterest().distManhattan(pos) < radius;
             }
             return true;
         } else {

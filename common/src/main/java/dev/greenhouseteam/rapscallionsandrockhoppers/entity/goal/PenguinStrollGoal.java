@@ -15,7 +15,7 @@ public class PenguinStrollGoal extends RandomStrollGoal {
     @Override
     public Vec3 getPosition() {
         Vec3 position = this.mob.isInWaterOrBubble() ? BehaviorUtils.getRandomSwimmablePos(this.mob, 7, 4) : LandRandomPos.getPos(this.mob, 7, 4);
-        if (position != null && this.mob.isWithinRestriction(BlockPos.containing(position))) {
+        if (position != null && !this.mob.isWithinRestriction(BlockPos.containing(position))) {
             return null;
         }
         return position;
