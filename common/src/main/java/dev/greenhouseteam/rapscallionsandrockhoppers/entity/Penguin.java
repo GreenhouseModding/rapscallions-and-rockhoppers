@@ -12,9 +12,11 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.AnimationState;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Pose;
@@ -61,13 +63,16 @@ public class Penguin extends Animal {
     private boolean hasSlid = false;
     private int walkStartTime = Integer.MIN_VALUE;
 
+    private PenguinStumbleGoal stumbleGoal;
+
     public Penguin(EntityType<? extends Animal> entityType, Level level) {
         super(entityType, level);
     }
 
     @Override
     public void registerGoals() {
-        this.goalSelector.addGoal(0, new PenguinStumbleGoal(this));
+        this.stumbleGoal =  new PenguinStumbleGoal(this);
+        this.goalSelector.addGoal(0, this.stumbleGoal);
         this.goalSelector.addGoal(1, new PenguinPanicGoal(this, 2.0));
         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0));
         this.goalSelector.addGoal(3, new TemptGoal(this, 1.25, FOOD_ITEMS, false));
@@ -207,6 +212,24 @@ public class Penguin extends Animal {
                 }
 
             }
+        }
+    }
+
+
+    @Override
+    public void push(Entity entity) {
+        if (!this.isPassengerOfSameVehicle(entity) && entity.isSprinting() && !entity.noPhysics && !this.noPhysics && !this.isVehicle() && this.isPushable()) {
+            double xPos = entity.getX() - this.getX();
+            double zPos = entity.getZ() - this.getZ();
+            double max = Mth.absMax(xPos, zPos);
+            if (max >= 0.01F) {
+                this.setYRot(entity.getYRot());
+                if (!this.level().isClientSide()) {
+                    this.stumbleGoal.startWithoutStumbleTicks();
+                }
+            }
+        } else {
+            super.push(entity);
         }
     }
 

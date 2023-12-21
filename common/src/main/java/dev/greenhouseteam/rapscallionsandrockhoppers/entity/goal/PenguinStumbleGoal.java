@@ -23,12 +23,12 @@ public class PenguinStumbleGoal extends Goal {
     @Override
     public boolean canUse() {
         int randomChance = BASE_STUMBLE_CHANCE - Mth.clamp((((this.penguin.tickCount - (REQUIRED_WALKING_TIME + this.penguin.getWalkStartTime())) / BASE_STUMBLE_CHANCE)), 0, 75);
-        return !this.isRunning && !this.penguin.isInWaterOrBubble() && this.penguin.getWalkStartTime() != Integer.MIN_VALUE && this.penguin.tickCount > REQUIRED_WALKING_TIME + this.penguin.getWalkStartTime() && this.penguin.getRandom().nextInt(randomChance) == 0;
+        return this.isRunning || !this.penguin.isInWaterOrBubble() && this.penguin.getWalkStartTime() != Integer.MIN_VALUE && this.penguin.tickCount > REQUIRED_WALKING_TIME + this.penguin.getWalkStartTime() && this.penguin.getRandom().nextInt(randomChance) == 0;
     }
 
     @Override
     public boolean canContinueToUse() {
-        return this.penguin.isStumbling() && this.isRunning;
+        return this.penguin.isStumbling();
     }
 
     @Override
@@ -60,5 +60,10 @@ public class PenguinStumbleGoal extends Goal {
         this.penguin.setStumbleTicksBeforeGettingUp(OptionalInt.empty());
         this.penguin.setHasSlid(false);
         this.isRunning = false;
+    }
+
+    public void startWithoutStumbleTicks() {
+        this.start();
+        this.penguin.setStumbleTicks(Penguin.STUMBLE_ANIMATION_LENGTH + 1);
     }
 }
