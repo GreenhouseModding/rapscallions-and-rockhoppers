@@ -22,17 +22,18 @@ public class PenguinStumbleGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        return this.isRunning || !this.penguin.isInWaterOrBubble() && this.penguin.getWalkStartTime() != Integer.MIN_VALUE && this.penguin.tickCount > REQUIRED_WALKING_TIME + this.penguin.getWalkStartTime() && this.penguin.getRandom().nextInt(STUMBLE_CHANCE) == 0;
+        return !this.penguin.isInWaterOrBubble() && (this.isRunning || this.penguin.getWalkStartTime() != Integer.MIN_VALUE && this.penguin.tickCount > REQUIRED_WALKING_TIME + this.penguin.getWalkStartTime() && this.penguin.getRandom().nextInt(STUMBLE_CHANCE) == 0);
     }
 
     @Override
     public boolean canContinueToUse() {
-        return this.penguin.isStumbling();
+        return this.penguin.isStumbling() && !this.penguin.isInWaterOrBubble();
     }
 
     @Override
     public void tick() {
         this.penguin.getNavigation().stop();
+        this.penguin.setStumbleTicks(this.penguin.getStumbleTicks() + 1);
         if (this.penguin.getStumbleTicks() > Penguin.STUMBLE_ANIMATION_LENGTH) {
             if (!this.penguin.getHasSlid()) {
                 float i = (float) (Math.PI / 180.0F);
@@ -43,14 +44,15 @@ public class PenguinStumbleGoal extends Goal {
                 this.penguin.setHasSlid(true);
             }
         }
-        this.penguin.setStumbleTicks(this.penguin.getStumbleTicks() + 1);
     }
 
     @Override
     public void start() {
-        this.penguin.setStumbleTicks(0);
-        this.penguin.setStumbleTicksBeforeGettingUp(OptionalInt.of(this.penguin.getRandom().nextIntBetweenInclusive(30, 60)));
-        this.isRunning = true;
+        if (!this.isRunning) {
+            this.penguin.setStumbleTicks(0);
+            this.penguin.setStumbleTicksBeforeGettingUp(OptionalInt.of(this.penguin.getRandom().nextIntBetweenInclusive(30, 60)));
+            this.isRunning = true;
+        }
     }
 
     @Override
@@ -61,8 +63,9 @@ public class PenguinStumbleGoal extends Goal {
         this.isRunning = false;
     }
 
-    public void startWithoutStumbleTicks() {
-        this.start();
-        this.penguin.setStumbleTicks(Penguin.STUMBLE_ANIMATION_LENGTH + 1);
+    public void startWithoutInitialAnimation() {
+        this.penguin.setStumbleTicks(Penguin.STUMBLE_ANIMATION_LENGTH);
+        this.penguin.setStumbleTicksBeforeGettingUp(OptionalInt.of(this.penguin.getRandom().nextIntBetweenInclusive(30, 60)));
+        this.isRunning = true;
     }
 }
