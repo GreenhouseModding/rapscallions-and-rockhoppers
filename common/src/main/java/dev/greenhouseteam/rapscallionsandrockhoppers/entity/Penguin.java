@@ -120,8 +120,8 @@ public class Penguin extends Animal {
         this.goalSelector.addGoal(3, new TemptGoal(this, 1.25, FOOD_ITEMS, false));
         this.goalSelector.addGoal(4, new PenguinSwapBetweenWaterAndLandGoal(this));
         this.goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, 1.0F));
-        this.goalSelector.addGoal(5, new PenguinStrollGoal(this));
-        this.goalSelector.addGoal(6, new PenguinJumpGoal(this, 10));
+        this.goalSelector.addGoal(5, new PenguinJumpGoal(this, 100));
+        this.goalSelector.addGoal(6, new PenguinStrollGoal(this));
         this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(9, new AvoidEntityGoal<>(this, Pufferfish.class, 2.0F, 1.0, 1.0));
