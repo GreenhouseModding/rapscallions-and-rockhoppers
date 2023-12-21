@@ -25,17 +25,15 @@ public class PenguinSwapBetweenWaterAndLandGoal extends RandomStrollGoal {
 
         Vec3 returnPos = null;
 
-        if (!this.mob.isInWaterOrBubble()) {
-            while (returnPos == null) {
-                Vec3 generatedPos = RandomPos.generateRandomPos(() -> pointOfInterest, value -> 0.0D);
-                if (generatedPos != null) {
-                    while (GoalUtils.isSolid(this.mob, BlockPos.containing(generatedPos))) {
-                        generatedPos = generatedPos.add(0.0, 1.0, 0.0);
-                    }
+        while (returnPos == null) {
+            Vec3 generatedPos = RandomPos.generateRandomPos(() -> pointOfInterest, value -> 0.0D);
+            if (generatedPos != null) {
+                while (GoalUtils.isSolid(this.mob, BlockPos.containing(generatedPos))) {
+                    generatedPos = generatedPos.add(0.0, 1.0, 0.0);
+                }
 
-                    if (this.mob.isInWaterOrBubble() ^ GoalUtils.isWater(this.mob, BlockPos.containing(generatedPos))) {
-                        returnPos = generatedPos;
-                    }
+                if (this.mob.isInWaterOrBubble() ^ GoalUtils.isWater(this.mob, BlockPos.containing(generatedPos))) {
+                    returnPos = generatedPos;
                 }
             }
         }
