@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 
 public class PenguinShoveGoal extends Goal {
-    private static final int RANDOM_CHANCE = 6400;
+    private static final int RANDOM_CHANCE = 800;
     private static final int START_DELAY_REQUIREMENT = 2;
 
     private final Penguin penguin;
