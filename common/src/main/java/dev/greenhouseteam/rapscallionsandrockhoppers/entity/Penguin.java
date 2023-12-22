@@ -103,7 +103,7 @@ public class Penguin extends Animal {
         super(entityType, level);
         this.moveControl = new SmoothSwimmingMoveControl(this, 80, 20, 2.0F, 1.0F, false);
         this.lookControl = new SmoothSwimmingLookControl(this, 20);
-        this.setPathfindingMalus(BlockPathTypes.WATER, 4.0F);
+        this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
         this.setMaxUpStep(1.0F);
     }
 
