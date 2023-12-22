@@ -19,7 +19,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
@@ -44,7 +43,6 @@ import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Pufferfish;
-import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -76,6 +74,7 @@ public class Penguin extends Animal {
     private static final EntityDataAccessor<Integer> DATA_STUMBLE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<OptionalInt> DATA_STUMBLE_TICKS_BEFORE_GETTING_UP = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.OPTIONAL_UNSIGNED_INT);
     private static final EntityDataAccessor<OptionalInt> DATA_SHOVE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.OPTIONAL_UNSIGNED_INT);
+    private static final EntityDataAccessor<Optional<BlockPos>> DATA_POINT_OF_INTEREST = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.OPTIONAL_BLOCK_POS);
 
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState waddleAnimationState = new AnimationState();
@@ -93,7 +92,6 @@ public class Penguin extends Animal {
     private boolean animationArmState = false;
     private boolean previousStumbleValue = false;
     private boolean hasSlid = false;
-    private BlockPos pointOfInterest;
     private boolean previousWaterValue = false;
     private boolean previousWaterMovementValue = false;
     private int walkStartTime = Integer.MIN_VALUE;
@@ -118,13 +116,13 @@ public class Penguin extends Animal {
         this.goalSelector.addGoal(1, new PenguinPanicGoal(this, 2.5));
         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0));
         this.goalSelector.addGoal(3, new TemptGoal(this, 1.25, FOOD_ITEMS, false));
-        this.goalSelector.addGoal(4, new PenguinSwapBetweenWaterAndLandGoal(this));
         this.goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, 1.0F));
-        this.goalSelector.addGoal(5, new PenguinJumpGoal(this, 100));
-        this.goalSelector.addGoal(6, new PenguinStrollGoal(this));
-        this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 6.0F));
-        this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
-        this.goalSelector.addGoal(9, new AvoidEntityGoal<>(this, Pufferfish.class, 2.0F, 1.0, 1.0));
+        this.goalSelector.addGoal(5, new PenguinSwapBetweenWaterAndLandGoal(this));
+        this.goalSelector.addGoal(6, new AvoidEntityGoal<>(this, Pufferfish.class, 2.0F, 1.0, 1.0));
+        this.goalSelector.addGoal(7, new PenguinStrollGoal(this));
+        this.goalSelector.addGoal(8, new PenguinJumpGoal(this));
+        this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 6.0F));
+        this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
     }
 
     @Override
@@ -134,6 +132,7 @@ public class Penguin extends Animal {
         this.getEntityData().define(DATA_STUMBLE_TICKS, 0);
         this.getEntityData().define(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP, OptionalInt.empty());
         this.getEntityData().define(DATA_SHOVE_TICKS, OptionalInt.empty());
+        this.getEntityData().define(DATA_POINT_OF_INTEREST, Optional.empty());
     }
 
     @Override
@@ -200,11 +199,6 @@ public class Penguin extends Animal {
     }
 
     @Override
-    public float getWalkTargetValue(BlockPos pos, LevelReader level) {
-        return level.getBlockState(pos.below()).is(Blocks.STONE) || level.getFluidState(pos).is(FluidTags.WATER) ? 10.0F : level.getPathfindingCostFromLightLevels(pos);
-    }
-
-    @Override
     public int getExperienceReward() {
         return 0;
     }
@@ -234,12 +228,12 @@ public class Penguin extends Animal {
 
     @Override
     public void tick() {
-        super.tick();
-
         if (this.isNoAi()) {
             this.setAirSupply(this.getMaxAirSupply());
             return;
         }
+
+        super.tick();
 
         if (!previousWaterValue && this.isInWaterOrBubble()) {
             Optional<BlockPos> optionalPos = this.level().getEntitiesOfClass(Penguin.class, this.getBoundingBox().inflate(20.0F, 10.0F, 20.0F)).stream().map(Penguin::getPointOfInterest).filter(Objects::nonNull).findFirst();
@@ -373,11 +367,11 @@ public class Penguin extends Animal {
     }
 
     private boolean canSetNewPointOfInterest(BlockPos pos) {
-        if (this.pointOfInterest == null) {
+        if (this.getPointOfInterest() == null) {
             return true;
         }
 
-        return this.pointOfInterest.distManhattan(pos) > 14;
+        return this.getPointOfInterest().distManhattan(pos) > 14;
     }
 
     @Override
@@ -424,16 +418,21 @@ public class Penguin extends Animal {
     }
 
     @Override
-    public boolean isWithinRestriction(BlockPos pos) {
-        if (this.getRestrictRadius() == -1.0F) {
-            if (this.getPointOfInterest() != null) {
-                int radius = this.previousWaterValue ? 16 : 8;
-                return this.getPointOfInterest().distManhattan(pos) < radius;
-            }
-            return true;
-        } else {
-            return this.getRestrictCenter().distSqr(pos) < (double)(this.getRestrictRadius() * this.getRestrictRadius());
+    public BlockPos getRestrictCenter() {
+        BlockPos retValue = super.getRestrictCenter();
+        if (retValue == BlockPos.ZERO && this.getPointOfInterest() != null) {
+            return this.getPointOfInterest();
         }
+        return retValue;
+    }
+
+    @Override
+    public float getRestrictRadius() {
+        float restrictRadius = super.getRestrictRadius();
+        if (restrictRadius == -1.0F && this.getPointOfInterest() != null) {
+            return this.previousWaterValue ? 12 : 6;
+        }
+        return restrictRadius;
     }
 
     @Override
@@ -511,11 +510,12 @@ public class Penguin extends Animal {
         return this.hasSlid;
     }
 
-    public void setPointOfInterest(BlockPos point) {
-        this.pointOfInterest = point;
+    public void setPointOfInterest(@Nullable BlockPos point) {
+        this.getEntityData().set(DATA_POINT_OF_INTEREST, Optional.ofNullable(point));
     }
 
+    @Nullable
     public BlockPos getPointOfInterest() {
-        return this.pointOfInterest;
+        return this.getEntityData().get(DATA_POINT_OF_INTEREST).orElse(null);
     }
 }

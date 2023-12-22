@@ -56,6 +56,11 @@ public class PenguinShoveGoal extends Goal {
     }
 
     @Override
+    public boolean isInterruptable() {
+        return false;
+    }
+
+    @Override
     public boolean canContinueToUse() {
         return !this.penguin.isStumbling() && !this.penguin.isInWaterOrBubble() && (this.startDelay != Integer.MIN_VALUE || this.penguin.getShoveTicks().isPresent() && this.penguin.getShoveTicks().getAsInt() < Penguin.SHOVE_ANIMATION_LENGTH);
     }

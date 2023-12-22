@@ -9,7 +9,7 @@ import java.util.EnumSet;
 import java.util.OptionalInt;
 
 public class PenguinStumbleGoal extends Goal {
-    private static final int STUMBLE_CHANCE = 80;
+    private static final int STUMBLE_CHANCE = 60;
     private static final int REQUIRED_WALKING_TIME = 80;
 
     private final Penguin penguin;
@@ -28,6 +28,11 @@ public class PenguinStumbleGoal extends Goal {
     @Override
     public boolean canContinueToUse() {
         return this.penguin.isStumbling() && !this.penguin.isInWaterOrBubble();
+    }
+
+    @Override
+    public boolean isInterruptable() {
+        return false;
     }
 
     @Override

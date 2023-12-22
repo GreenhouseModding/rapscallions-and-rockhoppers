@@ -7,18 +7,19 @@ import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.goal.JumpGoal;
+import net.minecraft.world.entity.ai.util.GoalUtils;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 
 public class PenguinJumpGoal extends JumpGoal {
-    private static final int[] STEPS_TO_CHECK = new int[]{0, 1, 6, 7, 8, 9, 10};
+    private static final int[] STEPS_TO_CHECK = new int[]{0, 1, 5, 6, 7, 8, 9};
     private final Penguin penguin;
     private final int interval;
     private boolean breached;
 
-    public PenguinJumpGoal(Penguin penguin, int interval) {
+    public PenguinJumpGoal(Penguin penguin) {
         this.penguin = penguin;
-        this.interval = reducedTickDelay(interval);
+        this.interval = reducedTickDelay(120);
     }
 
     @Override
@@ -32,7 +33,7 @@ public class PenguinJumpGoal extends JumpGoal {
             BlockPos blockPos = this.penguin.blockPosition();
 
             for(int step : STEPS_TO_CHECK) {
-                if (!this.waterIsClear(blockPos, x, z, step) || !this.surfaceIsClear(blockPos, x, z, step)) {
+                if (!this.waterIsClear(blockPos, x, z, step) || !this.surfaceIsClear(blockPos, x, z, step) || GoalUtils.mobRestricted(this.penguin, 0)) {
                     return false;
                 }
             }
@@ -62,7 +63,7 @@ public class PenguinJumpGoal extends JumpGoal {
     @Override
     public boolean canContinueToUse() {
         double yMovement = this.penguin.getDeltaMovement().y;
-        return (!(yMovement * yMovement < 0.03F) || this.penguin.getXRot() == 0.0F || !(Math.abs(this.penguin.getXRot()) < 10.0F) || !this.penguin.isInWater())
+        return (!(yMovement * yMovement < 0.03F) || this.penguin.getXRot() == 0.0F || !(Math.abs(this.penguin.getXRot()) < 30.0F) || !this.penguin.isInWater())
                 && !this.penguin.onGround();
     }
 
@@ -74,7 +75,7 @@ public class PenguinJumpGoal extends JumpGoal {
     @Override
     public void start() {
         Direction direction = this.penguin.getMotionDirection();
-        this.penguin.setDeltaMovement(this.penguin.getDeltaMovement().add((double)direction.getStepX() * 1.2, 0.5, (double)direction.getStepZ() * 1.2));
+        this.penguin.setDeltaMovement(this.penguin.getDeltaMovement().add(direction.getStepX() * 0.8, 0.8, direction.getStepZ() * 0.8));
         this.penguin.getNavigation().stop();
     }
 
