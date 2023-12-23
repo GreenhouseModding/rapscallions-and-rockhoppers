@@ -8,6 +8,7 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinStrollGo
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinSwapBetweenWaterAndLandGoal;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinStumbleGoal;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersTags;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSoundEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -45,7 +46,6 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Pufferfish;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -66,9 +66,7 @@ public class Penguin extends Animal {
 
     public static final String TAG_SHOCKED_TIME = "shocked_time";
     public static final String TAG_POINT_OF_INTEREST = "point_of_interest";
-    private static final Ingredient FOOD_ITEMS = Ingredient.of(
-            Items.INK_SAC, Items.GLOW_INK_SAC
-    );
+    private static final Ingredient FOOD_ITEMS = Ingredient.of(RapscallionsAndRockhoppersTags.ItemTags.PENGUIN_TEMPT_ITEMS);
     private static final EntityDataAccessor<Integer> DATA_SHOCKED_TIME = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_STUMBLE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<OptionalInt> DATA_STUMBLE_TICKS_BEFORE_GETTING_UP = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.OPTIONAL_UNSIGNED_INT);
