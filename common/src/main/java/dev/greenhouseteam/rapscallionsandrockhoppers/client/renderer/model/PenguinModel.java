@@ -14,6 +14,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.AnimationState;
 
 public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
@@ -76,47 +77,66 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 			this.brows.setPos(0.0F, 0.0F, 0.0F);
 		}
 
-		this.animate(penguin.idleAnimationState, PenguinAnimation.IDLE, delta, 0.5F);
-		this.animateWaddle(penguin, delta, limbSwing, limbSwingAmount, penguin.isShocked() ? 1.0F : 0.8F);
+		this.animateWaddle(penguin, delta, limbSwing, limbSwingAmount, penguin.isShocked() ? 1.4F : 1.0F);
 		this.animate(penguin.shockArmAnimationState, PenguinAnimation.SHOCK_ARMS, delta, 1.25F);
-		this.animateStumble(penguin, delta, 1.0F);
+
+		this.animateStumble(penguin, delta);
 		this.animate(penguin.shoveAnimationState, PenguinAnimation.SHOVE, delta, 1.0F);
+
+
+		this.moveBodyInWater(penguin, yRot, xRot);
+		this.animateSwim(penguin, delta);
 
 		this.moveHead(penguin, yRot, xRot);
 	}
 
 	private void animateWaddle(Penguin penguin, float delta, float limbSwing, float limbSwingAmount, float animationSpeed) {
+		this.animate(penguin.idleAnimationState, PenguinAnimation.IDLE, delta, animationSpeed * 0.5F);
 		this.animate(penguin.waddleAnimationState, PenguinAnimation.WADDLE_BODY, delta, animationSpeed);
 		this.animate(penguin.waddleExpandAnimationState, PenguinAnimation.WADDLE_ARMS_EXTEND, delta, animationSpeed);
 		this.animate(penguin.waddleRetractAnimationState, PenguinAnimation.WADDLE_ARMS_RETRACT, delta, animationSpeed);
-		this.animateWalk(PenguinAnimation.WADDLE_FEET, limbSwing, limbSwingAmount, 4.5F, 40.0F);
+		this.animateWalk(PenguinAnimation.WADDLE_FEET, limbSwing, limbSwingAmount, 5.0F, 45.0F);
 	}
 
-	private void animateStumble(Penguin penguin, float delta, float animationSpeed) {
-		this.animate(penguin.stumbleAnimationState, PenguinAnimation.STUMBLE, delta, animationSpeed);
+	private void animateStumble(Penguin penguin, float delta) {
+		this.animate(penguin.stumbleAnimationState, PenguinAnimation.STUMBLE, delta, 1.0F);
 		if (penguin.stumbleFallingAnimationState.isStarted()) {
 			if (this.previousStumbleTime == Long.MIN_VALUE) {
 				this.previousStumbleTime = penguin.stumbleGroundAnimationState.getAccumulatedTime();
 			}
-			this.animateAtSpecificFrame(penguin.stumbleGroundAnimationState, PenguinAnimation.STUMBLE_LAND, this.previousStumbleTime, delta, animationSpeed);
+			this.animateAtSpecificFrame(penguin.stumbleGroundAnimationState, PenguinAnimation.STUMBLE_LAND, this.previousStumbleTime, delta, 1.0F);
 		} else {
 			if (this.previousStumbleTime != Long.MIN_VALUE) {
 				this.previousStumbleTime = Long.MIN_VALUE;
 			}
-			this.animate(penguin.stumbleGroundAnimationState, PenguinAnimation.STUMBLE_LAND, delta, animationSpeed);
+			this.animate(penguin.stumbleGroundAnimationState, PenguinAnimation.STUMBLE_LAND, delta, 1.0F);
 		}
-		this.animate(penguin.stumbleFallingAnimationState, PenguinAnimation.STUMBLE_FALLING, delta, animationSpeed);
-		this.animate(penguin.stumbleGetUpAnimationState, PenguinAnimation.GET_UP, delta, animationSpeed);
+		this.animate(penguin.stumbleFallingAnimationState, PenguinAnimation.STUMBLE_FALLING, delta, 1.0F);
+		this.animate(penguin.stumbleGetUpAnimationState, PenguinAnimation.GET_UP, delta, 1.0F);
+	}
+
+	private void animateSwim(Penguin penguin, float delta) {
+		this.animate(penguin.swimIdleAnimationState, PenguinAnimation.SWIM_IDLE, delta, 1.0F);
+		this.animate(penguin.swimAnimationState, PenguinAnimation.SWIM, delta, 0.25F);
 	}
 
 	private void moveHead(Penguin penguin, float yRot, float xRot) {
 		if (!canAnimateHead(penguin)) return;
-		this.head.xRot = xRot * (float) (Math.PI / 180.0);
-		this.head.yRot = yRot * (float) (Math.PI / 180.0);
+		this.head.xRot = xRot * (float) (Mth.PI / 180.0);
+		this.head.yRot = yRot * (float) (Mth.PI / 180.0);
+	}
+
+	private void moveBodyInWater(Penguin penguin, float yRot, float xRot) {
+		if (!this.canRotateBodyInWater(penguin)) return;
+		this.root.xRot = (float) (xRot * Math.PI / 180.0);
+		this.root.yRot = (float) (yRot * Math.PI / 180.0);
 	}
 
 	private boolean canAnimateHead(Penguin penguin) {
-		return !penguin.isStumbling();
+		return !penguin.isStumbling() && !this.canRotateBodyInWater(penguin);
+	}
+	private boolean canRotateBodyInWater(Penguin penguin) {
+		return penguin.swimAnimationState.isStarted();
 	}
 
 	private void animateAtSpecificFrame(AnimationState state, AnimationDefinition definition, long time, float delta, float animationSpeed) {
