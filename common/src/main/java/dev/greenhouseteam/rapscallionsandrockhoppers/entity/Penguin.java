@@ -417,6 +417,15 @@ public class Penguin extends Animal {
     }
 
     @Override
+    public boolean isWithinRestriction() {
+        boolean withinRestriction = super.isWithinRestriction();
+        if (!withinRestriction && this.getPointOfInterest() != null && this.getRestrictRadius() == (this.previousWaterValue ? 8 : 4)) {
+            return true;
+        }
+        return withinRestriction;
+    }
+
+    @Override
     public BlockPos getRestrictCenter() {
         BlockPos retValue = super.getRestrictCenter();
         if (retValue == BlockPos.ZERO && this.getPointOfInterest() != null) {
