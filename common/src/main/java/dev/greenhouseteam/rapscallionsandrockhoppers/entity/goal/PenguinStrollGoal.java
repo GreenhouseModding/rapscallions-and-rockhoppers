@@ -19,6 +19,6 @@ public class PenguinStrollGoal extends RandomStrollGoal {
         if (((Penguin)this.mob).getPointOfInterest() != null && GoalUtils.mobRestricted(this.mob, 0)) {
             return null;
         }
-         return position;
+        return position;
     }
 }
