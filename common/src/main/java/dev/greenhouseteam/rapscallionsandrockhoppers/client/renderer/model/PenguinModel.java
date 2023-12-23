@@ -1,5 +1,7 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.client.renderer.model;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.mixin.client.HierarchicalModelAccessor;
 import net.minecraft.client.animation.AnimationDefinition;
@@ -71,6 +73,13 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 	@Override
 	public void setupAnim(Penguin penguin, float limbSwing, float limbSwingAmount, float delta, float yRot, float xRot) {
 		this.root().getAllParts().forEach(ModelPart::resetPose);
+
+		if (this.young) {
+			this.head.xScale *= 1.3F;
+			this.head.yScale *= 1.3F;
+			this.head.zScale *= 1.3F;
+		}
+
 		if (penguin.isShocked()) {
 			this.brows.setPos(0.0F, -0.75F, 0.0F);
 		} else {
@@ -113,6 +122,13 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 		}
 		this.animate(penguin.stumbleFallingAnimationState, PenguinAnimation.STUMBLE_FALLING, delta, 1.0F);
 		this.animate(penguin.stumbleGetUpAnimationState, PenguinAnimation.GET_UP, delta, 1.0F);
+	}
+
+	private void scaleBabyHead(Penguin penguin) {
+		if (!penguin.isBaby()) return;
+		this.head.xScale *= 0.6F;
+		this.head.yScale *= 0.6F;
+		this.head.zScale *= 0.6F;
 	}
 
 	private void animateSwim(Penguin penguin, float delta) {
