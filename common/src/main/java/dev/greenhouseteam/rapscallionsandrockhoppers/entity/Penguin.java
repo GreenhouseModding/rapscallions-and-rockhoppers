@@ -100,7 +100,6 @@ public class Penguin extends Animal {
         super(entityType, level);
         this.moveControl = new SmoothSwimmingMoveControl(this, 80, 20, 2.0F, 1.0F, false);
         this.lookControl = new SmoothSwimmingLookControl(this, 20);
-        this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
         this.setMaxUpStep(1.0F);
     }
 
@@ -137,7 +136,17 @@ public class Penguin extends Animal {
         Optional<BlockPos> optionalPos = level.getEntitiesOfClass(Penguin.class, this.getBoundingBox().inflate(20.0F, 10.0F, 20.0F)).stream().map(Penguin::getPointOfInterest).filter(Objects::nonNull).findFirst();
 
         if (optionalPos.isEmpty() && level.getFluidState(this.blockPosition()).is(FluidTags.WATER)) {
-            optionalPos = Optional.of(this.blockPosition());
+            BlockPos.MutableBlockPos storedPos = new BlockPos.MutableBlockPos(this.blockPosition().getX(), this.blockPosition().getY(), this.blockPosition().getZ());
+            boolean resolved = false;
+            while (!resolved) {
+                storedPos.move(0, 1, 0);
+                if (level.getFluidState(storedPos).isEmpty()) {
+                    if (level.getBlockState(storedPos).isAir()) {
+                        optionalPos = Optional.of(storedPos.immutable());
+                    }
+                    resolved = true;
+                }
+            }
         }
 
         if (optionalPos.isEmpty()) {
@@ -148,6 +157,7 @@ public class Penguin extends Animal {
         }
 
         optionalPos.ifPresent(this::setPointOfInterest);
+
         return super.finalizeSpawn(level, difficultyInstance, mobSpawnType, spawnGroupData, tag);
     }
 
@@ -245,6 +255,7 @@ public class Penguin extends Animal {
             this.previousWaterValue = true;
 
             this.setPose(Pose.SWIMMING);
+            this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
         } else if (previousWaterValue && !this.isInWaterOrBubble() && this.onGround()) {
             Optional<BlockPos> optionalPos = this.level().getEntitiesOfClass(Penguin.class, this.getBoundingBox().inflate(20.0F, 10.0F, 20.0F)).stream().map(Penguin::getPointOfInterest).filter(Objects::nonNull).findFirst();
 
@@ -257,6 +268,7 @@ public class Penguin extends Animal {
             }
             this.previousWaterValue = false;
             this.setPose(Pose.STANDING);
+            this.setPathfindingMalus(BlockPathTypes.WATER, 2.0F);
         }
 
         if (!this.level().isClientSide()) {
