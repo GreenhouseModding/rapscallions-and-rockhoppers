@@ -31,7 +31,7 @@ public class PenguinShoveGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        if (this.penguin.isInWaterOrBubble() || this.penguin.isStumbling() || this.penguin.getRandom().nextInt(RANDOM_CHANCE) > 0) {
+        if (this.penguin.isInWaterOrBubble() || this.penguin.isStumbling() || this.penguin.getRandom().nextInt(RANDOM_CHANCE) > 0 || this.penguin.isBaby()) {
             return false;
         }
 
