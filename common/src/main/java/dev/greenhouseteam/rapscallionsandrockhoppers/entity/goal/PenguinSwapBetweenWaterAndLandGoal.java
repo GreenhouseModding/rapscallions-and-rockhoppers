@@ -11,8 +11,8 @@ import java.util.Comparator;
 import java.util.Optional;
 
 public class PenguinSwapBetweenWaterAndLandGoal extends RandomStrollGoal {
-    private static final int SWAP_TO_WATER_CHANCE = 300;
-    private static final int SWAP_TO_LAND_CHANCE = 300;
+    private static final int SWAP_TO_WATER_CHANCE = 50;
+    private static final int SWAP_TO_LAND_CHANCE = 75;
 
     public PenguinSwapBetweenWaterAndLandGoal(Penguin penguin) {
         super(penguin, 1.0F);

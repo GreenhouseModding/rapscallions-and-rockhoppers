@@ -48,10 +48,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -252,7 +251,7 @@ public class Penguin extends Animal {
             Optional<BlockPos> optionalPos = this.level().getEntitiesOfClass(Penguin.class, this.getBoundingBox().inflate(20.0F, 10.0F, 20.0F)).stream().map(Penguin::getPointOfInterest).filter(Objects::nonNull).findFirst();
 
             if (optionalPos.isEmpty()) {
-                optionalPos = Optional.of(this.blockPosition());
+                optionalPos = BlockPos.betweenClosedStream(new AABB(-2, -2, -2, 2, 2, 2)).filter(pos -> this.level().getFluidState(pos).is(FluidTags.WATER)).map(BlockPos::immutable).min(Comparator.comparing(pos -> pos.distManhattan(this.blockPosition())));
             }
 
             if (canSetNewPointOfInterest(optionalPos.get())) {
@@ -430,7 +429,7 @@ public class Penguin extends Animal {
     public float getRestrictRadius() {
         float restrictRadius = super.getRestrictRadius();
         if (restrictRadius == -1.0F && this.getPointOfInterest() != null) {
-            return this.previousWaterValue ? 12 : 6;
+            return this.previousWaterValue ? 8 : 4;
         }
         return restrictRadius;
     }
