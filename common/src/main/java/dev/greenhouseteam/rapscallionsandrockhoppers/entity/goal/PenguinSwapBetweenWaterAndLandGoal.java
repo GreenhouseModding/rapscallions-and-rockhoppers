@@ -22,7 +22,7 @@ public class PenguinSwapBetweenWaterAndLandGoal extends RandomStrollGoal {
     public boolean canUse() {
         if ((this.mob.getRandom().nextInt(SWAP_CHANCE) == 0)) {
             Vec3 vec3 = this.getPosition();
-            if (vec3 == null || this.mob.level().hasChunkAt(BlockPos.containing(vec3))) {
+            if (vec3 == null || !this.mob.level().hasChunkAt(BlockPos.containing(vec3))) {
                 return false;
             } else {
                 this.wantedX = vec3.x();
