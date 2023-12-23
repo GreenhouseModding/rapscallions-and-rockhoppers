@@ -75,7 +75,7 @@ public class PenguinJumpGoal extends JumpGoal {
     @Override
     public void start() {
         Direction direction = this.penguin.getMotionDirection();
-        this.penguin.setDeltaMovement(this.penguin.getDeltaMovement().add(direction.getStepX() * 0.8, 0.8, direction.getStepZ() * 0.8));
+        this.penguin.setDeltaMovement(this.penguin.getDeltaMovement().add(direction.getStepX() * 0.8, 0.65, direction.getStepZ() * 0.8));
         this.penguin.getNavigation().stop();
     }
 
