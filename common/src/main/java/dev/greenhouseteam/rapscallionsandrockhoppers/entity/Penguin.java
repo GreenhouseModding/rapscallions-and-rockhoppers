@@ -417,12 +417,12 @@ public class Penguin extends Animal {
     }
 
     @Override
-    public boolean isWithinRestriction() {
-        boolean withinRestriction = super.isWithinRestriction();
-        if (!withinRestriction && this.getPointOfInterest() != null && this.getRestrictRadius() == (this.previousWaterValue ? 8 : 4)) {
+    public boolean isWithinRestriction(BlockPos pos) {
+        if (this.getRestrictRadius() == -1.0F) {
             return true;
+        } else {
+            return this.getRestrictCenter().distSqr(pos) < (double)(this.getRestrictRadius() * this.getRestrictRadius());
         }
-        return withinRestriction;
     }
 
     @Override
@@ -438,7 +438,7 @@ public class Penguin extends Animal {
     public float getRestrictRadius() {
         float restrictRadius = super.getRestrictRadius();
         if (restrictRadius == -1.0F && this.getPointOfInterest() != null) {
-            return this.previousWaterValue ? 8 : 4;
+            return this.previousWaterValue ? 12 : 4;
         }
         return restrictRadius;
     }
