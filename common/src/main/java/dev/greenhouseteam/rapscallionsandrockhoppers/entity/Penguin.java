@@ -146,7 +146,7 @@ public class Penguin extends Animal {
             optionalPos = BlockPos.betweenClosedStream(
                     this.blockPosition().getX() - 24, this.blockPosition().getY() - 12, this.blockPosition().getZ() - 24,
                     this.blockPosition().getX() + 24, this.blockPosition().getY() + 12, this.blockPosition().getZ() + 24
-            ).filter(pos -> level.getFluidState(pos).is(FluidTags.WATER)).map(BlockPos::immutable).min(Comparator.comparing(pos -> pos.distManhattan(this.blockPosition())));
+            ).filter(pos -> level.getFluidState(pos).is(FluidTags.WATER) && level.getBlockState(pos.above()).isAir()).map(BlockPos::immutable).min(Comparator.comparing(pos -> pos.distManhattan(this.blockPosition())));
         }
 
         optionalPos.ifPresent(this::setPointOfInterest);
@@ -251,7 +251,7 @@ public class Penguin extends Animal {
             Optional<BlockPos> optionalPos = this.level().getEntitiesOfClass(Penguin.class, this.getBoundingBox().inflate(20.0F, 10.0F, 20.0F)).stream().map(Penguin::getPointOfInterest).filter(Objects::nonNull).findFirst();
 
             if (optionalPos.isEmpty()) {
-                optionalPos = BlockPos.betweenClosedStream(new AABB(-2, -2, -2, 2, 2, 2)).filter(pos -> this.level().getFluidState(pos).is(FluidTags.WATER)).map(BlockPos::immutable).min(Comparator.comparing(pos -> pos.distManhattan(this.blockPosition())));
+                optionalPos = BlockPos.betweenClosedStream(new AABB(-2, -2, -2, 2, 2, 2)).filter(pos -> this.level().getFluidState(pos).is(FluidTags.WATER) && this.level().getBlockState(pos.above()).isAir()).map(BlockPos::immutable).min(Comparator.comparing(pos -> pos.distManhattan(this.blockPosition())));
             }
 
             if (canSetNewPointOfInterest(optionalPos.get())) {
