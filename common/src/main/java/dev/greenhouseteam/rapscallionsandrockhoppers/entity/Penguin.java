@@ -89,6 +89,7 @@ public class Penguin extends Animal {
 
 
     private PenguinStumbleGoal stumbleGoal;
+    private TemptGoal temptGoal;
 
     public Penguin(EntityType<? extends Animal> entityType, Level level) {
         super(entityType, level);
@@ -106,7 +107,8 @@ public class Penguin extends Animal {
         this.goalSelector.addGoal(1, new PenguinPanicGoal(this, 2.5));
         this.goalSelector.addGoal(1, new PenguinEggGoal(this, 1.2f, 16));
         this.goalSelector.addGoal(2, new PenguinBreedGoal(this, 1.0));
-        this.goalSelector.addGoal(3, new TemptGoal(this, 1.25, FOOD_ITEMS, false));
+        this.temptGoal = new TemptGoal(this, 1.25, FOOD_ITEMS, false);
+        this.goalSelector.addGoal(3, this.temptGoal);
         this.goalSelector.addGoal(4, new PenguinShoveGoal(this));
         this.goalSelector.addGoal(4, new PenguinSwapBetweenWaterAndLandGoal(this));
         this.goalSelector.addGoal(5, new MoveTowardsRestrictionGoal(this, 1.0F));
@@ -383,6 +385,10 @@ public class Penguin extends Animal {
         }
 
         return this.getPointOfInterest().distManhattan(pos) > 14;
+    }
+
+    public boolean canStumble() {
+        return !this.temptGoal.isRunning();
     }
 
     @Override

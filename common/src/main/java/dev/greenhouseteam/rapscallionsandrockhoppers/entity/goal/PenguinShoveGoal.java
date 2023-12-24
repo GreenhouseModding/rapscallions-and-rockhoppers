@@ -35,7 +35,7 @@ public class PenguinShoveGoal extends Goal {
             return false;
         }
 
-        List<Penguin> penguins = this.penguin.level().getEntitiesOfClass(Penguin.class, this.penguin.getBoundingBox().inflate(1.5, 1.0, 1.5), EntitySelector.NO_SPECTATORS.and(entity -> entity.isAlive() && !((Penguin)entity).isBaby() && entity != this.penguin));
+        List<Penguin> penguins = this.penguin.level().getEntitiesOfClass(Penguin.class, this.penguin.getBoundingBox().inflate(1.5, 1.0, 1.5), EntitySelector.NO_SPECTATORS.and(entity -> entity.isAlive() && ((Penguin)entity).canStumble() && !((Penguin)entity).isBaby() && !entity.is(this.penguin)));
         Optional<Penguin> optionalPenguin = penguins.stream().min(Comparator.comparingDouble(value -> value.position().distanceTo(this.penguin.position())));
 
         if (optionalPenguin.isPresent() && !optionalPenguin.get().isInWaterOrBubble() && !optionalPenguin.get().isStumbling()) {

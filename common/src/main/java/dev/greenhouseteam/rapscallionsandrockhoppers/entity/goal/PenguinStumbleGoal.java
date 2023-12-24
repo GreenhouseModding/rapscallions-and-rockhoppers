@@ -22,7 +22,7 @@ public class PenguinStumbleGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        return !this.penguin.isInWaterOrBubble() && (this.isRunning || this.penguin.getWalkStartTime() != Integer.MIN_VALUE && this.penguin.tickCount > REQUIRED_WALKING_TIME + this.penguin.getWalkStartTime() && this.penguin.getRandom().nextInt(STUMBLE_CHANCE) == 0);
+        return !this.penguin.isInWaterOrBubble() && this.penguin.canStumble() && (this.isRunning || this.penguin.getWalkStartTime() != Integer.MIN_VALUE && this.penguin.tickCount > REQUIRED_WALKING_TIME + this.penguin.getWalkStartTime() && this.penguin.getRandom().nextInt(STUMBLE_CHANCE) == 0);
     }
 
     @Override
