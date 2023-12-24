@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "hatch=0": {
+      "model": "rapscallionsandrockhoppers:block/penguin_egg"
+    },
+    "hatch=1": {
+      "model": "rapscallionsandrockhoppers:block/penguin_egg_slightly_cracked"
+    },
+    "hatch=2": {
+      "model": "rapscallionsandrockhoppers:block/penguin_egg_very_cracked"
+    }
+  }
+}

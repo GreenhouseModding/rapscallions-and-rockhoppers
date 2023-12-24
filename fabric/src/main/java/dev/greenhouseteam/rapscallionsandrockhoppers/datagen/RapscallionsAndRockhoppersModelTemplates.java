@@ -1,0 +1,19 @@
+package dev.greenhouseteam.rapscallionsandrockhoppers.datagen;
+
+import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
+import net.minecraft.data.models.model.ModelTemplate;
+import net.minecraft.resources.ResourceLocation;
+
+import java.util.Optional;
+
+public class RapscallionsAndRockhoppersModelTemplates {
+    public static final ModelTemplate EGG = new ModelTemplate(
+            Optional.of(RapscallionsAndRockhoppers.asResource("block/penguin_egg_template")),
+            Optional.empty(),
+            RapscallionsAndRockhoppersTextureMappings.EGG_TEXTURE
+    );
+    public static final ModelTemplate SPAWN_EGG = new ModelTemplate(
+            Optional.of(new ResourceLocation("minecraft", "item/template_spawn_egg")),
+            Optional.empty()
+    );
+}

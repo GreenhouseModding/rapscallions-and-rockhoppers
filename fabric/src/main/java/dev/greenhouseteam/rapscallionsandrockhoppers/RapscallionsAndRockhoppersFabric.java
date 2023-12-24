@@ -1,6 +1,8 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers;
 
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersBlocks;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersItems;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSoundEvents;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -14,6 +16,8 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
     }
 
     public static void handleRegistration() {
+        RapscallionsAndRockhoppersBlocks.registerBlocks(Registry::register);
+        RapscallionsAndRockhoppersItems.registerItems(Registry::register);
         RapscallionsAndRockhoppersEntityTypes.registerEntityTypes(Registry::register);
         RapscallionsAndRockhoppersSoundEvents.registerSoundEvents(Registry::register);
 
