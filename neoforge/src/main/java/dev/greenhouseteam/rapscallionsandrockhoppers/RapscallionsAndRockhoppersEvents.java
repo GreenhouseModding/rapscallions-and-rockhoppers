@@ -5,7 +5,9 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRoc
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersItems;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSoundEvents;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -14,6 +16,9 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
+import org.apache.logging.log4j.util.TriConsumer;
+
+import java.util.function.Consumer;
 
 public class RapscallionsAndRockhoppersEvents {
     @Mod.EventBusSubscriber(modid = RapscallionsAndRockhoppers.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -27,11 +32,17 @@ public class RapscallionsAndRockhoppersEvents {
         @SubscribeEvent
         public static void registerContent(RegisterEvent event) {
             if (event.getRegistryKey() == Registries.ENTITY_TYPE)
-                RapscallionsAndRockhoppersEntityTypes.registerEntityTypes((registry, resource, entityType) -> event.register(registry.key(), resource, () -> entityType));
+                register(event, RapscallionsAndRockhoppersEntityTypes::registerEntityTypes);
             else if (event.getRegistryKey() == Registries.SOUND_EVENT)
-                RapscallionsAndRockhoppersSoundEvents.registerSoundEvents((registry, resource, soundEvent) -> event.register(registry.key(), resource, () -> soundEvent));
+                register(event, RapscallionsAndRockhoppersSoundEvents::registerSoundEvents);
+            else if (event.getRegistryKey() == Registries.ITEM)
+                register(event, RapscallionsAndRockhoppersItems::registerItems);
             else if (event.getRegistryKey() == Registries.BLOCK)
-                RapscallionsAndRockhoppersBlocks.registerBlocks((registry, resource, block) -> event.register(registry.key(), resource, () -> block));
+                register(event, RapscallionsAndRockhoppersBlocks::registerBlocks);
+        }
+
+        private static <T> void register(RegisterEvent event, Consumer<TriConsumer<Registry<T>, ResourceLocation, T>> consumer) {
+            consumer.accept((registry, id, value) -> event.register(registry.key(), id, () -> value));
         }
 
         @SubscribeEvent
