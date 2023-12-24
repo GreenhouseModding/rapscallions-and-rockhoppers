@@ -1,6 +1,7 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.block;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersBlocks;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -47,6 +48,8 @@ public class PenguinEggBlock extends Block {
             serverLevel.addFreshEntity(penguin);
             serverLevel.removeBlock(blockPos, false);
         }
+        serverLevel.addDestroyBlockEffect(blockPos, blockState);
+        // TODO: Play a sound
     }
 
     @Override
@@ -54,7 +57,6 @@ public class PenguinEggBlock extends Block {
         if (randomSource.nextInt(1500) == 0) {
             // 1/1500 chance each random tick of cracking
             crackEgg(blockState, serverLevel, blockPos);
-            // TODO: Play a sound
         }
     }
 }

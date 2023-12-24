@@ -10,6 +10,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
 import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class PenguinBreedGoal extends BreedGoal {
@@ -35,6 +36,7 @@ public class PenguinBreedGoal extends BreedGoal {
 
         if (blockstate.isAir()) {
             this.level.setBlockAndUpdate(blockPos, RapscallionsAndRockhoppersBlocks.PENGUIN_EGG.defaultBlockState());
+            this.level.levelEvent(2001, blockPos, Block.getId(this.level.getBlockState(blockPos)));
         }
         this.animal.setAge(6000);
         this.animal.resetLove();
