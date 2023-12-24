@@ -1,6 +1,7 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.RapscallionsAndRockhoppersPacketHandler;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersBlocks;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSoundEvents;
 import net.minecraft.core.registries.Registries;
@@ -25,6 +26,8 @@ public class RapscallionsAndRockhoppersEvents {
                 RapscallionsAndRockhoppersEntityTypes.registerEntityTypes((registry, resource, entityType) -> event.register(registry.key(), resource, () -> entityType));
             else if (event.getRegistryKey() == Registries.SOUND_EVENT)
                 RapscallionsAndRockhoppersSoundEvents.registerSoundEvents((registry, resource, soundEvent) -> event.register(registry.key(), resource, () -> soundEvent));
+            else if (event.getRegistryKey() == Registries.BLOCK)
+                RapscallionsAndRockhoppersBlocks.registerBlocks((registry, resource, block) -> event.register(registry.key(), resource, () -> block));
         }
 
         @SubscribeEvent

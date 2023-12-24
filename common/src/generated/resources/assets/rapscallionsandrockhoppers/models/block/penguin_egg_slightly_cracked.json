@@ -1,0 +1,6 @@
+{
+  "parent": "rapscallionsandrockhoppers:block/penguin_egg_template",
+  "textures": {
+    "egg_texture": "rapscallionsandrockhoppers:block/penguin_egg_slightly_cracked"
+  }
+}

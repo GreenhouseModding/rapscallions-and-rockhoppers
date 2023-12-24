@@ -21,6 +21,13 @@ dependencies {
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
 }
 
+sourceSets {
+    named("main") {
+        resources.srcDir("src/generated/resources")
+    }
+}
+
+
 publishing {
     publications {
         mavenJava(MavenPublication) {

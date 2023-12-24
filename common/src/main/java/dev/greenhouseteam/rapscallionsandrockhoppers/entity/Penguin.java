@@ -1,12 +1,7 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.entity;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinJumpGoal;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinPanicGoal;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinShoveGoal;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinStrollGoal;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinSwapBetweenWaterAndLandGoal;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.PenguinStumbleGoal;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersTags;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSoundEvents;
@@ -35,7 +30,6 @@ import net.minecraft.world.entity.ai.control.SmoothSwimmingLookControl;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.BreathAirGoal;
-import net.minecraft.world.entity.ai.goal.BreedGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MoveTowardsRestrictionGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
@@ -110,7 +104,8 @@ public class Penguin extends Animal {
         this.goalSelector.addGoal(0, this.stumbleGoal);
         this.goalSelector.addGoal(0, new BreathAirGoal(this));
         this.goalSelector.addGoal(1, new PenguinPanicGoal(this, 2.5));
-        this.goalSelector.addGoal(2, new BreedGoal(this, 1.0));
+        this.goalSelector.addGoal(1, new PenguinEggGoal(this, 1.2f, 16));
+        this.goalSelector.addGoal(2, new PenguinBreedGoal(this, 1.0));
         this.goalSelector.addGoal(3, new TemptGoal(this, 1.25, FOOD_ITEMS, false));
         this.goalSelector.addGoal(4, new PenguinShoveGoal(this));
         this.goalSelector.addGoal(4, new PenguinSwapBetweenWaterAndLandGoal(this));
