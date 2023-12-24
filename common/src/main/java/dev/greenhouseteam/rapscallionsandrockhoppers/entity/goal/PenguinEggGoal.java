@@ -38,7 +38,6 @@ public class PenguinEggGoal extends MoveToBlockGoal {
         BlockState blockState = penguin.level().getBlockState(blockPos);
         if (blockState.is(RapscallionsAndRockhoppersBlocks.PENGUIN_EGG) && penguin.level() instanceof ServerLevel serverLevel) {
             eggCrackTime -= 1;
-            System.out.println(eggCrackTime);
             if (eggCrackTime <= 0) {
                 PenguinEggBlock.crackEgg(blockState, serverLevel, blockPos);
                 eggCrackTime = EGG_CRACK_TIME;
