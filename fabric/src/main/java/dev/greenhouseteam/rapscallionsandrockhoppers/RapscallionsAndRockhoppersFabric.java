@@ -5,8 +5,10 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRoc
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersItems;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSoundEvents;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.Registry;
+import net.minecraft.world.item.CreativeModeTabs;
 
 public class RapscallionsAndRockhoppersFabric implements ModInitializer {
     @Override
@@ -22,5 +24,8 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
         RapscallionsAndRockhoppersSoundEvents.registerSoundEvents(Registry::register);
 
         RapscallionsAndRockhoppersEntityTypes.createMobAttributes(FabricDefaultAttributeRegistry::register);
+
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.NATURAL_BLOCKS).register(entries -> RapscallionsAndRockhoppersItems.addAfterNaturalBlocksTab(entries::addAfter));
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.SPAWN_EGGS).register(entries -> RapscallionsAndRockhoppersItems.addSpawnEggsTab(entries::accept));
     }
 }
