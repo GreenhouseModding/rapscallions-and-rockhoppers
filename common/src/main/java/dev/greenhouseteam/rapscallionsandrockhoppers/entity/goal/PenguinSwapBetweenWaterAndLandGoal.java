@@ -2,58 +2,39 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
+import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
 import net.minecraft.world.entity.ai.util.GoalUtils;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.phys.Vec3;
 
-import java.util.Comparator;
-import java.util.Optional;
+import java.util.EnumSet;
 
-public class PenguinSwapBetweenWaterAndLandGoal extends RandomStrollGoal {
+public class PenguinSwapBetweenWaterAndLandGoal extends MoveToBlockGoal {
     private static final int SWAP_CHANCE = 600;
-
     public PenguinSwapBetweenWaterAndLandGoal(Penguin penguin) {
-        super(penguin, 1.0F);
+        super(penguin, 1.0F, 16);
+        this.setFlags(EnumSet.of(Goal.Flag.MOVE));
+    }
+    @Override
+    public boolean canContinueToUse() {
+        return super.canContinueToUse() && !this.isReachedTarget();
     }
 
     @Override
-    public boolean canUse() {
-        if (this.mob.getRandom().nextInt(SWAP_CHANCE) == 0) {
-            Vec3 vec3 = this.getPosition();
-            if (vec3 == null || !this.mob.level().hasChunkAt(BlockPos.containing(vec3))) {
-                return false;
-            } else {
-                this.wantedX = vec3.x();
-                this.wantedY = vec3.y();
-                this.wantedZ = vec3.z();
-                this.forceTrigger = false;
-                return true;
-            }
-        }
-        return false;
+    protected int nextStartTick(PathfinderMob mob) {
+        return reducedTickDelay(SWAP_CHANCE);
+    }
+
+    @Override
+    protected boolean isValidTarget(LevelReader levelReader, BlockPos pos) {
+        return (((Penguin)this.mob).getPointOfInterest() == null || pos.distManhattan(((Penguin) this.mob).getPointOfInterest()) > 3) && (!this.mob.isInWaterOrBubble() && levelReader.getBlockState(pos).isPathfindable(levelReader, pos, PathComputationType.WATER) || this.mob.isInWaterOrBubble() && !GoalUtils.isWater(this.mob, pos) && GoalUtils.isSolid(this.mob, pos.below()) && levelReader.getBlockState(pos).isPathfindable(levelReader, pos, PathComputationType.LAND));
     }
 
     @Override
     public boolean isInterruptable() {
         return false;
-    }
-
-    @Override
-    protected Vec3 getPosition() {
-        BlockPos pointOfInterest = ((Penguin) this.mob).getPointOfInterest() == null ? this.mob.blockPosition() : ((Penguin) this.mob).getPointOfInterest();
-
-        Optional<BlockPos> generatedPos = BlockPos.betweenClosedStream(new BoundingBox(-12, -12, -12, 12, 12, 12).moved(pointOfInterest.getX(), pointOfInterest.getY(), pointOfInterest.getZ())).filter(pos -> (((Penguin) this.mob).getPointOfInterest() == null || !GoalUtils.mobRestricted(this.mob, 16)) && (!this.mob.isInWaterOrBubble() && this.mob.level().getBlockState(pos).isPathfindable(this.mob.level(), pos, PathComputationType.WATER) || this.mob.isInWaterOrBubble() && !GoalUtils.isWater(this.mob, pos) && GoalUtils.isSolid(this.mob, pos.below()) && this.mob.level().getBlockState(pos).isPathfindable(this.mob.level(), pos, PathComputationType.LAND))).map(BlockPos::immutable).min(Comparator.comparing(pos -> pos.distManhattan(this.mob.blockPosition())));
-
-        if (this.mob.isInWaterOrBubble()) {
-            this.mob.setPathfindingMalus(BlockPathTypes.OPEN, 0.0F);
-        } else {
-            this.mob.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
-        }
-
-        return generatedPos.map(BlockPos::getCenter).orElse(null);
     }
 
 }

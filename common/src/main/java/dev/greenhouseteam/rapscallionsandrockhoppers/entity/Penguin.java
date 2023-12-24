@@ -95,7 +95,7 @@ public class Penguin extends Animal {
         super(entityType, level);
         this.moveControl = new SmoothSwimmingMoveControl(this, 80, 20, 2.0F, 1.0F, false);
         this.lookControl = new SmoothSwimmingLookControl(this, 20);
-        this.setPathfindingMalus(BlockPathTypes.WATER, -1.0F);
+        this.setPathfindingMalus(BlockPathTypes.WATER, 2.0F);
         this.setMaxUpStep(1.0F);
     }
 
@@ -253,8 +253,6 @@ public class Penguin extends Animal {
             this.previousWaterValue = true;
 
             this.setPose(Pose.SWIMMING);
-            this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
-            this.setPathfindingMalus(BlockPathTypes.OPEN, -1.0F);
         } else if (previousWaterValue && !this.isInWaterOrBubble() && this.onGround()) {
             Optional<BlockPos> optionalPos = this.level().getEntitiesOfClass(Penguin.class, this.getBoundingBox().inflate(20.0F, 10.0F, 20.0F)).stream().map(Penguin::getPointOfInterest).filter(Objects::nonNull).findFirst();
 
@@ -267,8 +265,6 @@ public class Penguin extends Animal {
             }
             this.previousWaterValue = false;
             this.setPose(Pose.STANDING);
-            this.setPathfindingMalus(BlockPathTypes.WATER, -1.0F);
-            this.setPathfindingMalus(BlockPathTypes.OPEN, 0.0F);
         }
 
         if (!this.level().isClientSide()) {
