@@ -100,6 +100,7 @@ public class Penguin extends Animal {
         super(entityType, level);
         this.moveControl = new SmoothSwimmingMoveControl(this, 80, 20, 2.0F, 1.0F, false);
         this.lookControl = new SmoothSwimmingLookControl(this, 20);
+        this.setPathfindingMalus(BlockPathTypes.WATER, -1.0F);
         this.setMaxUpStep(1.0F);
     }
 
@@ -107,13 +108,13 @@ public class Penguin extends Animal {
     public void registerGoals() {
         this.stumbleGoal =  new PenguinStumbleGoal(this);
         this.goalSelector.addGoal(0, this.stumbleGoal);
-        this.goalSelector.addGoal(0, new PenguinShoveGoal(this));
         this.goalSelector.addGoal(0, new BreathAirGoal(this));
         this.goalSelector.addGoal(1, new PenguinPanicGoal(this, 2.5));
         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0));
         this.goalSelector.addGoal(3, new TemptGoal(this, 1.25, FOOD_ITEMS, false));
-        this.goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, 1.0F));
-        this.goalSelector.addGoal(5, new PenguinSwapBetweenWaterAndLandGoal(this));
+        this.goalSelector.addGoal(4, new PenguinShoveGoal(this));
+        this.goalSelector.addGoal(4, new PenguinSwapBetweenWaterAndLandGoal(this));
+        this.goalSelector.addGoal(5, new MoveTowardsRestrictionGoal(this, 1.0F));
         this.goalSelector.addGoal(6, new AvoidEntityGoal<>(this, Pufferfish.class, 2.0F, 1.0, 1.0));
         this.goalSelector.addGoal(7, new PenguinStrollGoal(this));
         this.goalSelector.addGoal(8, new PenguinJumpGoal(this));
@@ -256,6 +257,7 @@ public class Penguin extends Animal {
 
             this.setPose(Pose.SWIMMING);
             this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
+            this.setPathfindingMalus(BlockPathTypes.OPEN, -1.0F);
         } else if (previousWaterValue && !this.isInWaterOrBubble() && this.onGround()) {
             Optional<BlockPos> optionalPos = this.level().getEntitiesOfClass(Penguin.class, this.getBoundingBox().inflate(20.0F, 10.0F, 20.0F)).stream().map(Penguin::getPointOfInterest).filter(Objects::nonNull).findFirst();
 
@@ -268,7 +270,8 @@ public class Penguin extends Animal {
             }
             this.previousWaterValue = false;
             this.setPose(Pose.STANDING);
-            this.setPathfindingMalus(BlockPathTypes.WATER, 2.0F);
+            this.setPathfindingMalus(BlockPathTypes.WATER, -1.0F);
+            this.setPathfindingMalus(BlockPathTypes.OPEN, 0.0F);
         }
 
         if (!this.level().isClientSide()) {
@@ -277,7 +280,7 @@ public class Penguin extends Animal {
             }
 
             if (!this.isInWaterOrBubble()) {
-                if ((this.getDeltaMovement().horizontalDistanceSqr() > 0.005F || this.getDeltaMovement().y() > 0.0) && !this.isStumbling()) {
+                if ((this.getDeltaMovement().horizontalDistanceSqr() > 0.0F || this.getDeltaMovement().y() > 0.0) && !this.isStumbling()) {
                     if (this.getWalkStartTime() == Integer.MIN_VALUE) {
                         this.setWalkStartTime(this.tickCount);
                     }
@@ -338,8 +341,12 @@ public class Penguin extends Animal {
         this.refreshDimensionsIfShould();
     }
 
+    private boolean isActivelySwimming() {
+        return (this.getDeltaMovement().horizontalDistanceSqr() > 0.02F || Mth.abs((float) this.getDeltaMovement().y()) > 0.02F);
+    }
+
     public void refreshDimensionsIfShould() {
-        if (this.isInWaterOrBubble() && (this.previousWaterMovementValue ^ this.getDeltaMovement().horizontalDistanceSqr() > 0.005F)) {
+        if (this.isInWaterOrBubble() && this.previousWaterMovementValue ^ this.isActivelySwimming()) {
             this.previousWaterMovementValue = !this.previousWaterMovementValue;
             this.refreshDimensions();
         } else if (this.isStumbling() && this.getStumbleTicksBeforeGettingUp().isPresent() && (this.getStumbleTicks() == STUMBLE_ANIMATION_LENGTH + 2 || this.getStumbleTicks() == this.getStumbleTicksBeforeGettingUp().getAsInt() + 5)) {
@@ -420,8 +427,8 @@ public class Penguin extends Animal {
     public EntityDimensions getDimensions(Pose pose) {
         if (this.getStumbleTicksBeforeGettingUp().isPresent() && this.getStumbleTicks() >= STUMBLE_ANIMATION_LENGTH + 2 && this.getStumbleTicks() < this.getStumbleTicksBeforeGettingUp().getAsInt() + 5) {
             return super.getDimensions(pose).scale(1.33F, 0.5F);
-        } else if (this.getPose() == Pose.SWIMMING && this.getDeltaMovement().horizontalDistanceSqr() > 0.005F) {
-            return super.getDimensions(pose).scale(1.0F, 0.5F);
+        } else if (this.getPose() == Pose.SWIMMING && this.isActivelySwimming()) {
+            return super.getDimensions(pose).scale(1.28333F, 0.7F);
         }
         return super.getDimensions(pose);
     }
@@ -448,7 +455,7 @@ public class Penguin extends Animal {
     public float getRestrictRadius() {
         float restrictRadius = super.getRestrictRadius();
         if (restrictRadius == -1.0F && this.getPointOfInterest() != null) {
-            return this.previousWaterValue ? 12 : 4;
+            return this.previousWaterValue ? 12 : 6;
         }
         return restrictRadius;
     }

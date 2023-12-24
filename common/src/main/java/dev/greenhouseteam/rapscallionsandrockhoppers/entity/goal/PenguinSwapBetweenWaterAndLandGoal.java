@@ -6,13 +6,14 @@ import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.util.GoalUtils;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Comparator;
 import java.util.Optional;
 
 public class PenguinSwapBetweenWaterAndLandGoal extends RandomStrollGoal {
-    private static final int SWAP_CHANCE = 40;
+    private static final int SWAP_CHANCE = 600;
 
     public PenguinSwapBetweenWaterAndLandGoal(Penguin penguin) {
         super(penguin, 1.0F);
@@ -20,7 +21,7 @@ public class PenguinSwapBetweenWaterAndLandGoal extends RandomStrollGoal {
 
     @Override
     public boolean canUse() {
-        if ((this.mob.getRandom().nextInt(SWAP_CHANCE) == 0)) {
+        if (this.mob.getRandom().nextInt(SWAP_CHANCE) == 0) {
             Vec3 vec3 = this.getPosition();
             if (vec3 == null || !this.mob.level().hasChunkAt(BlockPos.containing(vec3))) {
                 return false;
@@ -44,7 +45,14 @@ public class PenguinSwapBetweenWaterAndLandGoal extends RandomStrollGoal {
     protected Vec3 getPosition() {
         BlockPos pointOfInterest = ((Penguin) this.mob).getPointOfInterest() == null ? this.mob.blockPosition() : ((Penguin) this.mob).getPointOfInterest();
 
-        Optional<BlockPos> generatedPos = BlockPos.betweenClosedStream(new BoundingBox(-12, -12, -12, 12, 12, 12).moved(pointOfInterest.getX(), pointOfInterest.getY(), pointOfInterest.getZ())).filter(pos -> (((Penguin) this.mob).getPointOfInterest() == null || !GoalUtils.mobRestricted(this.mob, 8)) && !GoalUtils.isSolid(this.mob, pos) && (this.mob.isInWaterOrBubble() ^ GoalUtils.isWater(this.mob, pos))).map(BlockPos::immutable).min(Comparator.comparing(pos -> pos.distManhattan(this.mob.blockPosition())));
+        Optional<BlockPos> generatedPos = BlockPos.betweenClosedStream(new BoundingBox(-12, -12, -12, 12, 12, 12).moved(pointOfInterest.getX(), pointOfInterest.getY(), pointOfInterest.getZ())).filter(pos -> (((Penguin) this.mob).getPointOfInterest() == null || !GoalUtils.mobRestricted(this.mob, 16)) && (!this.mob.isInWaterOrBubble() && this.mob.level().getBlockState(pos).isPathfindable(this.mob.level(), pos, PathComputationType.WATER) || this.mob.isInWaterOrBubble() && !GoalUtils.isWater(this.mob, pos) && GoalUtils.isSolid(this.mob, pos.below()) && this.mob.level().getBlockState(pos).isPathfindable(this.mob.level(), pos, PathComputationType.LAND))).map(BlockPos::immutable).min(Comparator.comparing(pos -> pos.distManhattan(this.mob.blockPosition())));
+
+        if (this.mob.isInWaterOrBubble()) {
+            this.mob.setPathfindingMalus(BlockPathTypes.OPEN, 0.0F);
+        } else {
+            this.mob.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
+        }
+
         return generatedPos.map(BlockPos::getCenter).orElse(null);
     }
 

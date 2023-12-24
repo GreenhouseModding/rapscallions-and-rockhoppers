@@ -9,8 +9,8 @@ import java.util.EnumSet;
 import java.util.OptionalInt;
 
 public class PenguinStumbleGoal extends Goal {
-    private static final int STUMBLE_CHANCE = 60;
-    private static final int REQUIRED_WALKING_TIME = 20;
+    private static final int STUMBLE_CHANCE = 120;
+    private static final int REQUIRED_WALKING_TIME = 30;
 
     private final Penguin penguin;
     private boolean isRunning = false;
