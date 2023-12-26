@@ -211,7 +211,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                         new FollowTemptation<>(),
                                         new PenguinJump(),
                                         new ReturnToHome().setRadius(8).startCondition(penguin -> !penguin.isLeashed() && !BrainUtils.hasMemory(penguin, MemoryModuleType.TEMPTING_PLAYER)),
-                                        new SetRandomSwimTarget().avoidLandWhen(penguin -> penguin.getRandom().nextFloat() < 0.95F).setRadius(5, 4).walkTargetPredicate((mob, vec3) -> vec3 == null || !BrainUtils.hasMemory(mob, MemoryModuleType.HOME) || BrainUtils.getMemory(mob, MemoryModuleType.HOME).dimension() == mob.level().dimension() && vec3.distanceTo(BrainUtils.getMemory(mob, MemoryModuleType.HOME).pos().getCenter()) <= 8)
+                                        new SetRandomSwimTarget().avoidLandWhen(penguin -> penguin.getRandom().nextFloat() < 0.9F).setRadius(5, 4).walkTargetPredicate((mob, vec3) -> vec3 == null || !BrainUtils.hasMemory(mob, MemoryModuleType.HOME) || BrainUtils.getMemory(mob, MemoryModuleType.HOME).dimension() == mob.level().dimension() && vec3.distanceTo(BrainUtils.getMemory(mob, MemoryModuleType.HOME).pos().getCenter()) <= 8)
                                 )
                         ).onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT)
         );
