@@ -104,17 +104,20 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState waddleAnimationState = new AnimationState();
     public final AnimationState shockArmAnimationState = new AnimationState();
-    public final AnimationState waddleExpandAnimationState = new AnimationState();
-    public final AnimationState waddleRetractAnimationState = new AnimationState();
+    public final AnimationState waddleArmEaseInAnimationState = new AnimationState();
+    public final AnimationState waddleArmEaseOutAnimationState = new AnimationState();
     public final AnimationState stumbleAnimationState = new AnimationState();
     public final AnimationState stumbleGroundAnimationState = new AnimationState();
     public final AnimationState stumbleFallingAnimationState = new AnimationState();
     public final AnimationState stumbleGetUpAnimationState = new AnimationState();
     public final AnimationState swimIdleAnimationState = new AnimationState();
     public final AnimationState swimAnimationState = new AnimationState();
+    public final AnimationState swimEaseInAnimationState = new AnimationState();
+    public final AnimationState swimEaseOutAnimationState = new AnimationState();
     public final AnimationState shoveAnimationState = new AnimationState();
 
     private boolean animationArmState = false;
+    private boolean animationSwimState = false;
     private boolean previousStumbleValue = false;
     private boolean previousWaterValue = false;
     private boolean previousWaterMovementValue = false;
@@ -289,6 +292,16 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 this.stopAllLandAnimations();
                 this.swimIdleAnimationState.animateWhen(!this.walkAnimation.isMoving(), this.tickCount);
                 this.swimAnimationState.animateWhen(this.walkAnimation.isMoving(), this.tickCount);
+
+                if (!this.animationSwimState && this.walkAnimation.isMoving()) {
+                    this.swimEaseOutAnimationState.stop();
+                    this.swimEaseInAnimationState.startIfStopped(this.tickCount);
+                    this.animationSwimState = true;
+                } else if (this.animationSwimState && !this.walkAnimation.isMoving()) {
+                    this.swimEaseInAnimationState.stop();
+                    this.swimEaseOutAnimationState.startIfStopped(this.tickCount);
+                    this.animationSwimState = false;
+                }
             } else {
                 this.stopAllWaterAnimations();
                 this.idleAnimationState.animateWhen(!this.walkAnimation.isMoving() && !this.isStumbling(), this.tickCount);
@@ -305,8 +318,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                             this.stumbleGetUpAnimationState.animateWhen(this.getStumbleTicks() > this.getStumbleTicksBeforeGettingUp(), this.tickCount);
                         } else if (!this.previousStumbleValue) {
                             this.stumbleAnimationState.start(this.tickCount);
-                            this.waddleRetractAnimationState.stop();
-                            this.waddleExpandAnimationState.stop();
+                            this.waddleArmEaseOutAnimationState.stop();
+                            this.waddleArmEaseInAnimationState.stop();
                             this.animationArmState = false;
                             this.previousStumbleValue = true;
                         }
@@ -321,12 +334,12 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                     this.shoveAnimationState.animateWhen(this.getShoveTicks() != Integer.MIN_VALUE, this.tickCount);
 
                     if (!this.animationArmState && this.walkAnimation.isMoving()) {
-                        this.waddleRetractAnimationState.stop();
-                        this.waddleExpandAnimationState.startIfStopped(this.tickCount);
+                        this.waddleArmEaseOutAnimationState.stop();
+                        this.waddleArmEaseInAnimationState.startIfStopped(this.tickCount);
                         this.animationArmState = true;
                     } else if (this.animationArmState && !this.walkAnimation.isMoving()) {
-                        this.waddleExpandAnimationState.stop();
-                        this.waddleRetractAnimationState.startIfStopped(this.tickCount);
+                        this.waddleArmEaseInAnimationState.stop();
+                        this.waddleArmEaseOutAnimationState.startIfStopped(this.tickCount);
                         this.animationArmState = false;
                     }
                 }
@@ -455,18 +468,20 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     private void stopAllLandAnimations() {
         this.idleAnimationState.stop();
         this.waddleAnimationState.stop();
-        this.waddleExpandAnimationState.stop();
-        this.waddleRetractAnimationState.stop();
+        this.waddleArmEaseInAnimationState.stop();
+        this.waddleArmEaseOutAnimationState.stop();
         this.shockArmAnimationState.stop();
         this.stumbleAnimationState.stop();
         this.stumbleFallingAnimationState.stop();
         this.stumbleGroundAnimationState.stop();
         this.stumbleGetUpAnimationState.stop();
+        this.animationArmState = false;
     }
 
     private void stopAllWaterAnimations() {
         this.swimIdleAnimationState.stop();
         this.swimAnimationState.stop();
+        this.animationSwimState = false;
     }
 
     @Override

@@ -94,7 +94,7 @@ public class PenguinAnimation {
                             new Keyframe(0.48f, KeyframeAnimations.degreeVec(0f, 0f, 0f),
                                     AnimationChannel.Interpolations.LINEAR))).build();
 
-    public static final AnimationDefinition WADDLE_ARMS_EXTEND = AnimationDefinition.Builder.withLength(0.48f)
+    public static final AnimationDefinition WADDLE_ARMS_EASE_IN = AnimationDefinition.Builder.withLength(0.48f)
             .addAnimation("leftFlipper",
                     new AnimationChannel(AnimationChannel.Targets.ROTATION,
                             new Keyframe(0f, KeyframeAnimations.degreeVec(0f, 0f, 0f),
@@ -108,7 +108,7 @@ public class PenguinAnimation {
                             new Keyframe(0.48f, KeyframeAnimations.degreeVec(0f, 0f, 40f),
                                     AnimationChannel.Interpolations.LINEAR))).build();
 
-    public static final AnimationDefinition WADDLE_ARMS_RETRACT = AnimationDefinition.Builder.withLength(0.48f)
+    public static final AnimationDefinition WADDLE_ARMS_EASE_OUT = AnimationDefinition.Builder.withLength(0.48f)
             .addAnimation("leftFlipper",
                     new AnimationChannel(AnimationChannel.Targets.ROTATION,
                             new Keyframe(0f, KeyframeAnimations.degreeVec(0f, 0f, -40f),
@@ -292,6 +292,38 @@ public class PenguinAnimation {
                             new Keyframe(1.56f, KeyframeAnimations.degreeVec(0f, 0f, -11f),
                                     AnimationChannel.Interpolations.LINEAR),
                             new Keyframe(1.64f, KeyframeAnimations.degreeVec(0f, 0f, -8.5f),
+                                    AnimationChannel.Interpolations.LINEAR),
+                            new Keyframe(1.84f, KeyframeAnimations.degreeVec(0f, 0f, 0f),
+                                    AnimationChannel.Interpolations.LINEAR)))
+            .addAnimation("leftFlipper",
+                    new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                            new Keyframe(0f, KeyframeAnimations.degreeVec(0f, 0f, 0f),
+                                    AnimationChannel.Interpolations.LINEAR),
+                            new Keyframe(0.16f, KeyframeAnimations.degreeVec(0f, 0f, 10f),
+                                    AnimationChannel.Interpolations.LINEAR),
+                            new Keyframe(0.64f, KeyframeAnimations.degreeVec(0f, 0f, -10f),
+                                    AnimationChannel.Interpolations.LINEAR),
+                            new Keyframe(0.92f, KeyframeAnimations.degreeVec(0f, 0f, 0f),
+                                    AnimationChannel.Interpolations.LINEAR),
+                            new Keyframe(1.08f, KeyframeAnimations.degreeVec(0f, 0f, 10f),
+                                    AnimationChannel.Interpolations.LINEAR),
+                            new Keyframe(1.56f, KeyframeAnimations.degreeVec(0f, 0f, -10f),
+                                    AnimationChannel.Interpolations.LINEAR),
+                            new Keyframe(1.84f, KeyframeAnimations.degreeVec(0f, 0f, 0f),
+                                    AnimationChannel.Interpolations.LINEAR)))
+            .addAnimation("rightFlipper",
+                    new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                            new Keyframe(0f, KeyframeAnimations.degreeVec(0f, 0f, 0f),
+                                    AnimationChannel.Interpolations.LINEAR),
+                            new Keyframe(0.16f, KeyframeAnimations.degreeVec(0f, 0f, 10f),
+                                    AnimationChannel.Interpolations.LINEAR),
+                            new Keyframe(0.64f, KeyframeAnimations.degreeVec(0f, 0f, -10f),
+                                    AnimationChannel.Interpolations.LINEAR),
+                            new Keyframe(0.92f, KeyframeAnimations.degreeVec(0f, 0f, 0f),
+                                    AnimationChannel.Interpolations.LINEAR),
+                            new Keyframe(1.08f, KeyframeAnimations.degreeVec(0f, 0f, 10f),
+                                    AnimationChannel.Interpolations.LINEAR),
+                            new Keyframe(1.56f, KeyframeAnimations.degreeVec(0f, 0f, -10f),
                                     AnimationChannel.Interpolations.LINEAR),
                             new Keyframe(1.84f, KeyframeAnimations.degreeVec(0f, 0f, 0f),
                                     AnimationChannel.Interpolations.LINEAR))).build();
@@ -1024,6 +1056,21 @@ public class PenguinAnimation {
                                     AnimationChannel.Interpolations.LINEAR),
                             new Keyframe(2f, KeyframeAnimations.posVec(0f, 0f, 0f),
                                     AnimationChannel.Interpolations.LINEAR))).build();
+
+    public static final AnimationDefinition SWIM_EASE_IN = AnimationDefinition.Builder.withLength(0.20f)
+            .addAnimation("root",
+                    new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                            new Keyframe(0f, KeyframeAnimations.degreeVec(0f, 0f, 0f),
+                                    AnimationChannel.Interpolations.LINEAR),
+                            new Keyframe(0.20f, KeyframeAnimations.degreeVec(90f, 0f, 0f),
+                                    AnimationChannel.Interpolations.LINEAR))).build();
+    public static final AnimationDefinition SWIM_EASE_OUT = AnimationDefinition.Builder.withLength(0.20f)
+            .addAnimation("root",
+                    new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                            new Keyframe(0f, KeyframeAnimations.degreeVec(90f, 0f, 0f),
+                                    AnimationChannel.Interpolations.LINEAR),
+                            new Keyframe(0.20f, KeyframeAnimations.degreeVec(0f, 0f, 0f),
+                                    AnimationChannel.Interpolations.LINEAR))).build();
     public static final AnimationDefinition SWIM = AnimationDefinition.Builder.withLength(1.92f).looping()
             .addAnimation("head",
                     new AnimationChannel(AnimationChannel.Targets.POSITION,
@@ -1174,10 +1221,6 @@ public class PenguinAnimation {
                             new Keyframe(1f, KeyframeAnimations.posVec(0f, -2.9f, 0f),
                                     AnimationChannel.Interpolations.LINEAR),
                             new Keyframe(1.92f, KeyframeAnimations.posVec(0f, -3f, 0f),
-                                    AnimationChannel.Interpolations.LINEAR)))
-            .addAnimation("root",
-                    new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                            new Keyframe(0f, KeyframeAnimations.degreeVec(90f, 0f, 0f),
                                     AnimationChannel.Interpolations.LINEAR)))
             .addAnimation("brows",
                     new AnimationChannel(AnimationChannel.Targets.POSITION,
