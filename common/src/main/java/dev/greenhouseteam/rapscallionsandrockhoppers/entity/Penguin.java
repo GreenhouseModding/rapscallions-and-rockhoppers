@@ -179,17 +179,6 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.getEntityData().define(DATA_STUMBLE_CHANCE, 0.0F);
-        this.getEntityData().define(DATA_STUMBLE_TICKS, Integer.MIN_VALUE);
-        this.getEntityData().define(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP, Integer.MIN_VALUE);
-        this.getEntityData().define(DATA_SHOVE_CHANCE, 0.0F);
-        this.getEntityData().define(DATA_SHOVE_TICKS, Integer.MIN_VALUE);
-        this.getEntityData().define(DATA_SHOCKED_TIME, 0);
-    }
-
-    @Override
     public BrainActivityGroup<Penguin> getIdleTasks() {
         return BrainActivityGroup.<Penguin>idleTasks(
                 new Panic<>().speedMod(o -> 2.5F).panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
@@ -230,6 +219,22 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
     private SetRandomWalkTarget<Penguin> createBoundWalkTarget(int xzRadius, int yRadius, int distanceFromHome) {
         return new SetRandomWalkTarget<Penguin>().setRadius(xzRadius, yRadius).walkTargetPredicate((mob, vec3) -> vec3 == null || (!BrainUtils.hasMemory(mob, MemoryModuleType.HOME) || BrainUtils.getMemory(mob, MemoryModuleType.HOME).dimension() == mob.level().dimension() && vec3.distanceTo(BrainUtils.getMemory(mob, MemoryModuleType.HOME).pos().getCenter()) <= distanceFromHome));
+    }
+
+    @Override
+    public List<Activity> getActivityPriorities() {
+        return ObjectArrayList.of(Activity.SWIM, Activity.IDLE);
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.getEntityData().define(DATA_STUMBLE_CHANCE, 0.0F);
+        this.getEntityData().define(DATA_STUMBLE_TICKS, Integer.MIN_VALUE);
+        this.getEntityData().define(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP, Integer.MIN_VALUE);
+        this.getEntityData().define(DATA_SHOVE_CHANCE, 0.0F);
+        this.getEntityData().define(DATA_SHOVE_TICKS, Integer.MIN_VALUE);
+        this.getEntityData().define(DATA_SHOCKED_TIME, 0);
     }
 
     @Override
