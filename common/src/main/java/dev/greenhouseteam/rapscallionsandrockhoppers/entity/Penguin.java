@@ -249,7 +249,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         if (!previousWaterValue && this.isInWaterOrBubble()) {
             this.previousWaterValue = true;
             if (!this.level().isClientSide()) {
-                BrainUtils.setMemory(this, RapscallionsAndRockhoppersMemoryModuleTypes.WATER_JUMP_COOLDOWN_TICKS, Mth.randomBetweenInclusive(this.getRandom(), 80, 120));
+                BrainUtils.setMemory(this, RapscallionsAndRockhoppersMemoryModuleTypes.WATER_JUMP_COOLDOWN_TICKS, Mth.randomBetweenInclusive(this.getRandom(), 60, 100));
             }
             this.setPose(Pose.SWIMMING);
         } else if (previousWaterValue && !this.isInWaterOrBubble() && this.onGround()) {
