@@ -32,3 +32,10 @@ type = "required"
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "smartbrainlib"
+type = "required"
+versionRange = "${sbl_version_range}"
+ordering = "NONE"
+side = "BOTH"
