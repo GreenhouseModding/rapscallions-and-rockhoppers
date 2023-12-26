@@ -189,9 +189,9 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 new PenguinShove(),
                 new FirstApplicableBehaviour<>(
                         new FollowTemptation<>(),
-                        new ReturnToHome().setRadius(8).startCondition(penguin -> !penguin.isLeashed()),
+                        new ReturnToHome().setRadius(6).startCondition(penguin -> !penguin.isLeashed()),
                         new OneRandomBehaviour<>(
-                                Pair.of(createBoundWalkTarget(12, 6, 8).avoidWaterWhen(penguin -> penguin.getRandom().nextFloat() < 0.9F), 14),
+                                Pair.of(createBoundWalkTarget(4, 3, 6).avoidWaterWhen(penguin -> penguin.getRandom().nextFloat() < 0.9F), 14),
                                 Pair.of(new Idle<>().runFor(entity -> entity.getRandom().nextInt(15, 30)), 1)
                         )
                 )
@@ -211,7 +211,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                         new FollowTemptation<>(),
                                         new PenguinJump(),
                                         new ReturnToHome().setRadius(12).startCondition(penguin -> !penguin.isLeashed() && !BrainUtils.hasMemory(penguin, MemoryModuleType.TEMPTING_PLAYER)),
-                                        new SetRandomSwimTarget().avoidLandWhen(penguin -> penguin.getRandom().nextFloat() < 0.95F).setRadius(12, 6).walkTargetPredicate((mob, vec3) -> vec3 == null || !BrainUtils.hasMemory(mob, MemoryModuleType.HOME) || BrainUtils.getMemory(mob, MemoryModuleType.HOME).dimension() == mob.level().dimension() && mob.blockPosition().distSqr(BrainUtils.getMemory(mob, MemoryModuleType.HOME).pos()) <= 9)
+                                        new SetRandomSwimTarget().avoidLandWhen(penguin -> penguin.getRandom().nextFloat() < 0.95F).setRadius(12, 6).walkTargetPredicate((mob, vec3) -> vec3 == null || !BrainUtils.hasMemory(mob, MemoryModuleType.HOME) || BrainUtils.getMemory(mob, MemoryModuleType.HOME).dimension() == mob.level().dimension() && mob.blockPosition().distSqr(BrainUtils.getMemory(mob, MemoryModuleType.HOME).pos()) <= 12 * 12).setRadius(8, 5)
                                 )
                         ).onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT)
         );
