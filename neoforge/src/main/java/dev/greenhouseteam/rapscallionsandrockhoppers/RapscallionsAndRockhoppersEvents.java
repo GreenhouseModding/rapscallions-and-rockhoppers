@@ -4,10 +4,11 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.network.RapscallionsAndRock
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersBlocks;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersItems;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersMemoryModuleTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSensorTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSoundEvents;
-import net.minecraft.core.Registry;
+import dev.greenhouseteam.rapscallionsandrockhoppers.util.RegisterFunction;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -16,7 +17,6 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
-import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.function.Consumer;
 
@@ -39,9 +39,13 @@ public class RapscallionsAndRockhoppersEvents {
                 register(event, RapscallionsAndRockhoppersItems::registerItems);
             else if (event.getRegistryKey() == Registries.BLOCK)
                 register(event, RapscallionsAndRockhoppersBlocks::registerBlocks);
+            else if (event.getRegistryKey() == Registries.MEMORY_MODULE_TYPE)
+                register(event, RapscallionsAndRockhoppersMemoryModuleTypes::registerMemoryModuleTypes);
+            else if (event.getRegistryKey() == Registries.SENSOR_TYPE)
+                register(event, RapscallionsAndRockhoppersSensorTypes::registerSensorTypes);
         }
 
-        private static <T> void register(RegisterEvent event, Consumer<TriConsumer<Registry<T>, ResourceLocation, T>> consumer) {
+        private static <T> void register(RegisterEvent event, Consumer<RegisterFunction<T>> consumer) {
             consumer.accept((registry, id, value) -> event.register(registry.key(), id, () -> value));
         }
 

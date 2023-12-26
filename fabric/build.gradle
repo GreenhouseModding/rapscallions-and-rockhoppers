@@ -7,6 +7,14 @@ plugins {
 base {
     archivesName = "${archives_base_name}-fabric-${minecraft_version}"
 }
+
+repositories {
+    maven {
+        name "SmartBrainLib (SBL) Maven Repo"
+        url "https://dl.cloudsmith.io/public/tslat/sbl/maven/"
+    }
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings loom.officialMojangMappings()
@@ -17,6 +25,8 @@ dependencies {
 
     compileOnly group:'com.google.auto.service', name:'auto-service', version:'1.0.1'
     annotationProcessor group:'com.google.auto.service', name:'auto-service', version:'1.0.1'
+
+    include(modImplementation("net.tslat.smartbrainlib:SmartBrainLib-fabric-${minecraft_version}:${sbl_version}"))
 }
 
 loom {

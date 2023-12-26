@@ -1,7 +1,7 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.network;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.RapscallionsAndRockhoppersPacketS2C;
-import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncXRotPacketS2C;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBlockPosLookPacketS2C;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
@@ -16,7 +16,7 @@ import java.util.function.Function;
 public class RapscallionsAndRockhoppersPackets {
     public static void registerS2C() {
         ClientPlayConnectionEvents.INIT.register((handler, client) -> {
-            ClientPlayNetworking.registerReceiver(SyncXRotPacketS2C.ID, createS2CHandler(SyncXRotPacketS2C::decode, SyncXRotPacketS2C::handle));
+            ClientPlayNetworking.registerReceiver(SyncBlockPosLookPacketS2C.ID, createS2CHandler(SyncBlockPosLookPacketS2C::decode, SyncBlockPosLookPacketS2C::handle));
         });
     }
 

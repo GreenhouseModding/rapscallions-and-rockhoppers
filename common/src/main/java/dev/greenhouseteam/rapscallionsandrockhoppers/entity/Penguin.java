@@ -1,71 +1,105 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.entity;
 
-import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal.*;
+import com.mojang.datafixers.util.Pair;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behavior.PenguinJump;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behavior.PenguinShove;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behavior.PenguinStumble;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behavior.ReturnToHome;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behavior.SetRandomSwimTarget;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.NearbyPufferfishSensor;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.NearbyShoveableSensor;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.NearbyWaterSensor;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.PenguinHomeSensor;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.TickCooldown;
+import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IPlatformHelper;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersBlocks;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersMemoryModuleTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersTags;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSoundEvents;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.valueproviders.ConstantFloat;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.AnimationState;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.SpawnGroupData;
-import net.minecraft.world.entity.ai.control.SmoothSwimmingLookControl;
+import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
-import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
-import net.minecraft.world.entity.ai.goal.BreathAirGoal;
-import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.MoveTowardsRestrictionGoal;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.TemptGoal;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Pufferfish;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.Vec3;
+import net.tslat.smartbrainlib.api.SmartBrainOwner;
+import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
+import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
+import net.tslat.smartbrainlib.api.core.behaviour.FirstApplicableBehaviour;
+import net.tslat.smartbrainlib.api.core.behaviour.OneRandomBehaviour;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.look.LookAtTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.BreedWithPartner;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Idle;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Panic;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowTemptation;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomWalkTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToBlock;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetPlayerLookTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetRandomLookTarget;
+import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
+import net.tslat.smartbrainlib.api.core.sensor.custom.NearbyBlocksSensor;
+import net.tslat.smartbrainlib.api.core.sensor.vanilla.HurtBySensor;
+import net.tslat.smartbrainlib.api.core.sensor.vanilla.InWaterSensor;
+import net.tslat.smartbrainlib.api.core.sensor.vanilla.ItemTemptingSensor;
+import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyAdultSensor;
+import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyLivingEntitySensor;
+import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyPlayersSensor;
+import net.tslat.smartbrainlib.util.BrainUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.List;
+import java.util.Map;
 
-public class Penguin extends Animal {
+public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     public static final int STUMBLE_ANIMATION_LENGTH = 15;
-    public static final int GET_UP_ANIMATION_LENGTH = 16;
+    public static final int GET_UP_ANIMATION_LENGTH = 20;
     public static final int SHOVE_ANIMATION_LENGTH = 15;
 
-    public static final String TAG_SHOCKED_TIME = "shocked_time";
-    public static final String TAG_POINT_OF_INTEREST = "point_of_interest";
-    private static final Ingredient FOOD_ITEMS = Ingredient.of(RapscallionsAndRockhoppersTags.ItemTags.PENGUIN_TEMPT_ITEMS);
+    protected static final Ingredient TEMPTATION_ITEM = Ingredient.of(RapscallionsAndRockhoppersTags.ItemTags.PENGUIN_TEMPT_ITEMS);
+    protected static final Ingredient BREED_ITEM = Ingredient.of(RapscallionsAndRockhoppersTags.ItemTags.PENGUIN_BREED_ITEMS);
     private static final EntityDataAccessor<Integer> DATA_SHOCKED_TIME = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_STUMBLE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<OptionalInt> DATA_STUMBLE_TICKS_BEFORE_GETTING_UP = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.OPTIONAL_UNSIGNED_INT);
-    private static final EntityDataAccessor<OptionalInt> DATA_SHOVE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.OPTIONAL_UNSIGNED_INT);
-    private static final EntityDataAccessor<Optional<BlockPos>> DATA_POINT_OF_INTEREST = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.OPTIONAL_BLOCK_POS);
+    private static final EntityDataAccessor<Integer> DATA_STUMBLE_TICKS_BEFORE_GETTING_UP = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_SHOVE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> DATA_STUMBLE_CHANCE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> DATA_SHOVE_CHANCE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.FLOAT);
 
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState waddleAnimationState = new AnimationState();
@@ -82,81 +116,262 @@ public class Penguin extends Animal {
 
     private boolean animationArmState = false;
     private boolean previousStumbleValue = false;
-    private boolean hasSlid = false;
     private boolean previousWaterValue = false;
     private boolean previousWaterMovementValue = false;
     private int walkStartTime = Integer.MIN_VALUE;
 
-
-    private PenguinStumbleGoal stumbleGoal;
-    private TemptGoal temptGoal;
-
     public Penguin(EntityType<? extends Animal> entityType, Level level) {
         super(entityType, level);
-        this.moveControl = new SmoothSwimmingMoveControl(this, 80, 20, 2.0F, 1.0F, false);
-        this.lookControl = new SmoothSwimmingLookControl(this, 20);
+        this.moveControl = new PenguinMoveControl(this);
+        this.lookControl = new PenguinLookControl(this);
         this.setPathfindingMalus(BlockPathTypes.WATER, 2.0F);
         this.setMaxUpStep(1.0F);
     }
 
     @Override
-    public void registerGoals() {
-        this.stumbleGoal =  new PenguinStumbleGoal(this);
-        this.goalSelector.addGoal(0, this.stumbleGoal);
-        this.goalSelector.addGoal(0, new BreathAirGoal(this));
-        this.goalSelector.addGoal(1, new PenguinPanicGoal(this, 2.5));
-        this.goalSelector.addGoal(1, new PenguinEggGoal(this, 1.2f, 16));
-        this.goalSelector.addGoal(2, new PenguinBreedGoal(this, 1.0));
-        this.temptGoal = new TemptGoal(this, 1.25, FOOD_ITEMS, false);
-        this.goalSelector.addGoal(3, this.temptGoal);
-        this.goalSelector.addGoal(4, new PenguinShoveGoal(this));
-        this.goalSelector.addGoal(4, new PenguinSwapBetweenWaterAndLandGoal(this));
-        this.goalSelector.addGoal(5, new MoveTowardsRestrictionGoal(this, 1.0F));
-        this.goalSelector.addGoal(6, new AvoidEntityGoal<>(this, Pufferfish.class, 2.0F, 1.0, 1.0));
-        this.goalSelector.addGoal(7, new PenguinStrollGoal(this));
-        this.goalSelector.addGoal(8, new PenguinJumpGoal(this));
-        this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 6.0F));
-        this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
+    public void addAdditionalSaveData(CompoundTag compoundTag) {
+        super.addAdditionalSaveData(compoundTag);
+        compoundTag.putFloat("stumble_chance", this.getStumbleChance());
+        compoundTag.putFloat("shove_chance", this.getShoveChance());
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag compoundTag) {
+        super.readAdditionalSaveData(compoundTag);
+        this.setStumbleChance(compoundTag.getFloat("stumble_chance"));
+        this.setShoveChance(compoundTag.getFloat("shove_chance"));
+    }
+
+    @Override @NotNull
+    protected Brain.Provider<Penguin> brainProvider() {
+        return new SmartBrainProvider<>(this, true, false);
+    }
+
+    @Override
+    public List<ExtendedSensor<Penguin>> getSensors() {
+        return ObjectArrayList.of(
+                new PenguinHomeSensor(),
+                new NearbyBlocksSensor<Penguin>().setRadius(12.0F).setPredicate((blockState, penguin) -> true),
+                new NearbyLivingEntitySensor<Penguin>().setRadius(16.0F),
+                new NearbyPlayersSensor<Penguin>().setRadius(16.0F),
+                new NearbyAdultSensor<>(),
+                new TickCooldown(RapscallionsAndRockhoppersMemoryModuleTypes.WATER_JUMP_COOLDOWN_TICKS).setPredicate((integer, penguin) -> penguin.isInWater()),
+                new NearbyWaterSensor().setXZRadius(4).setYRadius(4),
+                new NearbyPufferfishSensor(),
+                new ItemTemptingSensor<Penguin>().temptedWith((entity, stack) -> TEMPTATION_ITEM.test(stack)),
+                new InWaterSensor<>(),
+                new HurtBySensor<>(),
+                new NearbyShoveableSensor()
+        );
+    }
+
+    @Override
+    public BrainActivityGroup<Penguin> getCoreTasks() {
+        return BrainActivityGroup.coreTasks(
+                new LookAtTarget<>(),
+                new MoveToWalkTarget<>()
+        );
     }
 
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
+        this.getEntityData().define(DATA_STUMBLE_CHANCE, 0.0F);
+        this.getEntityData().define(DATA_STUMBLE_TICKS, Integer.MIN_VALUE);
+        this.getEntityData().define(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP, Integer.MIN_VALUE);
+        this.getEntityData().define(DATA_SHOVE_CHANCE, 0.0F);
+        this.getEntityData().define(DATA_SHOVE_TICKS, Integer.MIN_VALUE);
         this.getEntityData().define(DATA_SHOCKED_TIME, 0);
-        this.getEntityData().define(DATA_STUMBLE_TICKS, 0);
-        this.getEntityData().define(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP, OptionalInt.empty());
-        this.getEntityData().define(DATA_SHOVE_TICKS, OptionalInt.empty());
-        this.getEntityData().define(DATA_POINT_OF_INTEREST, Optional.empty());
+    }
+
+    @Override
+    public BrainActivityGroup<Penguin> getIdleTasks() {
+        return BrainActivityGroup.<Penguin>idleTasks(
+                new Panic<>().speedMod(o -> 2.5F).panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
+                new BreedWithPartner<>(),
+                new SetPlayerLookTarget<>(),
+                new SetRandomLookTarget<>().lookChance(ConstantFloat.of(0.6F)),
+                new PenguinStumble(),
+                new PenguinShove(),
+                new FirstApplicableBehaviour<>(
+                        new FollowTemptation<>(),
+                        new ReturnToHome().setRadius(8).startCondition(penguin -> !penguin.isLeashed()),
+                        new OneRandomBehaviour<>(
+                                Pair.of(createBoundWalkTarget(12, 6, 8).avoidWaterWhen(penguin -> penguin.getRandom().nextFloat() < 0.9F), 14),
+                                Pair.of(new Idle<>().runFor(entity -> entity.getRandom().nextInt(15, 30)), 1)
+                        )
+                )
+        ).onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_ABSENT);
+    }
+
+    @Override
+    public Map<Activity, BrainActivityGroup<? extends Penguin>> getAdditionalTasks() {
+        return Map.of(
+                Activity.SWIM, new BrainActivityGroup<Penguin>(Activity.SWIM)
+                        .priority(10)
+                        .behaviours(
+                                new SetWalkTargetToBlock<>().closeEnoughWhen((mob, blockPosBlockStatePair) -> 0).predicate((mob, pair) -> (pair.getSecond().getFluidState().isEmpty() || pair.getSecond().is(Blocks.BUBBLE_COLUMN)) && pair.getSecond().isPathfindable(mob.level(), pair.getFirst(), PathComputationType.LAND) || pair.getFirst() == mob.blockPosition().above(8)).startCondition(mob -> mob.getAirSupply() < 140),
+                                new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
+                                new BreedWithPartner<>(),
+                                new FirstApplicableBehaviour<>(
+                                        new FollowTemptation<>(),
+                                        new PenguinJump(),
+                                        new ReturnToHome().setRadius(12).startCondition(penguin -> !penguin.isLeashed() && !BrainUtils.hasMemory(penguin, MemoryModuleType.TEMPTING_PLAYER)),
+                                        new SetRandomSwimTarget().avoidLandWhen(penguin -> penguin.getRandom().nextFloat() < 0.95F).setRadius(12, 6).walkTargetPredicate((mob, vec3) -> vec3 == null || !BrainUtils.hasMemory(mob, MemoryModuleType.HOME) || BrainUtils.getMemory(mob, MemoryModuleType.HOME).dimension() == mob.level().dimension() && mob.blockPosition().distSqr(BrainUtils.getMemory(mob, MemoryModuleType.HOME).pos()) <= 9)
+                                )
+                        ).onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT)
+        );
+    }
+
+    private SetRandomWalkTarget<Penguin> createBoundWalkTarget(int xzRadius, int yRadius, int distanceFromHome) {
+        return new SetRandomWalkTarget<Penguin>().setRadius(xzRadius, yRadius).walkTargetPredicate((mob, vec3) -> vec3 == null || (!BrainUtils.hasMemory(mob, MemoryModuleType.HOME) || BrainUtils.getMemory(mob, MemoryModuleType.HOME).dimension() == mob.level().dimension() && vec3.distanceTo(BrainUtils.getMemory(mob, MemoryModuleType.HOME).pos().getCenter()) <= distanceFromHome));
+    }
+
+    @Override
+    protected void customServerAiStep() {
+        tickBrain(this);
+        super.customServerAiStep();
+    }
+
+    @Override
+    public void tick() {
+        if (this.isNoAi()) {
+            this.setAirSupply(this.getMaxAirSupply());
+            return;
+        }
+        super.tick();
+
+        if (!previousWaterValue && this.isInWaterOrBubble()) {
+            this.previousWaterValue = true;
+            if (!this.level().isClientSide()) {
+                BrainUtils.setMemory(this, RapscallionsAndRockhoppersMemoryModuleTypes.WATER_JUMP_COOLDOWN_TICKS, Mth.randomBetweenInclusive(this.getRandom(), 120, 200));
+            }
+            this.setPose(Pose.SWIMMING);
+        } else if (previousWaterValue && !this.isInWaterOrBubble() && this.onGround()) {
+            this.previousWaterValue = false;
+            this.setPose(Pose.STANDING);
+        }
+
+        if (!this.level().isClientSide()) {
+            if (this.isShocked()) {
+                this.setShockedTime(this.getShockedTime() - 1);
+            }
+
+            if (this.isStumbling()) {
+                if (this.getStumbleTicks() > Penguin.STUMBLE_ANIMATION_LENGTH + this.getStumbleTicksBeforeGettingUp() + Penguin.GET_UP_ANIMATION_LENGTH) {
+                    this.setStumbleTicks(Integer.MIN_VALUE);
+                } else {
+                    int previousValue = this.getStumbleTicks() == Integer.MIN_VALUE ? -1 : this.getStumbleTicks();
+                    this.setStumbleTicks(previousValue + 1);
+                }
+            } else if (this.getShoveTicks() != Integer.MIN_VALUE) {
+                if (this.getShoveTicks() < 0) {
+                    this.setShoveTicks(Integer.MIN_VALUE);
+                } else {
+                    int previousValue = this.getShoveTicks();
+                    this.setShoveTicks(previousValue - 1);
+                }
+            }
+
+            if (!this.isInWaterOrBubble()) {
+                if ((this.getDeltaMovement().horizontalDistanceSqr() > 0.0F || this.getDeltaMovement().y() > 0.0) && !this.isStumbling()) {
+                    if (this.getWalkStartTime() == Integer.MIN_VALUE) {
+                        this.setWalkStartTime(this.tickCount);
+                    }
+                } else {
+                    if (this.getWalkStartTime() != Integer.MIN_VALUE) {
+                        this.setWalkStartTime(Integer.MIN_VALUE);
+                    }
+                }
+            }
+        } else {
+            if (this.getPose() == Pose.SWIMMING) {
+                this.stopAllLandAnimations();
+                this.swimIdleAnimationState.animateWhen(!this.walkAnimation.isMoving(), this.tickCount);
+                this.swimAnimationState.animateWhen(this.walkAnimation.isMoving(), this.tickCount);
+            } else {
+                this.stopAllWaterAnimations();
+                this.idleAnimationState.animateWhen(!this.walkAnimation.isMoving() && !this.isStumbling(), this.tickCount);
+                this.waddleAnimationState.animateWhen(this.walkAnimation.isMoving() && !this.isStumbling(), this.tickCount);
+                this.shockArmAnimationState.animateWhen(this.isShocked() && !this.isStumbling() && !this.isDeadOrDying(), this.tickCount);
+
+                if (this.isStumbling()) {
+                    this.stumbleFallingAnimationState.animateWhen(this.getDeltaMovement().y() < -0.1, this.tickCount);
+
+                    if (this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE) {
+                        if (this.getStumbleTicks() > STUMBLE_ANIMATION_LENGTH) {
+                            this.stumbleAnimationState.stop();
+                            this.stumbleGroundAnimationState.animateWhen(this.getStumbleTicks() <= this.getStumbleTicksBeforeGettingUp(), this.tickCount);
+                            this.stumbleGetUpAnimationState.animateWhen(this.getStumbleTicks() > this.getStumbleTicksBeforeGettingUp(), this.tickCount);
+                        } else if (!this.previousStumbleValue) {
+                            this.stumbleAnimationState.start(this.tickCount);
+                            this.waddleRetractAnimationState.stop();
+                            this.waddleExpandAnimationState.stop();
+                            this.animationArmState = false;
+                            this.previousStumbleValue = true;
+                        }
+                    }
+                } else if (!this.isStumbling() && this.previousStumbleValue) {
+                    this.stumbleAnimationState.stop();
+                    this.stumbleGroundAnimationState.stop();
+                    this.stumbleGetUpAnimationState.stop();
+                    this.stumbleFallingAnimationState.stop();
+                    this.previousStumbleValue = false;
+                } else {
+                    this.shoveAnimationState.animateWhen(this.getShoveTicks() != Integer.MIN_VALUE, this.tickCount);
+
+                    if (!this.animationArmState && this.walkAnimation.isMoving()) {
+                        this.waddleRetractAnimationState.stop();
+                        this.waddleExpandAnimationState.startIfStopped(this.tickCount);
+                        this.animationArmState = true;
+                    } else if (this.animationArmState && !this.walkAnimation.isMoving()) {
+                        this.waddleExpandAnimationState.stop();
+                        this.waddleRetractAnimationState.startIfStopped(this.tickCount);
+                        this.animationArmState = false;
+                    }
+                }
+
+            }
+        }
+        this.refreshDimensionsIfShould();
     }
 
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficultyInstance, MobSpawnType mobSpawnType, @javax.annotation.Nullable SpawnGroupData spawnGroupData, @javax.annotation.Nullable CompoundTag tag) {
-        Optional<BlockPos> optionalPos = level.getEntitiesOfClass(Penguin.class, this.getBoundingBox().inflate(20.0F, 10.0F, 20.0F)).stream().map(Penguin::getPointOfInterest).filter(Objects::nonNull).findFirst();
+        // TODO: Penguin types?
 
-        if (optionalPos.isEmpty() && level.getFluidState(this.blockPosition()).is(FluidTags.WATER)) {
-            BlockPos.MutableBlockPos storedPos = new BlockPos.MutableBlockPos(this.blockPosition().getX(), this.blockPosition().getY(), this.blockPosition().getZ());
-            boolean resolved = false;
-            while (!resolved) {
-                storedPos.move(0, 1, 0);
-                if (level.getFluidState(storedPos).isEmpty()) {
-                    if (level.getBlockState(storedPos).isAir()) {
-                        optionalPos = Optional.of(storedPos.immutable());
-                    }
-                    resolved = true;
-                }
-            }
-        }
-
-        if (optionalPos.isEmpty()) {
-            optionalPos = BlockPos.betweenClosedStream(
-                    this.blockPosition().getX() - 24, this.blockPosition().getY() - 12, this.blockPosition().getZ() - 24,
-                    this.blockPosition().getX() + 24, this.blockPosition().getY() + 12, this.blockPosition().getZ() + 24
-            ).filter(pos -> level.getFluidState(pos).is(FluidTags.WATER) && level.getBlockState(pos.above()).isAir()).map(BlockPos::immutable).min(Comparator.comparing(pos -> pos.distManhattan(this.blockPosition())));
-        }
-
-        optionalPos.ifPresent(this::setPointOfInterest);
+        this.setStumbleChance(Mth.randomBetween(this.getRandom(), 0.0025F, 0.005F));
+        this.setShoveChance(Mth.randomBetween(this.getRandom(), 0.001F, 0.0025F));
 
         return super.finalizeSpawn(level, difficultyInstance, mobSpawnType, spawnGroupData, tag);
+    }
+
+    @Override
+    public void spawnChildFromBreeding(ServerLevel level, Animal animal) {
+        AgeableMob ageablemob = this.getBreedOffspring(level, animal);
+        boolean cancelled = IPlatformHelper.INSTANCE.runAndIsBreedEventCancelled(this, animal);
+        if (cancelled) {
+            this.setAge(6000);
+            animal.setAge(6000);
+            this.resetLove();
+            animal.resetLove();
+        } else {
+            BlockPos blockPos = this.blockPosition();
+            BlockState blockstate = this.level().getBlockState(blockPos);
+
+            // TODO: Make Penguin spawn egg upon finding a loose block.
+            if (blockstate.isAir()) {
+                this.level().setBlockAndUpdate(blockPos, RapscallionsAndRockhoppersBlocks.PENGUIN_EGG.defaultBlockState());
+                this.level().levelEvent(2001, blockPos, Block.getId(this.level().getBlockState(blockPos)));
+            }
+
+            this.finalizeSpawnChildFromBreeding(level, animal, ageablemob);
+        }
+    }
+
+    @Override
+    public int getMaxHeadXRot() {
+        return 15;
     }
 
     @Override
@@ -210,128 +425,7 @@ public class Penguin extends Animal {
 
     @Override
     public boolean isFood(ItemStack stack) {
-        return FOOD_ITEMS.test(stack);
-    }
-
-    @Override
-    public void addAdditionalSaveData(CompoundTag compoundTag) {
-        super.addAdditionalSaveData(compoundTag);
-        compoundTag.putInt(TAG_SHOCKED_TIME, this.getShockedTime());
-        if (this.getPointOfInterest() != null) {
-            compoundTag.put(TAG_POINT_OF_INTEREST, BlockPos.CODEC.encodeStart(NbtOps.INSTANCE, this.getPointOfInterest()).getOrThrow(false, (s) -> RapscallionsAndRockhoppers.LOG.error("Failed to encode Penguin's Point of Interest: " + s)));
-        }
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundTag compoundTag) {
-        super.readAdditionalSaveData(compoundTag);
-        this.setShockedTime(compoundTag.getInt(TAG_SHOCKED_TIME));
-        if (compoundTag.contains(TAG_POINT_OF_INTEREST)) {
-            this.setPointOfInterest(BlockPos.CODEC.decode(NbtOps.INSTANCE, compoundTag.get(TAG_POINT_OF_INTEREST)).getOrThrow(false, (s) -> RapscallionsAndRockhoppers.LOG.error("Failed to decode Penguin's Point of Interest: " + s)).getFirst());
-        }
-    }
-
-    @Override
-    public void tick() {
-        if (this.isNoAi()) {
-            this.setAirSupply(this.getMaxAirSupply());
-            return;
-        }
-
-        super.tick();
-
-        if (!previousWaterValue && this.isInWaterOrBubble()) {
-            Optional<BlockPos> optionalPos = this.level().getEntitiesOfClass(Penguin.class, this.getBoundingBox().inflate(20.0F, 10.0F, 20.0F)).stream().map(Penguin::getPointOfInterest).filter(Objects::nonNull).findFirst();
-
-            if (optionalPos.isEmpty()) {
-                optionalPos = Optional.of(this.blockPosition());
-            }
-
-            if (canSetNewPointOfInterest(optionalPos.get())) {
-                this.setPointOfInterest(optionalPos.get());
-            }
-            this.previousWaterValue = true;
-
-            this.setPose(Pose.SWIMMING);
-        } else if (previousWaterValue && !this.isInWaterOrBubble() && this.onGround()) {
-            Optional<BlockPos> optionalPos = this.level().getEntitiesOfClass(Penguin.class, this.getBoundingBox().inflate(20.0F, 10.0F, 20.0F)).stream().map(Penguin::getPointOfInterest).filter(Objects::nonNull).findFirst();
-
-            if (optionalPos.isEmpty()) {
-                optionalPos = BlockPos.betweenClosedStream(new AABB(-2, -2, -2, 2, 2, 2)).filter(pos -> this.level().getFluidState(pos).is(FluidTags.WATER) && this.level().getBlockState(pos.above()).isAir()).map(BlockPos::immutable).min(Comparator.comparing(pos -> pos.distManhattan(this.blockPosition())));
-            }
-
-            if (canSetNewPointOfInterest(optionalPos.get())) {
-                this.setPointOfInterest(optionalPos.get());
-            }
-            this.previousWaterValue = false;
-            this.setPose(Pose.STANDING);
-        }
-
-        if (!this.level().isClientSide()) {
-            if (this.getShockedTime() > 0) {
-                this.setShockedTime(this.getShockedTime() - 1);
-            }
-
-            if (!this.isInWaterOrBubble()) {
-                if ((this.getDeltaMovement().horizontalDistanceSqr() > 0.0F || this.getDeltaMovement().y() > 0.0) && !this.isStumbling()) {
-                    if (this.getWalkStartTime() == Integer.MIN_VALUE) {
-                        this.setWalkStartTime(this.tickCount);
-                    }
-                } else {
-                    if (this.getWalkStartTime() != Integer.MIN_VALUE) {
-                        this.setWalkStartTime(Integer.MIN_VALUE);
-                    }
-                }
-            }
-        } else {
-            if (this.getPose() == Pose.SWIMMING) {
-                this.stopAllLandAnimations();
-                this.swimIdleAnimationState.animateWhen(!this.walkAnimation.isMoving(), this.tickCount);
-                this.swimAnimationState.animateWhen(this.walkAnimation.isMoving(), this.tickCount);
-            } else {
-                this.stopAllWaterAnimations();
-                this.idleAnimationState.animateWhen(!this.walkAnimation.isMoving() && !this.isStumbling(), this.tickCount);
-                this.waddleAnimationState.animateWhen(this.walkAnimation.isMoving() && !this.isStumbling(), this.tickCount);
-                this.shockArmAnimationState.animateWhen(this.isShocked() && !this.isStumbling() && !this.isDeadOrDying(), this.tickCount);
-
-                if (this.isStumbling()) {
-                    this.stumbleFallingAnimationState.animateWhen(this.getDeltaMovement().y() < -0.1, this.tickCount);
-
-                    if (this.getStumbleTicksBeforeGettingUp().isPresent()) {
-                        if (this.getStumbleTicks() > STUMBLE_ANIMATION_LENGTH) {
-                            this.stumbleAnimationState.stop();
-                            this.stumbleGroundAnimationState.animateWhen(this.getStumbleTicks() <= this.getStumbleTicksBeforeGettingUp().getAsInt(), this.tickCount);
-                            this.stumbleGetUpAnimationState.animateWhen(this.getStumbleTicks() > this.getStumbleTicksBeforeGettingUp().getAsInt(), this.tickCount);
-                        } else if (!this.previousStumbleValue) {
-                            this.stumbleAnimationState.start(this.tickCount);
-                            this.waddleRetractAnimationState.stop();
-                            this.waddleExpandAnimationState.stop();
-                            this.animationArmState = false;
-                            this.previousStumbleValue = true;
-                        }
-                    }
-                } else if (!this.isStumbling() && this.previousStumbleValue) {
-                    this.stumbleAnimationState.stop();
-                    this.stumbleGroundAnimationState.stop();
-                    this.stumbleGetUpAnimationState.stop();
-                    this.stumbleFallingAnimationState.stop();
-                    this.previousStumbleValue = false;
-                } else {
-                    this.shoveAnimationState.animateWhen(this.getShoveTicks().isPresent(), this.tickCount);
-                    if (!this.animationArmState && this.walkAnimation.isMoving()) {
-                        this.waddleRetractAnimationState.stop();
-                        this.waddleExpandAnimationState.startIfStopped(this.tickCount);
-                        this.animationArmState = true;
-                    } else if (this.animationArmState && !this.walkAnimation.isMoving()) {
-                        this.waddleExpandAnimationState.stop();
-                        this.waddleRetractAnimationState.startIfStopped(this.tickCount);
-                        this.animationArmState = false;
-                    }
-                }
-
-            }
-        }
-        this.refreshDimensionsIfShould();
+        return BREED_ITEM.test(stack);
     }
 
     private boolean isActivelySwimming() {
@@ -342,7 +436,7 @@ public class Penguin extends Animal {
         if (this.isInWaterOrBubble() && this.previousWaterMovementValue ^ this.isActivelySwimming()) {
             this.previousWaterMovementValue = !this.previousWaterMovementValue;
             this.refreshDimensions();
-        } else if (this.isStumbling() && this.getStumbleTicksBeforeGettingUp().isPresent() && (this.getStumbleTicks() == STUMBLE_ANIMATION_LENGTH + 2 || this.getStumbleTicks() == this.getStumbleTicksBeforeGettingUp().getAsInt() + 5)) {
+        } else if (this.isStumbling() && this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE && (this.getStumbleTicks() == STUMBLE_ANIMATION_LENGTH + 2 || this.getStumbleTicks() == this.getStumbleTicksBeforeGettingUp() + 5)) {
             this.refreshDimensions();
         }
     }
@@ -375,54 +469,9 @@ public class Penguin extends Animal {
         this.swimAnimationState.stop();
     }
 
-    private boolean canSetNewPointOfInterest(BlockPos pos) {
-        if (this.getPointOfInterest() == null) {
-            return true;
-        }
-
-        return this.getPointOfInterest().distManhattan(pos) > 14;
-    }
-
-    public boolean canStumble() {
-        return !this.temptGoal.isRunning();
-    }
-
-    @Override
-    public void push(Entity entity) {
-        if (!this.isPassengerOfSameVehicle(entity) && entity.isSprinting() && !entity.noPhysics && !this.noPhysics && !this.isVehicle() && this.isPushable() && (this.getStumbleTicksBeforeGettingUp().isEmpty() || this.getStumbleTicks() < STUMBLE_ANIMATION_LENGTH)) {
-            double xPos = entity.getX() - this.getX();
-            double zPos = entity.getZ() - this.getZ();
-            double max = Mth.absMax(xPos, zPos);
-            if (max >= 0.01F) {
-                this.setYRot(entity.getYRot());
-                if (!this.level().isClientSide()) {
-                    this.stumbleWithoutInitialAnimation();
-                }
-
-                max = Math.sqrt(max);
-                xPos /= max;
-                zPos /= max;
-                double modifier = 1.0 / max;
-                if (modifier > 1.0) {
-                    modifier = 1.0;
-                }
-
-                xPos *= modifier;
-                zPos *= modifier;
-                xPos *= 0.05F;
-                zPos *= 0.05F;
-                if (!entity.isVehicle() && entity.isPushable()) {
-                    entity.push(xPos, 0.0, zPos);
-                }
-            }
-        } else {
-            super.push(entity);
-        }
-    }
-
     @Override
     public EntityDimensions getDimensions(Pose pose) {
-        if (this.getStumbleTicksBeforeGettingUp().isPresent() && this.getStumbleTicks() >= STUMBLE_ANIMATION_LENGTH + 2 && this.getStumbleTicks() < this.getStumbleTicksBeforeGettingUp().getAsInt() + 5) {
+        if (this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE && this.getStumbleTicks() >= STUMBLE_ANIMATION_LENGTH + 2 && this.getStumbleTicks() < this.getStumbleTicksBeforeGettingUp() + 5) {
             return super.getDimensions(pose).scale(1.33F, 0.5F);
         } else if (this.getPose() == Pose.SWIMMING && this.isActivelySwimming()) {
             return super.getDimensions(pose).scale(1.28333F, 0.7F);
@@ -431,89 +480,79 @@ public class Penguin extends Animal {
     }
 
     @Override
-    public boolean isWithinRestriction(BlockPos pos) {
-        if (this.getRestrictRadius() == -1.0F) {
-            return true;
-        } else {
-            return this.getRestrictCenter().distSqr(pos) < (double)(this.getRestrictRadius() * this.getRestrictRadius());
-        }
-    }
-
-    @Override
-    public BlockPos getRestrictCenter() {
-        BlockPos retValue = super.getRestrictCenter();
-        if (retValue == BlockPos.ZERO && this.getPointOfInterest() != null) {
-            return this.getPointOfInterest();
-        }
-        return retValue;
-    }
-
-    @Override
-    public float getRestrictRadius() {
-        float restrictRadius = super.getRestrictRadius();
-        if (restrictRadius == -1.0F && this.getPointOfInterest() != null) {
-            return this.previousWaterValue ? 12 : 6;
-        }
-        return restrictRadius;
-    }
-
-    @Override
     protected void actuallyHurt(DamageSource damageSource, float amount) {
         super.actuallyHurt(damageSource, amount);
         this.setShockedTime(this.random.nextInt(60, 120));
+        this.setShoveTicks(Integer.MIN_VALUE);
+        this.setStumbleTicks(Integer.MIN_VALUE);
     }
 
     public void stumbleWithoutInitialAnimation() {
-        this.stumbleGoal.startWithoutInitialAnimation();
+        this.setStumbleTicks(Penguin.STUMBLE_ANIMATION_LENGTH + 1);
+        this.setStumbleTicksBeforeGettingUp(this.getRandom().nextIntBetweenInclusive(30, 60));
+        BrainUtils.setMemory(this, MemoryModuleType.WALK_TARGET, null);
+        BrainUtils.setMemory(this, MemoryModuleType.LOOK_TARGET, null);
     }
 
-    public void setShockedTime(int shockedTime) {
-        this.animationArmState = true;
-        this.getEntityData().set(DATA_SHOCKED_TIME, shockedTime);
+    public void setStumbleChance(float stumbleChance) {
+        this.getEntityData().set(DATA_STUMBLE_CHANCE, stumbleChance);
+    }
+
+    public float getStumbleChance() {
+        return this.getEntityData().get(DATA_STUMBLE_CHANCE);
     }
 
     public int getShockedTime() {
-        return this.getEntityData().get(DATA_SHOCKED_TIME);
+        return this.entityData.get(DATA_SHOCKED_TIME);
+    }
+
+    public void setShockedTime(int shockedTime) {
+        this.entityData.set(DATA_SHOCKED_TIME, shockedTime);
+        this.animationArmState = true;
     }
 
     public boolean isShocked() {
-        return this.getShockedTime() > 0;
+        return this.entityData.get(DATA_SHOCKED_TIME) > 0;
     }
 
     public void setStumbleTicks(int stumbleTime) {
-        this.getEntityData().set(DATA_STUMBLE_TICKS, stumbleTime);
+        this.entityData.set(DATA_STUMBLE_TICKS, stumbleTime);
     }
 
     public int getStumbleTicks() {
-        return this.getEntityData().get(DATA_STUMBLE_TICKS);
+        return this.entityData.get(DATA_STUMBLE_TICKS);
     }
 
-    public void setStumbleTicksBeforeGettingUp(OptionalInt ticksBeforeGettingUp) {
-        this.getEntityData().set(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP, ticksBeforeGettingUp);
+    public void setStumbleTicksBeforeGettingUp(int ticksBeforeGettingUp) {
+        this.entityData.set(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP, ticksBeforeGettingUp);
     }
 
-    public OptionalInt getStumbleTicksBeforeGettingUp() {
-        return this.getEntityData().get(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP);
+    public int getStumbleTicksBeforeGettingUp() {
+        return this.entityData.get(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP);
     }
 
-    public void setShoveTicks(OptionalInt shoveTicks) {
+    public void setShoveChance(float shoveChance) {
+        this.getEntityData().set(DATA_SHOVE_CHANCE, shoveChance);
+    }
+
+    public float getShoveChance() {
+        return this.getEntityData().get(DATA_SHOVE_CHANCE);
+    }
+
+    public void setShoveTicks(int shoveTicks) {
         this.getEntityData().set(DATA_SHOVE_TICKS, shoveTicks);
     }
 
-    public void incrementShoveTicks() {
-        this.getEntityData().set(DATA_SHOVE_TICKS, OptionalInt.of(this.getShoveTicks().orElse(-1) + 1));
-    }
-
-    public OptionalInt getShoveTicks() {
+    public int getShoveTicks() {
         return this.getEntityData().get(DATA_SHOVE_TICKS);
     }
 
     public boolean isStumbling() {
-        return this.getStumbleTicksBeforeGettingUp().isPresent() && this.getStumbleTicksBeforeGettingUp().getAsInt() + GET_UP_ANIMATION_LENGTH > this.getStumbleTicks();
+        return this.getStumbleTicks() != Integer.MIN_VALUE;
     }
 
     public boolean isStumblingAndNotGettingUp() {
-        return this.getStumbleTicksBeforeGettingUp().isPresent() && this.getStumbleTicksBeforeGettingUp().getAsInt() > this.getStumbleTicks();
+        return this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE && this.getStumbleTicksBeforeGettingUp() > this.getStumbleTicks();
     }
 
     public void setWalkStartTime(int walkStartTime) {
@@ -524,20 +563,48 @@ public class Penguin extends Animal {
         return this.walkStartTime;
     }
 
-    public void setHasSlid(boolean slideValue) {
-        this.hasSlid = slideValue;
+    public static class PenguinMoveControl extends SmoothSwimmingMoveControl {
+        private boolean moveValue = false;
+
+        public PenguinMoveControl(Penguin penguin) {
+            super(penguin, 80, 20, 2.0F, 1.0F, false);
+        }
+
+        @Override
+        public void tick() {
+            if (this.canMove()) {
+                super.tick();
+                this.moveValue = true;
+            } else if (this.moveValue) {
+                this.mob.setXxa(0.0F);
+                this.mob.setYya(0.0F);
+                this.mob.setZza(0.0F);
+                this.moveValue = false;
+            }
+        }
+
+        private boolean canMove() {
+            return ((Penguin)this.mob).getStumbleTicks() == Integer.MIN_VALUE && ((Penguin)this.mob).getShoveTicks() == Integer.MIN_VALUE;
+        }
+
     }
 
-    public boolean getHasSlid() {
-        return this.hasSlid;
+    public static class PenguinLookControl extends LookControl {
+        public PenguinLookControl(Penguin penguin) {
+            super(penguin);
+        }
+
+        @Override
+        public void tick() {
+            if (this.canMove()) {
+                super.tick();
+            }
+        }
+
+        private boolean canMove() {
+            return ((Penguin)this.mob).getStumbleTicks() == Integer.MIN_VALUE && ((Penguin)this.mob).getShoveTicks() == Integer.MIN_VALUE;
+        }
+
     }
 
-    public void setPointOfInterest(@Nullable BlockPos point) {
-        this.getEntityData().set(DATA_POINT_OF_INTEREST, Optional.ofNullable(point));
-    }
-
-    @Nullable
-    public BlockPos getPointOfInterest() {
-        return this.getEntityData().get(DATA_POINT_OF_INTEREST).orElse(null);
-    }
 }

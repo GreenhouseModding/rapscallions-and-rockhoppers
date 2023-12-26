@@ -29,12 +29,23 @@ runs {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
+repositories {
+    maven {
+        name "SmartBrainLib (SBL) Maven Repo"
+        url "https://dl.cloudsmith.io/public/tslat/sbl/maven/"
+    }
+}
+
 dependencies {
     implementation "net.neoforged:neoforge:${neoforge_version}"
     compileOnly project(":common")
 
     compileOnly group:'com.google.auto.service', name:'auto-service', version:'1.0.1'
     annotationProcessor group:'com.google.auto.service', name:'auto-service', version:'1.0.1'
+
+    jarJar(implementation("net.tslat.smartbrainlib:SmartBrainLib-neoforge-${minecraft_version}:${sbl_version}")) {
+        jarJar.ranged(it, "[${sbl_version},)")
+    }
 }
 
 // NeoGradle compiles the game, but we don't want to add our common code to the game's code
@@ -54,6 +65,18 @@ tasks.named("sourcesJar", Jar) {
 
 tasks.withType(ProcessResources).matching(notNeoTask).configureEach {
     from project(":common").sourceSets.main.resources
+}
+
+tasks.named('jarJar').configure {
+    archiveClassifier = ""
+}
+
+tasks.named('build').configure {
+    dependsOn('jarJar')
+}
+
+tasks.withType(AbstractPublishToMaven).configureEach {
+    it.dependsOn('jarJar')
 }
 
 publishing {

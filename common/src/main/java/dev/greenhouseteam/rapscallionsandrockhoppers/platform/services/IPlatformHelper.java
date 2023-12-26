@@ -3,6 +3,7 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.platform.services;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.RapscallionsAndRockhoppersPacketS2C;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.ServiceUtil;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.Animal;
 
 public interface IPlatformHelper {
     IPlatformHelper INSTANCE = ServiceUtil.load(IPlatformHelper.class);
@@ -40,4 +41,6 @@ public interface IPlatformHelper {
     }
 
     void sendS2CTracking(RapscallionsAndRockhoppersPacketS2C packet, Entity entity);
+
+    boolean runAndIsBreedEventCancelled(Animal parent, Animal otherParent);
 }

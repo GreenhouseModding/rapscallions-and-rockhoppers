@@ -3,6 +3,8 @@ package dev.greenhouseteam.rapscallionsandrockhoppers;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersBlocks;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersItems;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersMemoryModuleTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSensorTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSoundEvents;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -22,6 +24,8 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
         RapscallionsAndRockhoppersItems.registerItems(Registry::register);
         RapscallionsAndRockhoppersEntityTypes.registerEntityTypes(Registry::register);
         RapscallionsAndRockhoppersSoundEvents.registerSoundEvents(Registry::register);
+        RapscallionsAndRockhoppersMemoryModuleTypes.registerMemoryModuleTypes(Registry::register);
+        RapscallionsAndRockhoppersSensorTypes.registerSensorTypes(Registry::register);
 
         RapscallionsAndRockhoppersEntityTypes.createMobAttributes(FabricDefaultAttributeRegistry::register);
 
