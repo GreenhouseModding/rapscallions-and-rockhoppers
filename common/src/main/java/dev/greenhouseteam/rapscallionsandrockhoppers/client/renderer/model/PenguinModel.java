@@ -102,8 +102,8 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 	private void animateWaddle(Penguin penguin, float delta, float limbSwing, float limbSwingAmount, float animationSpeed) {
 		this.animate(penguin.idleAnimationState, PenguinAnimation.IDLE, delta, animationSpeed * 0.5F);
 		this.animate(penguin.waddleAnimationState, PenguinAnimation.WADDLE_BODY, delta, animationSpeed);
-		this.animate(penguin.waddleExpandAnimationState, PenguinAnimation.WADDLE_ARMS_EXTEND, delta, animationSpeed);
-		this.animate(penguin.waddleRetractAnimationState, PenguinAnimation.WADDLE_ARMS_RETRACT, delta, animationSpeed);
+		this.animate(penguin.waddleArmEaseInAnimationState, PenguinAnimation.WADDLE_ARMS_EASE_IN, delta, animationSpeed);
+		this.animate(penguin.waddleArmEaseOutAnimationState, PenguinAnimation.WADDLE_ARMS_EASE_OUT, delta, animationSpeed);
 		this.animateWalk(PenguinAnimation.WADDLE_FEET, limbSwing, limbSwingAmount, 5.0F, 45.0F);
 	}
 
@@ -134,6 +134,8 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 	private void animateSwim(Penguin penguin, float delta) {
 		this.animate(penguin.swimIdleAnimationState, PenguinAnimation.SWIM_IDLE, delta, 1.0F);
 		this.animate(penguin.swimAnimationState, PenguinAnimation.SWIM, delta, 0.25F);
+		this.animate(penguin.swimEaseInAnimationState, PenguinAnimation.SWIM_EASE_IN, delta, 1.0F);
+		this.animate(penguin.swimEaseOutAnimationState, PenguinAnimation.SWIM_EASE_OUT, delta, 1.0F);
 	}
 
 	private void moveHead(Penguin penguin, float yRot, float xRot) {
