@@ -10,6 +10,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
+// TODO: Implement this as a behaviour
 public class PenguinEggGoal extends MoveToBlockGoal {
     public static final int EGG_CRACK_TIME = 6000;
     private final Penguin penguin;
