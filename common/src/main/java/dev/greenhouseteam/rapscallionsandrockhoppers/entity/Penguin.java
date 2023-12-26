@@ -306,7 +306,6 @@ public class Penguin extends Animal {
                             this.stumbleAnimationState.start(this.tickCount);
                             this.waddleRetractAnimationState.stop();
                             this.waddleExpandAnimationState.stop();
-                            this.animationArmState = false;
                             this.previousStumbleValue = true;
                         }
                     }
@@ -368,6 +367,7 @@ public class Penguin extends Animal {
         this.stumbleFallingAnimationState.stop();
         this.stumbleGroundAnimationState.stop();
         this.stumbleGetUpAnimationState.stop();
+        this.animationArmState = false;
     }
 
     private void stopAllWaterAnimations() {
