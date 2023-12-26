@@ -100,6 +100,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     private static final EntityDataAccessor<Integer> DATA_SHOVE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> DATA_STUMBLE_CHANCE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> DATA_SHOVE_CHANCE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.FLOAT);
+    private static final int SWIM_EASE_OUT_ANIMATION_LENGTH = 15;
 
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState waddleAnimationState = new AnimationState();
@@ -118,6 +119,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
     private boolean animationArmState = false;
     private boolean animationSwimState = false;
+    private long stopEaseOutAnimAt = Long.MIN_VALUE;
     private boolean previousStumbleValue = false;
     private boolean previousWaterValue = false;
     private boolean previousWaterMovementValue = false;
@@ -304,6 +306,10 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 }
             } else {
                 this.stopAllWaterAnimations();
+                if (this.swimEaseOutAnimationState.getAccumulatedTime() >= this.stopEaseOutAnimAt && this.swimEaseOutAnimationState.isStarted()) {
+                    this.swimEaseOutAnimationState.stop();
+                }
+
                 this.idleAnimationState.animateWhen(!this.walkAnimation.isMoving() && !this.isStumbling(), this.tickCount);
                 this.waddleAnimationState.animateWhen(this.walkAnimation.isMoving() && !this.isStumbling(), this.tickCount);
                 this.shockArmAnimationState.animateWhen(this.isShocked() && !this.isStumbling() && !this.isDeadOrDying(), this.tickCount);
@@ -481,6 +487,12 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     private void stopAllWaterAnimations() {
         this.swimIdleAnimationState.stop();
         this.swimAnimationState.stop();
+        this.swimEaseInAnimationState.stop();
+        if (this.swimEaseInAnimationState.isStarted()) {
+            this.swimEaseOutAnimationState.startIfStopped(this.tickCount);
+            this.stopEaseOutAnimAt = this.tickCount + SWIM_EASE_OUT_ANIMATION_LENGTH;
+        } else
+            this.swimEaseOutAnimationState.stop();
         this.animationSwimState = false;
     }
 

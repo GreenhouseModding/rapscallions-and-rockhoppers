@@ -1057,19 +1057,19 @@ public class PenguinAnimation {
                             new Keyframe(2f, KeyframeAnimations.posVec(0f, 0f, 0f),
                                     AnimationChannel.Interpolations.LINEAR))).build();
 
-    public static final AnimationDefinition SWIM_EASE_IN = AnimationDefinition.Builder.withLength(0.20f)
+    public static final AnimationDefinition SWIM_EASE_IN = AnimationDefinition.Builder.withLength(0.48f)
             .addAnimation("root",
                     new AnimationChannel(AnimationChannel.Targets.ROTATION,
                             new Keyframe(0f, KeyframeAnimations.degreeVec(0f, 0f, 0f),
                                     AnimationChannel.Interpolations.LINEAR),
-                            new Keyframe(0.20f, KeyframeAnimations.degreeVec(90f, 0f, 0f),
+                            new Keyframe(0.48f, KeyframeAnimations.degreeVec(90f, 0f, 0f),
                                     AnimationChannel.Interpolations.LINEAR))).build();
-    public static final AnimationDefinition SWIM_EASE_OUT = AnimationDefinition.Builder.withLength(0.20f)
+    public static final AnimationDefinition SWIM_EASE_OUT = AnimationDefinition.Builder.withLength(0.48f)
             .addAnimation("root",
                     new AnimationChannel(AnimationChannel.Targets.ROTATION,
                             new Keyframe(0f, KeyframeAnimations.degreeVec(90f, 0f, 0f),
                                     AnimationChannel.Interpolations.LINEAR),
-                            new Keyframe(0.20f, KeyframeAnimations.degreeVec(0f, 0f, 0f),
+                            new Keyframe(0.48f, KeyframeAnimations.degreeVec(0f, 0f, 0f),
                                     AnimationChannel.Interpolations.LINEAR))).build();
     public static final AnimationDefinition SWIM = AnimationDefinition.Builder.withLength(1.92f).looping()
             .addAnimation("head",
