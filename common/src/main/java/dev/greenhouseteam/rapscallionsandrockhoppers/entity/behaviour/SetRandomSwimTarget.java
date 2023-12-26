@@ -1,4 +1,4 @@
-package dev.greenhouseteam.rapscallionsandrockhoppers.entity.behavior;
+package dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import net.minecraft.world.entity.ai.behavior.BehaviorUtils;

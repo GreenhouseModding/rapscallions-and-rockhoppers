@@ -1,11 +1,11 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.entity;
 
 import com.mojang.datafixers.util.Pair;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behavior.PenguinJump;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behavior.PenguinShove;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behavior.PenguinStumble;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behavior.ReturnToHome;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behavior.SetRandomSwimTarget;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.PenguinJump;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.PenguinShove;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.PenguinStumble;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.ReturnToHome;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.SetRandomSwimTarget;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.NearbyPufferfishSensor;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.NearbyShoveableSensor;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.NearbyWaterSensor;

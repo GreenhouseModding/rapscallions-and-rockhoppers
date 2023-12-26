@@ -1,9 +1,8 @@
-package dev.greenhouseteam.rapscallionsandrockhoppers.entity.behavior;
+package dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour;
 
 import com.mojang.datafixers.util.Pair;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.ai.behavior.BlockPosTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;

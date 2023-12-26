@@ -1,4 +1,4 @@
-package dev.greenhouseteam.rapscallionsandrockhoppers.entity.behavior;
+package dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour;
 
 import com.mojang.datafixers.util.Pair;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
