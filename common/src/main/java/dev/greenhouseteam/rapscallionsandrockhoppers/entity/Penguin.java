@@ -88,9 +88,10 @@ import java.util.List;
 import java.util.Map;
 
 public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
-    public static final int STUMBLE_ANIMATION_LENGTH = 15;
-    public static final int GET_UP_ANIMATION_LENGTH = 20;
-    public static final int SHOVE_ANIMATION_LENGTH = 15;
+    public static final int STUMBLE_ANIMATION_LENGTH = 30;
+    private static final int SWIM_EASE_OUT_ANIMATION_LENGTH = 40;
+    public static final int GET_UP_ANIMATION_LENGTH = 60;
+    public static final int SHOVE_ANIMATION_LENGTH = 40;
 
     protected static final Ingredient TEMPTATION_ITEM = Ingredient.of(RapscallionsAndRockhoppersTags.ItemTags.PENGUIN_TEMPT_ITEMS);
     protected static final Ingredient BREED_ITEM = Ingredient.of(RapscallionsAndRockhoppersTags.ItemTags.PENGUIN_BREED_ITEMS);
@@ -100,7 +101,6 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     private static final EntityDataAccessor<Integer> DATA_SHOVE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> DATA_STUMBLE_CHANCE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> DATA_SHOVE_CHANCE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.FLOAT);
-    private static final int SWIM_EASE_OUT_ANIMATION_LENGTH = 15;
 
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState waddleAnimationState = new AnimationState();
@@ -210,8 +210,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                 new FirstApplicableBehaviour<>(
                                         new FollowTemptation<>(),
                                         new PenguinJump(),
-                                        new ReturnToHome().setRadius(12).startCondition(penguin -> !penguin.isLeashed() && !BrainUtils.hasMemory(penguin, MemoryModuleType.TEMPTING_PLAYER)),
-                                        new SetRandomSwimTarget().avoidLandWhen(penguin -> penguin.getRandom().nextFloat() < 0.95F).setRadius(12, 6).walkTargetPredicate((mob, vec3) -> vec3 == null || !BrainUtils.hasMemory(mob, MemoryModuleType.HOME) || BrainUtils.getMemory(mob, MemoryModuleType.HOME).dimension() == mob.level().dimension() && mob.blockPosition().distSqr(BrainUtils.getMemory(mob, MemoryModuleType.HOME).pos()) <= 12 * 12).setRadius(8, 5)
+                                        new ReturnToHome().setRadius(8).startCondition(penguin -> !penguin.isLeashed() && !BrainUtils.hasMemory(penguin, MemoryModuleType.TEMPTING_PLAYER)),
+                                        new SetRandomSwimTarget().avoidLandWhen(penguin -> penguin.getRandom().nextFloat() < 0.95F).setRadius(5, 4).walkTargetPredicate((mob, vec3) -> vec3 == null || !BrainUtils.hasMemory(mob, MemoryModuleType.HOME) || BrainUtils.getMemory(mob, MemoryModuleType.HOME).dimension() == mob.level().dimension() && vec3.distanceTo(BrainUtils.getMemory(mob, MemoryModuleType.HOME).pos().getCenter()) <= 8)
                                 )
                         ).onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT)
         );
@@ -251,15 +251,20 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         }
         super.tick();
 
-        if (!previousWaterValue && this.isInWaterOrBubble()) {
-            this.previousWaterValue = true;
+        if (!previousWaterValue && this.isInWater()) {
+            this.setPose(Pose.SWIMMING);
             if (!this.level().isClientSide()) {
                 BrainUtils.setMemory(this, RapscallionsAndRockhoppersMemoryModuleTypes.WATER_JUMP_COOLDOWN_TICKS, Mth.randomBetweenInclusive(this.getRandom(), 60, 100));
+            } else {
+                this.stopAllLandAnimations();
             }
-            this.setPose(Pose.SWIMMING);
-        } else if (previousWaterValue && !this.isInWaterOrBubble() && this.onGround()) {
-            this.previousWaterValue = false;
+            this.previousWaterValue = true;
+        } else if (previousWaterValue && !this.isInWater() && this.onGround()) {
             this.setPose(Pose.STANDING);
+            if (this.level().isClientSide()) {
+                this.stopAllWaterAnimations();
+            }
+            this.previousWaterValue = false;
         }
 
         if (!this.level().isClientSide()) {
@@ -310,7 +315,6 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                     this.animationSwimState = false;
                 }
             } else {
-                this.stopAllWaterAnimations();
                 if (this.swimEaseOutAnimationState.getAccumulatedTime() >= this.stopEaseOutAnimAt && this.swimEaseOutAnimationState.isStarted()) {
                     this.swimEaseOutAnimationState.stop();
                 }
@@ -492,11 +496,12 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     private void stopAllWaterAnimations() {
         this.swimIdleAnimationState.stop();
         this.swimAnimationState.stop();
-        if (this.swimEaseInAnimationState.isStarted()) {
+        if (this.walkAnimation.isMoving()) {
             this.swimEaseOutAnimationState.startIfStopped(this.tickCount);
             this.stopEaseOutAnimAt = this.tickCount + SWIM_EASE_OUT_ANIMATION_LENGTH;
-        } else
+        } else {
             this.swimEaseOutAnimationState.stop();
+        }
         this.swimEaseInAnimationState.stop();
         this.animationSwimState = false;
     }
