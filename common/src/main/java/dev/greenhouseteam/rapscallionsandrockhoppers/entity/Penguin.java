@@ -487,12 +487,12 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     private void stopAllWaterAnimations() {
         this.swimIdleAnimationState.stop();
         this.swimAnimationState.stop();
-        this.swimEaseInAnimationState.stop();
         if (this.swimEaseInAnimationState.isStarted()) {
             this.swimEaseOutAnimationState.startIfStopped(this.tickCount);
             this.stopEaseOutAnimAt = this.tickCount + SWIM_EASE_OUT_ANIMATION_LENGTH;
         } else
             this.swimEaseOutAnimationState.stop();
+        this.swimEaseInAnimationState.stop();
         this.animationSwimState = false;
     }
 
