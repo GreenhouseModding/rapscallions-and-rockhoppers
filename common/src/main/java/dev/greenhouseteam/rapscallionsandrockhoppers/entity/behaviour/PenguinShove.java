@@ -20,7 +20,6 @@ import java.util.List;
 public class PenguinShove extends ExtendedBehaviour<Penguin> {
     private Penguin shoveTarget;
     private Vec3 lookPos;
-    private int startDelay = 0;
 
     @Override
     protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
@@ -55,29 +54,17 @@ public class PenguinShove extends ExtendedBehaviour<Penguin> {
 
     @Override
     public boolean shouldKeepRunning(Penguin penguin) {
-        return !penguin.isStumbling() && !penguin.isInWaterOrBubble() && (this.startDelay != Integer.MIN_VALUE || penguin.getShoveTicks() != Integer.MIN_VALUE);
-    }
-
-    @Override
-    public void tick(Penguin penguin) {
-        if (this.startDelay > 1) {
-            // Utilise start delay because the packet will run late if not.
-            if (!penguin.isInWaterOrBubble() && !penguin.isStumbling() && !this.shoveTarget.isInWaterOrBubble() && !shoveTarget.isStumbling()) {
-                penguin.setShoveTicks(Penguin.SHOVE_ANIMATION_LENGTH);
-                this.shoveTarget.stumbleWithoutInitialAnimation();
-            }
-            this.startDelay = Integer.MIN_VALUE;
-        }
-        if (this.startDelay != Integer.MIN_VALUE) {
-            this.startDelay++;
-        }
+        return !penguin.isStumbling() && !penguin.isInWaterOrBubble() && penguin.getShoveTicks() != Integer.MIN_VALUE;
     }
 
     @Override
     public void start(Penguin penguin) {
-        this.startDelay = 0;
         penguin.lookAt(EntityAnchorArgument.Anchor.FEET, this.lookPos);
         this.shoveTarget.lookAt(EntityAnchorArgument.Anchor.FEET, this.lookPos);
+
+        penguin.setShoveTicks(Penguin.SHOVE_ANIMATION_LENGTH);
+        this.shoveTarget.stumbleWithoutInitialAnimation();
+
         IPlatformHelper.INSTANCE.sendS2CTracking(new SyncBlockPosLookPacketS2C(penguin.getId(), this.shoveTarget.getId(), this.lookPos), penguin);
     }
 
@@ -85,7 +72,6 @@ public class PenguinShove extends ExtendedBehaviour<Penguin> {
     public void stop(Penguin penguin) {
         this.shoveTarget = null;
         this.lookPos = null;
-        this.startDelay = Integer.MIN_VALUE;
     }
 
 }
