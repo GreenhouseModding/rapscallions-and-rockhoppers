@@ -29,7 +29,7 @@ public class PenguinShove extends ExtendedBehaviour<Penguin> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, Penguin penguin) {
-        if (penguin.isInWaterOrBubble() || penguin.isStumbling() || penguin.isBaby() || penguin.getShoveTicks() != Integer.MIN_VALUE || BrainUtils.getMemory(penguin, RapscallionsAndRockhoppersMemoryModuleTypes.NEAREST_WATER).distSqr(penguin.blockPosition()) > 4) {
+        if (penguin.isInWaterOrBubble() || penguin.isStumbling() || penguin.isBaby() || penguin.getShoveTicks() != Integer.MIN_VALUE || BrainUtils.getMemory(penguin, RapscallionsAndRockhoppersMemoryModuleTypes.NEAREST_WATER).distManhattan(penguin.blockPosition()) > 4) {
             return false;
         }
 
