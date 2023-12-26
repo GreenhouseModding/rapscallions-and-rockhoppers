@@ -24,7 +24,7 @@ public class PenguinJump extends ExtendedBehaviour<Penguin> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, Penguin penguin) {
-        if (!penguin.isInWaterOrBubble()) {
+        if (!penguin.isInWater()) {
             return false;
         } else {
             Direction direction = penguin.getMotionDirection();
@@ -77,7 +77,7 @@ public class PenguinJump extends ExtendedBehaviour<Penguin> {
     protected void stop(Penguin penguin) {
         this.breached = false;
         penguin.setXRot(0.0F);
-        BrainUtils.setMemory(penguin, RapscallionsAndRockhoppersMemoryModuleTypes.WATER_JUMP_COOLDOWN_TICKS, Mth.randomBetweenInclusive(penguin.getRandom(), 120, 200));
+        BrainUtils.setMemory(penguin, RapscallionsAndRockhoppersMemoryModuleTypes.WATER_JUMP_COOLDOWN_TICKS, Mth.randomBetweenInclusive(penguin.getRandom(), 80, 120));
     }
 
     @Override
