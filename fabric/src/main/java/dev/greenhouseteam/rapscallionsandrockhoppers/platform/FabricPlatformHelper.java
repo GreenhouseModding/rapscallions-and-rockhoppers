@@ -6,6 +6,7 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.RapscallionsAnd
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IPlatformHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.Animal;
 
 @AutoService(IPlatformHelper.class)
 public class FabricPlatformHelper implements IPlatformHelper {
@@ -30,5 +31,10 @@ public class FabricPlatformHelper implements IPlatformHelper {
     @Override
     public void sendS2CTracking(RapscallionsAndRockhoppersPacketS2C packet, Entity entity) {
         RapscallionsAndRockhoppersPackets.sendS2CTracking(packet, entity);
+    }
+
+    @Override
+    public boolean runAndIsBreedEventCancelled(Animal parent, Animal otherParent) {
+        return false;
     }
 }

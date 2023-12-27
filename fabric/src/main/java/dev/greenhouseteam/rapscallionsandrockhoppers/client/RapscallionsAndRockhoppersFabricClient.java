@@ -10,7 +10,6 @@ public class RapscallionsAndRockhoppersFabricClient implements ClientModInitiali
     public void onInitializeClient() {
         RapscallionsAndRockhoppersClient.createRenderers(EntityRendererRegistry::register);
         RapscallionsAndRockhoppersClient.createEntityLayers((layer, supplier) -> EntityModelLayerRegistry.registerModelLayer(layer, supplier::get));
-
         RapscallionsAndRockhoppersPackets.registerS2C();
     }
 }

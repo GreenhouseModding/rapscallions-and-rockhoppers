@@ -7,19 +7,20 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 
-public record SyncXRotPacketS2C(int entityId, int otherEntityId, BlockPos lookPos) implements RapscallionsAndRockhoppersPacketS2C {
+public record SyncBlockPosLookPacketS2C(int entityId, int otherEntityId, Vec3 lookPos) implements RapscallionsAndRockhoppersPacketS2C {
     public static final ResourceLocation ID = RapscallionsAndRockhoppers.asResource("sync_x_rotation");
 
     @Override
     public void encode(FriendlyByteBuf buf) {
         buf.writeInt(this.entityId());
         buf.writeInt(this.otherEntityId());
-        buf.writeBlockPos(this.lookPos());
+        buf.writeVec3(this.lookPos());
     }
 
-    public static SyncXRotPacketS2C decode(FriendlyByteBuf buf) {
-        return new SyncXRotPacketS2C(buf.readInt(), buf.readInt(), buf.readBlockPos());
+    public static SyncBlockPosLookPacketS2C decode(FriendlyByteBuf buf) {
+        return new SyncBlockPosLookPacketS2C(buf.readInt(), buf.readInt(), buf.readVec3());
     }
 
     @Override
@@ -41,8 +42,8 @@ public record SyncXRotPacketS2C(int entityId, int otherEntityId, BlockPos lookPo
                     return;
                 }
 
-                entity.lookAt(EntityAnchorArgument.Anchor.FEET, lookPos().getCenter());
-                otherEntity.lookAt(EntityAnchorArgument.Anchor.FEET, lookPos().getCenter());
+                entity.lookAt(EntityAnchorArgument.Anchor.FEET, lookPos());
+                otherEntity.lookAt(EntityAnchorArgument.Anchor.FEET, lookPos());
             }
         });
     }
