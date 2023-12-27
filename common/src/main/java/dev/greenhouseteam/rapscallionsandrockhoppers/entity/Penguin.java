@@ -34,6 +34,7 @@ import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
@@ -45,6 +46,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.ai.util.GoalUtils;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
@@ -129,7 +131,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         super(entityType, level);
         this.moveControl = new PenguinMoveControl(this);
         this.lookControl = new PenguinLookControl(this);
-        this.setPathfindingMalus(BlockPathTypes.WATER, 2.0F);
+        this.setPathfindingMalus(BlockPathTypes.WATER_BORDER, -1.0F);
         this.setMaxUpStep(1.0F);
     }
 
@@ -191,7 +193,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                         new FollowTemptation<>(),
                         new ReturnToHome().setRadius(6).startCondition(penguin -> !penguin.isLeashed()),
                         new OneRandomBehaviour<>(
-                                Pair.of(createBoundWalkTarget(4, 3, 6).avoidWaterWhen(penguin -> penguin.getRandom().nextFloat() < 0.9F), 14),
+                                Pair.of(createBoundWalkTarget(4, 3, 6).avoidWaterWhen(penguin -> penguin.getRandom().nextFloat() < 0.98F), 14),
                                 Pair.of(new Idle<>().runFor(entity -> entity.getRandom().nextInt(15, 30)), 1)
                         )
                 )
@@ -211,14 +213,14 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                         new FollowTemptation<>(),
                                         new PenguinJump(),
                                         new ReturnToHome().setRadius(8).startCondition(penguin -> !penguin.isLeashed() && !BrainUtils.hasMemory(penguin, MemoryModuleType.TEMPTING_PLAYER)),
-                                        new SetRandomSwimTarget().avoidLandWhen(penguin -> penguin.getRandom().nextFloat() < 0.9F).setRadius(5, 4).walkTargetPredicate((mob, vec3) -> vec3 == null || !BrainUtils.hasMemory(mob, MemoryModuleType.HOME) || BrainUtils.getMemory(mob, MemoryModuleType.HOME).dimension() == mob.level().dimension() && vec3.distanceTo(BrainUtils.getMemory(mob, MemoryModuleType.HOME).pos().getCenter()) <= 8)
+                                        new SetRandomSwimTarget().avoidLandWhen(penguin -> penguin.getRandom().nextFloat() < 0.98F).setRadius(5, 4).walkTargetPredicate((mob, vec3) -> vec3 == null || !BrainUtils.hasMemory(mob, MemoryModuleType.HOME) || BrainUtils.getMemory(mob, MemoryModuleType.HOME).dimension() == mob.level().dimension() && vec3.distanceTo(BrainUtils.getMemory(mob, MemoryModuleType.HOME).pos().getCenter()) <= 8 && GoalUtils.isSolid(mob, BlockPos.containing(vec3).below()))
                                 )
                         ).onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT)
         );
     }
 
     private SetRandomWalkTarget<Penguin> createBoundWalkTarget(int xzRadius, int yRadius, int distanceFromHome) {
-        return new SetRandomWalkTarget<Penguin>().setRadius(xzRadius, yRadius).walkTargetPredicate((mob, vec3) -> vec3 == null || (!BrainUtils.hasMemory(mob, MemoryModuleType.HOME) || BrainUtils.getMemory(mob, MemoryModuleType.HOME).dimension() == mob.level().dimension() && vec3.distanceTo(BrainUtils.getMemory(mob, MemoryModuleType.HOME).pos().getCenter()) <= distanceFromHome));
+        return new SetRandomWalkTarget<Penguin>().setRadius(xzRadius, yRadius).walkTargetPredicate((mob, vec3) -> vec3 == null || (!BrainUtils.hasMemory(mob, MemoryModuleType.HOME) || BrainUtils.getMemory(mob, MemoryModuleType.HOME).dimension() == mob.level().dimension() && vec3.distanceTo(BrainUtils.getMemory(mob, MemoryModuleType.HOME).pos().getCenter()) <= distanceFromHome) && GoalUtils.isSolid(mob, BlockPos.containing(vec3).below()));
     }
 
     @Override
@@ -253,6 +255,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
         if (!previousWaterValue && this.isInWater()) {
             this.setPose(Pose.SWIMMING);
+            this.setPathfindingMalus(BlockPathTypes.WATER_BORDER, 0.0F);
             if (!this.level().isClientSide()) {
                 BrainUtils.setMemory(this, RapscallionsAndRockhoppersMemoryModuleTypes.WATER_JUMP_COOLDOWN_TICKS, Mth.randomBetweenInclusive(this.getRandom(), 60, 100));
             } else {
@@ -261,6 +264,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             this.previousWaterValue = true;
         } else if (previousWaterValue && !this.isInWater() && this.onGround()) {
             this.setPose(Pose.STANDING);
+            this.setPathfindingMalus(BlockPathTypes.WATER_BORDER, -1.0F);
             if (this.level().isClientSide()) {
                 this.stopAllWaterAnimations();
             }
@@ -324,19 +328,20 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 this.shockArmAnimationState.animateWhen(this.isShocked() && !this.isStumbling() && !this.isDeadOrDying(), this.tickCount);
 
                 if (this.isStumbling()) {
-                    this.stumbleFallingAnimationState.animateWhen(this.getDeltaMovement().y() < -0.1, this.tickCount);
-
+                    this.stumbleFallingAnimationState.animateWhen(this.getDeltaMovement().y() < -0.05, this.tickCount);
+                    if (!this.previousStumbleValue) {
+                        this.previousStumbleValue = true;
+                    }
                     if (this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE) {
                         if (this.getStumbleTicks() > STUMBLE_ANIMATION_LENGTH) {
                             this.stumbleAnimationState.stop();
-                            this.stumbleGroundAnimationState.animateWhen(this.getStumbleTicks() <= this.getStumbleTicksBeforeGettingUp(), this.tickCount);
-                            this.stumbleGetUpAnimationState.animateWhen(this.getStumbleTicks() > this.getStumbleTicksBeforeGettingUp(), this.tickCount);
+                            this.stumbleGroundAnimationState.animateWhen(!this.isGettingUp(), this.tickCount);
+                            this.stumbleGetUpAnimationState.animateWhen(this.isGettingUp(), this.tickCount);
                         } else if (!this.previousStumbleValue) {
                             this.stumbleAnimationState.start(this.tickCount);
                             this.waddleArmEaseOutAnimationState.stop();
                             this.waddleArmEaseInAnimationState.stop();
                             this.animationArmState = false;
-                            this.previousStumbleValue = true;
                         }
                     }
                 } else if (!this.isStumbling() && this.previousStumbleValue) {
@@ -419,7 +424,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
     @Override
     protected PathNavigation createNavigation(Level level) {
-        return new AmphibiousPathNavigation(this, level);
+        return new PenguinPathNavigation(this, level);
     }
 
     @Nullable
@@ -588,8 +593,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         return this.getStumbleTicks() != Integer.MIN_VALUE;
     }
 
-    public boolean isStumblingAndNotGettingUp() {
-        return this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE && this.getStumbleTicksBeforeGettingUp() > this.getStumbleTicks();
+    public boolean isGettingUp() {
+        return this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE && this.getStumbleTicksBeforeGettingUp() < this.getStumbleTicks();
     }
 
     public void setWalkStartTime(int walkStartTime) {
@@ -642,6 +647,17 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             return ((Penguin)this.mob).getStumbleTicks() == Integer.MIN_VALUE && ((Penguin)this.mob).getShoveTicks() == Integer.MIN_VALUE;
         }
 
+    }
+
+    public static class PenguinPathNavigation extends AmphibiousPathNavigation {
+        public PenguinPathNavigation(Mob mob, Level level) {
+            super(mob, level);
+        }
+
+        @Override
+        public boolean canCutCorner(BlockPathTypes pathTypes) {
+            return pathTypes != BlockPathTypes.WATER_BORDER && super.canCutCorner(pathTypes);
+        }
     }
 
 }

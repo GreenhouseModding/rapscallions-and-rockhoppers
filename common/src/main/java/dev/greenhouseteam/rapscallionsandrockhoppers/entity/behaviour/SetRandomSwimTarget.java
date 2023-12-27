@@ -1,8 +1,11 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
+import net.minecraft.core.BlockPos;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomWalkTarget;
 import org.jetbrains.annotations.Nullable;
@@ -23,6 +26,10 @@ public class SetRandomSwimTarget extends SetRandomWalkTarget<Penguin> {
 
     @Override
     protected @Nullable Vec3 getTargetPos(Penguin penguin) {
-        return this.avoidLandPredicate.test(penguin) ? BehaviorUtils.getRandomSwimmablePos(penguin, (int) this.radius.xzRadius(), (int) this.radius.yRadius()) : DefaultRandomPos.getPos(penguin, (int) this.radius.xzRadius(), (int) this.radius.yRadius());
+        Vec3 vec3 = this.avoidLandPredicate.test(penguin) ? BehaviorUtils.getRandomSwimmablePos(penguin, (int) this.radius.xzRadius(), (int) this.radius.yRadius()) : DefaultRandomPos.getPos(penguin, (int) this.radius.xzRadius(), (int) this.radius.yRadius());
+        if (vec3 != null && penguin.level().getFluidState(BlockPos.containing(vec3)).is(FluidTags.WATER)) {
+            penguin.setPathfindingMalus(BlockPathTypes.WATER_BORDER, 0.0F);
+        }
+        return vec3;
     }
 }
