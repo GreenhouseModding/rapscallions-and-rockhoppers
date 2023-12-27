@@ -1,11 +1,11 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers;
 
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersBlocks;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersItems;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersMemoryModuleTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSensorTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSoundEvents;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersBlocks;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersItems;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSensorTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSoundEvents;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -20,16 +20,16 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
     }
 
     public static void handleRegistration() {
-        RapscallionsAndRockhoppersBlocks.registerBlocks(Registry::register);
-        RapscallionsAndRockhoppersItems.registerItems(Registry::register);
-        RapscallionsAndRockhoppersEntityTypes.registerEntityTypes(Registry::register);
-        RapscallionsAndRockhoppersSoundEvents.registerSoundEvents(Registry::register);
-        RapscallionsAndRockhoppersMemoryModuleTypes.registerMemoryModuleTypes(Registry::register);
-        RapscallionsAndRockhoppersSensorTypes.registerSensorTypes(Registry::register);
+        RockhoppersBlocks.registerBlocks(Registry::register);
+        RockhoppersItems.registerItems(Registry::register);
+        RockhoppersEntityTypes.registerEntityTypes(Registry::register);
+        RockhoppersSoundEvents.registerSoundEvents(Registry::register);
+        RockhoppersMemoryModuleTypes.registerMemoryModuleTypes(Registry::register);
+        RockhoppersSensorTypes.registerSensorTypes(Registry::register);
 
-        RapscallionsAndRockhoppersEntityTypes.createMobAttributes(FabricDefaultAttributeRegistry::register);
+        RockhoppersEntityTypes.createMobAttributes(FabricDefaultAttributeRegistry::register);
 
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.NATURAL_BLOCKS).register(entries -> RapscallionsAndRockhoppersItems.addAfterNaturalBlocksTab(entries::addAfter));
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.SPAWN_EGGS).register(entries -> RapscallionsAndRockhoppersItems.addSpawnEggsTab(entries::accept));
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.NATURAL_BLOCKS).register(entries -> RockhoppersItems.addAfterNaturalBlocksTab(entries::addAfter));
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.SPAWN_EGGS).register(entries -> RockhoppersItems.addSpawnEggsTab(entries::accept));
     }
 }

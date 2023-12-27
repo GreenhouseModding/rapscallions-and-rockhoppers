@@ -1,8 +1,8 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersMemoryModuleTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSensorTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSensorTypes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -18,7 +18,7 @@ import java.util.function.BiPredicate;
 public class NearbyPufferfishSensor extends EntityFilteringSensor<Pufferfish, Penguin> {
     @Override
     protected MemoryModuleType<Pufferfish> getMemory() {
-        return RapscallionsAndRockhoppersMemoryModuleTypes.NEAREST_VISIBLE_PUFFERFISH;
+        return RockhoppersMemoryModuleTypes.NEAREST_VISIBLE_PUFFERFISH;
     }
 
     @Override
@@ -33,6 +33,6 @@ public class NearbyPufferfishSensor extends EntityFilteringSensor<Pufferfish, Pe
 
     @Override
     public SensorType<? extends ExtendedSensor<?>> type() {
-        return RapscallionsAndRockhoppersSensorTypes.NEARBY_PUFFERFISH;
+        return RockhoppersSensorTypes.NEARBY_PUFFERFISH;
     }
 }

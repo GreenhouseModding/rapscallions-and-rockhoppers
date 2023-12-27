@@ -1,12 +1,12 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers;
 
-import dev.greenhouseteam.rapscallionsandrockhoppers.network.RapscallionsAndRockhoppersPacketHandler;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersBlocks;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersItems;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersMemoryModuleTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSensorTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSoundEvents;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.RockhoppersPacketHandler;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersBlocks;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersItems;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSensorTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSoundEvents;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RegisterFunction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.CreativeModeTab;
@@ -26,23 +26,23 @@ public class RapscallionsAndRockhoppersEvents {
 
         @SubscribeEvent
         public static void commonSetup(FMLCommonSetupEvent event) {
-            RapscallionsAndRockhoppersPacketHandler.register();
+            RockhoppersPacketHandler.register();
         }
 
         @SubscribeEvent
         public static void registerContent(RegisterEvent event) {
             if (event.getRegistryKey() == Registries.ENTITY_TYPE)
-                register(event, RapscallionsAndRockhoppersEntityTypes::registerEntityTypes);
+                register(event, RockhoppersEntityTypes::registerEntityTypes);
             else if (event.getRegistryKey() == Registries.SOUND_EVENT)
-                register(event, RapscallionsAndRockhoppersSoundEvents::registerSoundEvents);
+                register(event, RockhoppersSoundEvents::registerSoundEvents);
             else if (event.getRegistryKey() == Registries.ITEM)
-                register(event, RapscallionsAndRockhoppersItems::registerItems);
+                register(event, RockhoppersItems::registerItems);
             else if (event.getRegistryKey() == Registries.BLOCK)
-                register(event, RapscallionsAndRockhoppersBlocks::registerBlocks);
+                register(event, RockhoppersBlocks::registerBlocks);
             else if (event.getRegistryKey() == Registries.MEMORY_MODULE_TYPE)
-                register(event, RapscallionsAndRockhoppersMemoryModuleTypes::registerMemoryModuleTypes);
+                register(event, RockhoppersMemoryModuleTypes::registerMemoryModuleTypes);
             else if (event.getRegistryKey() == Registries.SENSOR_TYPE)
-                register(event, RapscallionsAndRockhoppersSensorTypes::registerSensorTypes);
+                register(event, RockhoppersSensorTypes::registerSensorTypes);
         }
 
         private static <T> void register(RegisterEvent event, Consumer<RegisterFunction<T>> consumer) {
@@ -51,15 +51,15 @@ public class RapscallionsAndRockhoppersEvents {
 
         @SubscribeEvent
         public static void createEntityAttributes(EntityAttributeCreationEvent event) {
-            RapscallionsAndRockhoppersEntityTypes.createMobAttributes(event::put);
+            RockhoppersEntityTypes.createMobAttributes(event::put);
         }
 
         @SubscribeEvent
         public static void onCreativeModeTabBuild(BuildCreativeModeTabContentsEvent event) {
             if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
-                RapscallionsAndRockhoppersItems.addAfterNaturalBlocksTab((stack, itemLike) -> event.getEntries().putAfter(itemLike, stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
+                RockhoppersItems.addAfterNaturalBlocksTab((stack, itemLike) -> event.getEntries().putAfter(itemLike, stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
             } else if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
-                RapscallionsAndRockhoppersItems.addSpawnEggsTab(event::accept);
+                RockhoppersItems.addSpawnEggsTab(event::accept);
             }
         }
     }

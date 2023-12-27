@@ -13,7 +13,7 @@ import net.minecraft.world.entity.Entity;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class RapscallionsAndRockhoppersPackets {
+public class RockhoppersPackets {
     public static void registerS2C() {
         ClientPlayConnectionEvents.INIT.register((handler, client) -> {
             ClientPlayNetworking.registerReceiver(SyncBlockPosLookPacketS2C.ID, createS2CHandler(SyncBlockPosLookPacketS2C::decode, SyncBlockPosLookPacketS2C::handle));

@@ -1,34 +1,23 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersMemoryModuleTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSensorTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSensorTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.ai.sensing.SensorType;
-import net.minecraft.world.entity.ai.util.GoalUtils;
-import net.minecraft.world.entity.animal.Pufferfish;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.phys.AABB;
-import net.tslat.smartbrainlib.api.core.sensor.EntityFilteringSensor;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
-import net.tslat.smartbrainlib.api.core.sensor.PredicateSensor;
 import net.tslat.smartbrainlib.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiPredicate;
 
 public class PenguinHomeSensor extends ExtendedSensor<Penguin> {
     private boolean wasInWater;
@@ -87,6 +76,6 @@ public class PenguinHomeSensor extends ExtendedSensor<Penguin> {
 
     @Override
     public SensorType<? extends ExtendedSensor<?>> type() {
-        return RapscallionsAndRockhoppersSensorTypes.NEARBY_PUFFERFISH;
+        return RockhoppersSensorTypes.NEARBY_PUFFERFISH;
     }
 }

@@ -1,9 +1,9 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersMemoryModuleTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSensorTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSensorTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
@@ -18,12 +18,12 @@ import java.util.function.BiPredicate;
 public class NearbyShoveableSensor extends EntityFilteringSensor<Penguin, Penguin> {
     @Override
     protected MemoryModuleType<Penguin> getMemory() {
-        return RapscallionsAndRockhoppersMemoryModuleTypes.NEAREST_VISIBLE_SHOVEABLE;
+        return RockhoppersMemoryModuleTypes.NEAREST_VISIBLE_SHOVEABLE;
     }
 
     @Override
     protected BiPredicate<LivingEntity, Penguin> predicate() {
-        return (entity, penguin) -> entity.getType() == RapscallionsAndRockhoppersEntityTypes.PENGUIN && entity.isAlive() && !entity.isBaby() && !entity.is(penguin) && !((Penguin)entity).isStumbling() && !BrainUtils.hasMemory(entity, MemoryModuleType.IS_IN_WATER) && !BrainUtils.hasMemory(entity, MemoryModuleType.TEMPTING_PLAYER);
+        return (entity, penguin) -> entity.getType() == RockhoppersEntityTypes.PENGUIN && entity.isAlive() && !entity.isBaby() && !entity.is(penguin) && !((Penguin)entity).isStumbling() && !BrainUtils.hasMemory(entity, MemoryModuleType.IS_IN_WATER) && !BrainUtils.hasMemory(entity, MemoryModuleType.TEMPTING_PLAYER);
     }
 
     @Override
@@ -33,6 +33,6 @@ public class NearbyShoveableSensor extends EntityFilteringSensor<Penguin, Pengui
 
     @Override
     public SensorType<? extends ExtendedSensor<?>> type() {
-        return RapscallionsAndRockhoppersSensorTypes.NEARBY_SHOVEABLE;
+        return RockhoppersSensorTypes.NEARBY_SHOVEABLE;
     }
 }

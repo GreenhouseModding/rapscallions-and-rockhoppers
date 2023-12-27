@@ -9,7 +9,7 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.util.RegisterFunction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 
-public class RapscallionsAndRockhoppersSensorTypes {
+public class RockhoppersSensorTypes {
     public static final SensorType<NearbyPufferfishSensor> NEARBY_PUFFERFISH = new SensorType<>(NearbyPufferfishSensor::new);
     public static final SensorType<NearbyShoveableSensor> NEARBY_SHOVEABLE = new SensorType<>(NearbyShoveableSensor::new);
     public static final SensorType<NearbyWaterSensor> NEARBY_WATER = new SensorType<>(NearbyWaterSensor::new);

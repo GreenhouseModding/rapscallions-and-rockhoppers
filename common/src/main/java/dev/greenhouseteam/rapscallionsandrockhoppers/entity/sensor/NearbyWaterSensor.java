@@ -1,8 +1,8 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersMemoryModuleTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSensorTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSensorTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
@@ -20,7 +20,7 @@ public class NearbyWaterSensor extends ExtendedSensor<Penguin> {
 
     @Override
     public List<MemoryModuleType<?>> memoriesUsed() {
-        return List.of(RapscallionsAndRockhoppersMemoryModuleTypes.NEAREST_WATER);
+        return List.of(RockhoppersMemoryModuleTypes.NEAREST_WATER);
     }
 
     public NearbyWaterSensor setXZRadius(int xzRadius) {
@@ -36,11 +36,11 @@ public class NearbyWaterSensor extends ExtendedSensor<Penguin> {
     @Override
     protected void doTick(ServerLevel level, Penguin entity) {
         Optional<BlockPos> waterPos = BlockPos.findClosestMatch(entity.blockPosition(), xzRadius, yRadius, (pos) -> level.getFluidState(pos).is(FluidTags.WATER));
-        BrainUtils.setMemory(entity, RapscallionsAndRockhoppersMemoryModuleTypes.NEAREST_WATER, waterPos.orElse(null));
+        BrainUtils.setMemory(entity, RockhoppersMemoryModuleTypes.NEAREST_WATER, waterPos.orElse(null));
     }
 
     @Override
     public SensorType<? extends ExtendedSensor<?>> type() {
-        return RapscallionsAndRockhoppersSensorTypes.NEARBY_WATER;
+        return RockhoppersSensorTypes.NEARBY_WATER;
     }
 }

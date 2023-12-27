@@ -1,15 +1,15 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.platform;
 
 import com.google.auto.service.AutoService;
-import dev.greenhouseteam.rapscallionsandrockhoppers.network.RapscallionsAndRockhoppersPackets;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.RockhoppersPackets;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.RapscallionsAndRockhoppersPacketS2C;
-import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IPlatformHelper;
+import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Animal;
 
-@AutoService(IPlatformHelper.class)
-public class FabricPlatformHelper implements IPlatformHelper {
+@AutoService(IRockhoppersPlatformHelper.class)
+public class FabricRockhoppersPlatformHelper implements IRockhoppersPlatformHelper {
 
     @Override
     public String getPlatformName() {
@@ -30,7 +30,7 @@ public class FabricPlatformHelper implements IPlatformHelper {
 
     @Override
     public void sendS2CTracking(RapscallionsAndRockhoppersPacketS2C packet, Entity entity) {
-        RapscallionsAndRockhoppersPackets.sendS2CTracking(packet, entity);
+        RockhoppersPackets.sendS2CTracking(packet, entity);
     }
 
     @Override

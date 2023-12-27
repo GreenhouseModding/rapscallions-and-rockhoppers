@@ -1,9 +1,8 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.client;
 
-import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import dev.greenhouseteam.rapscallionsandrockhoppers.client.renderer.PenguinRenderer;
 import dev.greenhouseteam.rapscallionsandrockhoppers.client.renderer.model.PenguinModel;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -24,6 +23,6 @@ public class RapscallionsAndRockhoppersClient {
     }
 
     public static void createRenderers(EntityRendererCallback consumer) {
-        consumer.accept(RapscallionsAndRockhoppersEntityTypes.PENGUIN, PenguinRenderer::new);
+        consumer.accept(RockhoppersEntityTypes.PENGUIN, PenguinRenderer::new);
     }
 }

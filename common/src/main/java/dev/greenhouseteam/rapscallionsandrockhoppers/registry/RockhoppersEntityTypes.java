@@ -10,11 +10,10 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import org.w3c.dom.Attr;
 
 import java.util.function.BiConsumer;
 
-public class RapscallionsAndRockhoppersEntityTypes {
+public class RockhoppersEntityTypes {
     public static final EntityType<Penguin> PENGUIN = EntityType.Builder.of(Penguin::new, MobCategory.CREATURE).sized(0.6F, 1.1F).clientTrackingRange(10).build(RapscallionsAndRockhoppers.asResource("penguin").toString());
 
     public static void registerEntityTypes(RegisterFunction<EntityType<?>> function) {

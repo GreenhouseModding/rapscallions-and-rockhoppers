@@ -6,11 +6,11 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.Optional;
 
-public class RapscallionsAndRockhoppersModelTemplates {
+public class RockhoppersModelTemplates {
     public static final ModelTemplate EGG = new ModelTemplate(
             Optional.of(RapscallionsAndRockhoppers.asResource("block/penguin_egg_template")),
             Optional.empty(),
-            RapscallionsAndRockhoppersTextureMappings.EGG_TEXTURE
+            RockhoppersTextureMappings.EGG_TEXTURE
     );
     public static final ModelTemplate SPAWN_EGG = new ModelTemplate(
             Optional.of(new ResourceLocation("minecraft", "item/template_spawn_egg")),

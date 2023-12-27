@@ -1,9 +1,9 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.platform;
 
 import com.google.auto.service.AutoService;
-import dev.greenhouseteam.rapscallionsandrockhoppers.network.RapscallionsAndRockhoppersPacketHandler;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.RockhoppersPacketHandler;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.RapscallionsAndRockhoppersPacketS2C;
-import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IPlatformHelper;
+import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Animal;
 import net.neoforged.fml.ModList;
@@ -11,8 +11,8 @@ import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.event.entity.living.BabyEntitySpawnEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-@AutoService(IPlatformHelper.class)
-public class NeoForgePlatformHelper implements IPlatformHelper {
+@AutoService(IRockhoppersPlatformHelper.class)
+public class NeoForgeRockhoppersPlatformHelper implements IRockhoppersPlatformHelper {
 
     @Override
     public String getPlatformName() {
@@ -33,7 +33,7 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
 
     @Override
     public void sendS2CTracking(RapscallionsAndRockhoppersPacketS2C packet, Entity entity) {
-        RapscallionsAndRockhoppersPacketHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), packet);
+        RockhoppersPacketHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), packet);
     }
 
     @Override

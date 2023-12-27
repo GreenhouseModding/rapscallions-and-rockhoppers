@@ -2,8 +2,8 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour;
 
 import com.mojang.datafixers.util.Pair;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersMemoryModuleTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSoundEvents;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSoundEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -73,7 +73,7 @@ public class PenguinJump extends ExtendedBehaviour<Penguin> {
     protected void stop(Penguin penguin) {
         this.breached = false;
         penguin.setXRot(0.0F);
-        BrainUtils.setMemory(penguin, RapscallionsAndRockhoppersMemoryModuleTypes.WATER_JUMP_COOLDOWN_TICKS, Mth.randomBetweenInclusive(penguin.getRandom(), 60, 100));
+        BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.WATER_JUMP_COOLDOWN_TICKS, Mth.randomBetweenInclusive(penguin.getRandom(), 60, 100));
     }
 
     @Override
@@ -85,7 +85,7 @@ public class PenguinJump extends ExtendedBehaviour<Penguin> {
         }
 
         if (this.breached && !breached) {
-            penguin.playSound(RapscallionsAndRockhoppersSoundEvents.PENGUIN_JUMP, 1.0F, 1.0F);
+            penguin.playSound(RockhoppersSoundEvents.PENGUIN_JUMP, 1.0F, 1.0F);
         }
 
         Vec3 movement = penguin.getDeltaMovement();
@@ -100,6 +100,6 @@ public class PenguinJump extends ExtendedBehaviour<Penguin> {
 
     @Override
     protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-        return List.of(Pair.of(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT), Pair.of(RapscallionsAndRockhoppersMemoryModuleTypes.WATER_JUMP_COOLDOWN_TICKS, MemoryStatus.VALUE_ABSENT));
+        return List.of(Pair.of(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT), Pair.of(RockhoppersMemoryModuleTypes.WATER_JUMP_COOLDOWN_TICKS, MemoryStatus.VALUE_ABSENT));
     }
 }

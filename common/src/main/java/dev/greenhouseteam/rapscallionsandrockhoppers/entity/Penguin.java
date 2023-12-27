@@ -11,12 +11,12 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.NearbyShoveab
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.NearbyWaterSensor;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.PenguinHomeSensor;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.TickCooldown;
-import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IPlatformHelper;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersBlocks;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersMemoryModuleTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersTags;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersSoundEvents;
+import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersBlocks;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersTags;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSoundEvents;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -95,8 +95,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     public static final int GET_UP_ANIMATION_LENGTH = 60;
     public static final int SHOVE_ANIMATION_LENGTH = 40;
 
-    protected static final Ingredient TEMPTATION_ITEM = Ingredient.of(RapscallionsAndRockhoppersTags.ItemTags.PENGUIN_TEMPT_ITEMS);
-    protected static final Ingredient BREED_ITEM = Ingredient.of(RapscallionsAndRockhoppersTags.ItemTags.PENGUIN_BREED_ITEMS);
+    protected static final Ingredient TEMPTATION_ITEM = Ingredient.of(RockhoppersTags.ItemTags.PENGUIN_TEMPT_ITEMS);
+    protected static final Ingredient BREED_ITEM = Ingredient.of(RockhoppersTags.ItemTags.PENGUIN_BREED_ITEMS);
     private static final EntityDataAccessor<Integer> DATA_SHOCKED_TIME = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_STUMBLE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_STUMBLE_TICKS_BEFORE_GETTING_UP = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
@@ -162,7 +162,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 new NearbyLivingEntitySensor<Penguin>().setRadius(16.0F),
                 new NearbyPlayersSensor<Penguin>().setRadius(16.0F),
                 new NearbyAdultSensor<>(),
-                new TickCooldown(RapscallionsAndRockhoppersMemoryModuleTypes.WATER_JUMP_COOLDOWN_TICKS).setPredicate((integer, penguin) -> penguin.isInWater()),
+                new TickCooldown(RockhoppersMemoryModuleTypes.WATER_JUMP_COOLDOWN_TICKS).setPredicate((integer, penguin) -> penguin.isInWater()),
                 new NearbyWaterSensor().setXZRadius(4).setYRadius(4),
                 new NearbyPufferfishSensor(),
                 new ItemTemptingSensor<Penguin>().temptedWith((entity, stack) -> TEMPTATION_ITEM.test(stack)),
@@ -257,7 +257,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             this.setPose(Pose.SWIMMING);
             this.setPathfindingMalus(BlockPathTypes.WATER_BORDER, 0.0F);
             if (!this.level().isClientSide()) {
-                BrainUtils.setMemory(this, RapscallionsAndRockhoppersMemoryModuleTypes.WATER_JUMP_COOLDOWN_TICKS, Mth.randomBetweenInclusive(this.getRandom(), 60, 100));
+                BrainUtils.setMemory(this, RockhoppersMemoryModuleTypes.WATER_JUMP_COOLDOWN_TICKS, Mth.randomBetweenInclusive(this.getRandom(), 60, 100));
             } else {
                 this.stopAllLandAnimations();
             }
@@ -382,7 +382,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     @Override
     public void spawnChildFromBreeding(ServerLevel level, Animal animal) {
         AgeableMob ageablemob = this.getBreedOffspring(level, animal);
-        boolean cancelled = IPlatformHelper.INSTANCE.runAndIsBreedEventCancelled(this, animal);
+        boolean cancelled = IRockhoppersPlatformHelper.INSTANCE.runAndIsBreedEventCancelled(this, animal);
         if (cancelled) {
             this.setAge(6000);
             animal.setAge(6000);
@@ -394,7 +394,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
             // TODO: Make Penguin spawn egg upon finding a loose block.
             if (blockstate.isAir()) {
-                this.level().setBlockAndUpdate(blockPos, RapscallionsAndRockhoppersBlocks.PENGUIN_EGG.defaultBlockState());
+                this.level().setBlockAndUpdate(blockPos, RockhoppersBlocks.PENGUIN_EGG.defaultBlockState());
                 this.level().levelEvent(2001, blockPos, Block.getId(this.level().getBlockState(blockPos)));
             }
 
@@ -430,7 +430,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob ageableMob) {
-        return RapscallionsAndRockhoppersEntityTypes.PENGUIN.create(level);
+        return RockhoppersEntityTypes.PENGUIN.create(level);
     }
 
     @Override
@@ -438,17 +438,17 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         if (this.isInWaterOrBubble()) {
             return null;
         }
-        return RapscallionsAndRockhoppersSoundEvents.PENGUIN_AMBIENT;
+        return RockhoppersSoundEvents.PENGUIN_AMBIENT;
     }
 
     @Override
     public SoundEvent getHurtSound(DamageSource damageSource) {
-        return RapscallionsAndRockhoppersSoundEvents.PENGUIN_HURT;
+        return RockhoppersSoundEvents.PENGUIN_HURT;
     }
 
     @Override
     public SoundEvent getDeathSound() {
-        return RapscallionsAndRockhoppersSoundEvents.PENGUIN_DEATH;
+        return RockhoppersSoundEvents.PENGUIN_DEATH;
     }
 
     @Override

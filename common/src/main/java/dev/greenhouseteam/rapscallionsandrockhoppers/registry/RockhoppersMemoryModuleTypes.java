@@ -11,7 +11,7 @@ import net.minecraft.world.entity.animal.Pufferfish;
 
 import java.util.Optional;
 
-public class RapscallionsAndRockhoppersMemoryModuleTypes {
+public class RockhoppersMemoryModuleTypes {
     public static final MemoryModuleType<Pufferfish> NEAREST_VISIBLE_PUFFERFISH = createEmpty();
     public static final MemoryModuleType<Penguin> NEAREST_VISIBLE_SHOVEABLE = createEmpty();
     public static final MemoryModuleType<BlockPos> NEAREST_WATER = createEmpty();

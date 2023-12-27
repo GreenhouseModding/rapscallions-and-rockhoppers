@@ -8,7 +8,7 @@ import net.neoforged.neoforge.network.simple.SimpleChannel;
 
 import java.util.function.Consumer;
 
-public class RapscallionsAndRockhoppersPacketHandler {
+public class RockhoppersPacketHandler {
     private static final String PROTOCOL_VERISON = "1";
     public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
             RapscallionsAndRockhoppers.asResource("main"),

@@ -2,7 +2,7 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.entity.goal;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.block.PenguinEggBlock;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersBlocks;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
@@ -37,7 +37,7 @@ public class PenguinEggGoal extends MoveToBlockGoal {
             return;
         }
         BlockState blockState = penguin.level().getBlockState(blockPos);
-        if (blockState.is(RapscallionsAndRockhoppersBlocks.PENGUIN_EGG) && penguin.level() instanceof ServerLevel serverLevel) {
+        if (blockState.is(RockhoppersBlocks.PENGUIN_EGG) && penguin.level() instanceof ServerLevel serverLevel) {
             eggCrackTime -= 1;
             if (eggCrackTime <= 0) {
                 PenguinEggBlock.crackEgg(blockState, serverLevel, blockPos);
@@ -51,7 +51,7 @@ public class PenguinEggGoal extends MoveToBlockGoal {
         if (!(levelReader instanceof ServerLevel serverLevel)) return false;
         if (levelReader.isEmptyBlock(blockPos.above())) {
             BlockState blockState = levelReader.getBlockState(blockPos);
-            if (blockState.is(RapscallionsAndRockhoppersBlocks.PENGUIN_EGG)) {
+            if (blockState.is(RockhoppersBlocks.PENGUIN_EGG)) {
                 var penguins = serverLevel.getEntitiesOfClass(Penguin.class, new AABB(blockPos.above()).inflate(1.0), (otherPenguin) -> !otherPenguin.is(this.penguin));
                 return penguins.isEmpty();
             }

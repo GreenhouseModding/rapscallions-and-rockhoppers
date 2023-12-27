@@ -1,7 +1,7 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.datagen;
 
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersBlocks;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersItems;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersBlocks;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersItems;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
@@ -18,7 +18,7 @@ import net.minecraft.data.models.model.TextureMapping;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-public class RapscallionsAndRockhoppersDatagen implements DataGeneratorEntrypoint {
+public class RockhoppersDatagen implements DataGeneratorEntrypoint {
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
         FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
@@ -34,22 +34,22 @@ public class RapscallionsAndRockhoppersDatagen implements DataGeneratorEntrypoin
 
         @Override
         public void generateBlockStateModels(BlockModelGenerators blockStateModelGenerator) {
-            createEgg(RapscallionsAndRockhoppersBlocks.PENGUIN_EGG, blockStateModelGenerator);
+            createEgg(RockhoppersBlocks.PENGUIN_EGG, blockStateModelGenerator);
         }
 
         @Override
         public void generateItemModels(ItemModelGenerators itemModelGenerator) {
-            itemModelGenerator.generateFlatItem(RapscallionsAndRockhoppersItems.PENGUIN_EGG, ModelTemplates.FLAT_ITEM);
-            itemModelGenerator.generateFlatItem(RapscallionsAndRockhoppersItems.PENGUIN_SPAWN_EGG, RapscallionsAndRockhoppersModelTemplates.SPAWN_EGG);
+            itemModelGenerator.generateFlatItem(RockhoppersItems.PENGUIN_EGG, ModelTemplates.FLAT_ITEM);
+            itemModelGenerator.generateFlatItem(RockhoppersItems.PENGUIN_SPAWN_EGG, RockhoppersModelTemplates.SPAWN_EGG);
 
         }
         public void createEgg(Block egg, BlockModelGenerators blockModelGenerators) {
-            TextureMapping textureMapping = RapscallionsAndRockhoppersTextureMappings.createEggMapping(egg);
-            TextureMapping slightlyCrackedTextureMapping = RapscallionsAndRockhoppersTextureMappings.createEggMapping(egg, "_slightly_cracked");
-            TextureMapping veryCrackedTextureMapping = RapscallionsAndRockhoppersTextureMappings.createEggMapping(egg, "_very_cracked");
-            var eggModel = RapscallionsAndRockhoppersModelTemplates.EGG.create(egg, textureMapping, blockModelGenerators.modelOutput);
-            var slightlyCrackedEggModel = RapscallionsAndRockhoppersModelTemplates.EGG.createWithSuffix(egg, "_slightly_cracked", slightlyCrackedTextureMapping, blockModelGenerators.modelOutput);
-            var veryCrackedEggModel = RapscallionsAndRockhoppersModelTemplates.EGG.createWithSuffix(egg, "_very_cracked", veryCrackedTextureMapping, blockModelGenerators.modelOutput);
+            TextureMapping textureMapping = RockhoppersTextureMappings.createEggMapping(egg);
+            TextureMapping slightlyCrackedTextureMapping = RockhoppersTextureMappings.createEggMapping(egg, "_slightly_cracked");
+            TextureMapping veryCrackedTextureMapping = RockhoppersTextureMappings.createEggMapping(egg, "_very_cracked");
+            var eggModel = RockhoppersModelTemplates.EGG.create(egg, textureMapping, blockModelGenerators.modelOutput);
+            var slightlyCrackedEggModel = RockhoppersModelTemplates.EGG.createWithSuffix(egg, "_slightly_cracked", slightlyCrackedTextureMapping, blockModelGenerators.modelOutput);
+            var veryCrackedEggModel = RockhoppersModelTemplates.EGG.createWithSuffix(egg, "_very_cracked", veryCrackedTextureMapping, blockModelGenerators.modelOutput);
             var multiVariant = MultiVariantGenerator.multiVariant(egg)
                             .with(PropertyDispatch.property(BlockStateProperties.HATCH)
                                             .select(0, Variant.variant().with(VariantProperties.MODEL, eggModel))
@@ -65,7 +65,7 @@ public class RapscallionsAndRockhoppersDatagen implements DataGeneratorEntrypoin
 
         @Override
         public void generate() {
-            dropWhenSilkTouch(RapscallionsAndRockhoppersBlocks.PENGUIN_EGG);
+            dropWhenSilkTouch(RockhoppersBlocks.PENGUIN_EGG);
         }
     }
 }

@@ -1,8 +1,7 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.block;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersBlocks;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RapscallionsAndRockhoppersEntityTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -39,7 +38,7 @@ public class PenguinEggBlock extends Block {
         if (hatch < 2) {
             serverLevel.setBlock(blockPos, blockState.setValue(HATCH, hatch + 1), 2);
         } else {
-            Penguin penguin = RapscallionsAndRockhoppersEntityTypes.PENGUIN.create(serverLevel);
+            Penguin penguin = RockhoppersEntityTypes.PENGUIN.create(serverLevel);
             if (penguin == null) {
                 return;
             }

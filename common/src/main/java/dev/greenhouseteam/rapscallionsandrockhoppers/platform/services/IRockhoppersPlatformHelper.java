@@ -5,8 +5,8 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.platform.ServiceUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Animal;
 
-public interface IPlatformHelper {
-    IPlatformHelper INSTANCE = ServiceUtil.load(IPlatformHelper.class);
+public interface IRockhoppersPlatformHelper {
+    IRockhoppersPlatformHelper INSTANCE = ServiceUtil.load(IRockhoppersPlatformHelper.class);
 
     /**
      * Gets the name of the current platform
