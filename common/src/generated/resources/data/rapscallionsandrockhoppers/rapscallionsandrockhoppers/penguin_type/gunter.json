@@ -1,0 +1,9 @@
+{
+  "sounds": {
+    "death": "rapscallionsandrockhoppers:entity.penguin.death",
+    "hurt": "rapscallionsandrockhoppers:entity.penguin.hurt",
+    "idle": "rapscallionsandrockhoppers:entity.penguin.ambient",
+    "water_jump": "rapscallionsandrockhoppers:entity.penguin.death"
+  },
+  "when_named": "Gunter"
+}

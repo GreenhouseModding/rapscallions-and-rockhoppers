@@ -85,7 +85,7 @@ public class PenguinJump extends ExtendedBehaviour<Penguin> {
         }
 
         if (this.breached && !breached) {
-            penguin.playSound(RockhoppersSoundEvents.PENGUIN_JUMP, 1.0F, 1.0F);
+            penguin.playSound(penguin.getWaterJumpSound(), 1.0F, 1.0F);
         }
 
         Vec3 movement = penguin.getDeltaMovement();

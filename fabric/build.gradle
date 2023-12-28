@@ -13,6 +13,10 @@ repositories {
         name "SmartBrainLib (SBL) Maven Repo"
         url "https://dl.cloudsmith.io/public/tslat/sbl/maven/"
     }
+    maven {
+        name "MerchantPug/Greenhouse Maven"
+        url 'https://maven.merchantpug.net/releases/'
+    }
 }
 
 dependencies {
@@ -26,7 +30,12 @@ dependencies {
     compileOnly group:'com.google.auto.service', name:'auto-service', version:'1.0.1'
     annotationProcessor group:'com.google.auto.service', name:'auto-service', version:'1.0.1'
 
-    include(modImplementation("net.tslat.smartbrainlib:SmartBrainLib-fabric-${minecraft_version}:${sbl_version}"))
+
+    // TODO: Fabric API JAR does not allow compiling, fix that.
+    // modCompileOnlyApi("dev.greenhouseteam.rdpr:rdpr-fabric:${rdpr_version}:api")
+    modImplementation(include("dev.greenhouseteam.rdpr:rdpr-fabric:${rdpr_version}"))
+
+    include(modApi("net.tslat.smartbrainlib:SmartBrainLib-fabric-${minecraft_version}:${sbl_version}"))
 }
 
 loom {
@@ -51,11 +60,12 @@ loom {
         }
         datagenCommon {
             client()
-            setConfigName("Fabric Datagen Common")
+            setConfigName("Fabric Datagen")
+            ideConfigGenerated(true)
+            runDir("build/datagen")
             vmArg("-Dfabric-api.datagen")
             vmArg("-Dfabric-api.datagen.output-dir=${file("../common/src/generated/resources")}")
             vmArg("-Dfabric-api.datagen.modid=${mod_id}")
-            runDir = "build/datagen"
         }
     }
 }

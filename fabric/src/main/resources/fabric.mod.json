@@ -28,7 +28,10 @@
             "dev.greenhouseteam.rapscallionsandrockhoppers.client.RapscallionsAndRockhoppersFabricClient"
         ],
         "fabric-datagen": [
-          "dev.greenhouseteam.rapscallionsandrockhoppers.datagen.RockhoppersDatagen"
+            "dev.greenhouseteam.rapscallionsandrockhoppers.datagen.RockhoppersDatagen"
+        ],
+        "rdpr": [
+            "dev.greenhouseteam.rapscallionsandrockhoppers.RockhoppersRDPREntrypoint"
         ]
     },
     "mixins": [

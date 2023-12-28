@@ -1,7 +1,7 @@
 plugins {
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.41'
+    id 'net.neoforged.gradle.userdev' version '7.0.72'
     id 'java-library'
 }
 base {
@@ -11,8 +11,8 @@ base {
 // Automatically enable neoforge AccessTransformers if the file exists
 // This location is hardcoded in FML and can not be changed.
 // https://github.com/neoforged/FancyModLoader/blob/a952595eaaddd571fbc53f43847680b00894e0c1/loader/src/main/java/net/neoforged/fml/loading/moddiscovery/ModFile.java#L118
-if (file('src/main/resources/META-INF/accesstransformer.cfg').exists()) {
-    minecraft.accessTransformers.file file('src/main/resources/META-INF/accesstransformer.cfg')
+if (file("src/main/resources/${mod_id}.at").exists()) {
+    minecraft.accessTransformers.file file("src/main/resources/${mod_id}.at")
 }
 runs {
     configureEach {
@@ -34,6 +34,10 @@ repositories {
         name "SmartBrainLib (SBL) Maven Repo"
         url "https://dl.cloudsmith.io/public/tslat/sbl/maven/"
     }
+    maven {
+        name "MerchantPug/Greenhouse Maven"
+        url 'https://maven.merchantpug.net/releases/'
+    }
 }
 
 dependencies {
@@ -42,6 +46,11 @@ dependencies {
 
     compileOnly group:'com.google.auto.service', name:'auto-service', version:'1.0.1'
     annotationProcessor group:'com.google.auto.service', name:'auto-service', version:'1.0.1'
+
+    compileOnly "dev.greenhouseteam.rdpr:rdpr-neoforge:${rdpr_version}:api"
+    runtimeOnly(jarJar("dev.greenhouseteam.rdpr:rdpr-neoforge:${rdpr_version}")) {
+        jarJar.ranged(it, "[${rdpr_version},)")
+    }
 
     jarJar(implementation("net.tslat.smartbrainlib:SmartBrainLib-neoforge-${minecraft_version}:${sbl_version}")) {
         jarJar.ranged(it, "[${sbl_version},)")

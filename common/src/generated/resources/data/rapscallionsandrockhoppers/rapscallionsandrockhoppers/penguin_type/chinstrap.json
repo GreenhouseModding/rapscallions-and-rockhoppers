@@ -1,0 +1,14 @@
+{
+  "sounds": {
+    "death": "rapscallionsandrockhoppers:entity.penguin.death",
+    "hurt": "rapscallionsandrockhoppers:entity.penguin.hurt",
+    "idle": "rapscallionsandrockhoppers:entity.penguin.ambient",
+    "water_jump": "rapscallionsandrockhoppers:entity.penguin.death"
+  },
+  "spawn_biomes": [
+    {
+      "biomes": "minecraft:frozen_ocean",
+      "weight": 1
+    }
+  ]
+}
