@@ -30,8 +30,13 @@
         "fabric-datagen": [
             "dev.greenhouseteam.rapscallionsandrockhoppers.datagen.RockhoppersDatagen"
         ],
-        "rdpr": [
-            "dev.greenhouseteam.rapscallionsandrockhoppers.RockhoppersRDPREntrypoint"
+        "cardinal-components": [
+            "dev.greenhouseteam.rapscallionsandrockhoppers.RockhoppersEntityComponents"
+        ]
+    },
+    "custom": {
+        "cardinal-components": [
+            "rapscallionsandrockhoppers:boat_data"
         ]
     },
     "mixins": [

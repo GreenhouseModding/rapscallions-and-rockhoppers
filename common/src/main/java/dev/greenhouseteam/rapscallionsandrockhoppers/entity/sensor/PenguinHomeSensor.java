@@ -34,7 +34,7 @@ public class PenguinHomeSensor extends ExtendedSensor<Penguin> {
         }
 
         Optional<GlobalPos> homePos = Optional.ofNullable(getHomePos(penguin));
-        if (homePos.isPresent() && (!BrainUtils.hasMemory(penguin, MemoryModuleType.HOME) || homePos.get().pos().distSqr(BrainUtils.getMemory(penguin, MemoryModuleType.HOME).pos()) > 24)) {
+        if (homePos.isPresent() && (!BrainUtils.hasMemory(penguin, MemoryModuleType.HOME) || homePos.get().pos().distSqr(BrainUtils.getMemory(penguin, MemoryModuleType.HOME).pos()) > 24 * 24)) {
             BrainUtils.setMemory(penguin, MemoryModuleType.HOME, homePos.orElse(null));
         }
     }

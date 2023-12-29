@@ -1,36 +1,44 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers;
 
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
+import dev.greenhouseteam.rapscallionsandrockhoppers.componability.BoatDataCapability;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.RockhoppersPacketHandler;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersActivities;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersBlocks;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersCapabilities;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersItems;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSensorTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSoundEvents;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RegisterFunction;
-import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
-import dev.greenhouseteam.rdpr.api.ReloadableRegistryEvent;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.ProtoChunk;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
-import net.neoforged.neoforge.event.server.ServerStartedEvent;
-import net.neoforged.neoforge.event.server.ServerStoppedEvent;
-import net.neoforged.neoforge.registries.DataPackRegistryEvent;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
 public class RapscallionsAndRockhoppersEvents {
     @Mod.EventBusSubscriber(modid = RapscallionsAndRockhoppers.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class ModBusEvents {
+
         @SubscribeEvent
         public static void commonSetup(FMLCommonSetupEvent event) {
             RockhoppersPacketHandler.register();
@@ -46,6 +54,8 @@ public class RapscallionsAndRockhoppersEvents {
                 register(event, RockhoppersItems::registerItems);
             else if (event.getRegistryKey() == Registries.BLOCK)
                 register(event, RockhoppersBlocks::registerBlocks);
+            else if (event.getRegistryKey() == Registries.ACTIVITY)
+                register(event, RockhoppersActivities::registerActivities);
             else if (event.getRegistryKey() == Registries.MEMORY_MODULE_TYPE)
                 register(event, RockhoppersMemoryModuleTypes::registerMemoryModuleTypes);
             else if (event.getRegistryKey() == Registries.SENSOR_TYPE)
@@ -56,14 +66,20 @@ public class RapscallionsAndRockhoppersEvents {
             consumer.accept((registry, id, value) -> event.register(registry.key(), id, () -> value));
         }
 
-        @SubscribeEvent
-        public static void createNewDataPackRegistries(DataPackRegistryEvent.NewRegistry event) {
-            event.dataPackRegistry(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY, PenguinType.CODEC, PenguinType.CODEC);
-        }
+        private static final Map<Boat, BoatDataCapability> BOAT_DATA_CAPABILITY_CACHE = new WeakHashMap<>(512);
 
         @SubscribeEvent
-        public static void makeDataPackRegistriesReloadable(ReloadableRegistryEvent event) {
-            RapscallionsAndRockhoppers.createRDPRContents(event);
+        public static void attachCapabilities(RegisterCapabilitiesEvent event) {
+            for (Map.Entry<ResourceKey<EntityType<?>>, EntityType<?>> entityType : BuiltInRegistries.ENTITY_TYPE.entrySet()) {
+                if (entityType.getValue().getBaseClass().isAssignableFrom(Boat.class)) {
+                    event.registerEntity(RockhoppersCapabilities.BOAT_DATA, entityType.getValue(), (entity, ctx) -> {
+                        if (entity instanceof Boat boat) {
+                            return BOAT_DATA_CAPABILITY_CACHE.computeIfAbsent(boat, BoatDataCapability::new);
+                        }
+                        return null;
+                    });
+                }
+            }
         }
 
         @SubscribeEvent
@@ -81,25 +97,11 @@ public class RapscallionsAndRockhoppersEvents {
         }
     }
 
-
     @Mod.EventBusSubscriber(modid = RapscallionsAndRockhoppers.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static class ForgeBusEvents {
         @SubscribeEvent
-        public static void onServerStarted(ServerStartedEvent event) {
-            RapscallionsAndRockhoppers.setCachedPenguinTypeRegistry(event.getServer().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY));
-        }
-
-        @SubscribeEvent
-        public static void onServerStopped(ServerStoppedEvent event) {
-            RapscallionsAndRockhoppers.removeCachedPenguinTypeRegistry();
-        }
-
-        @SubscribeEvent
-        public static void onDataPackSync(OnDatapackSyncEvent event) {
-            if (event.getPlayer() == null) {
-                RapscallionsAndRockhoppers.setCachedPenguinTypeRegistry(event.getPlayerList().getServer().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY));
-                event.getPlayerList().getServer().getAllLevels().forEach(Penguin::invalidateCachedPenguinTypes);
-            }
+        public static void onEntityLeaveLevel(EntityLeaveLevelEvent event) {
+            RapscallionsAndRockhoppers.onUnload(event.getEntity(), event.getLevel());
         }
     }
 
