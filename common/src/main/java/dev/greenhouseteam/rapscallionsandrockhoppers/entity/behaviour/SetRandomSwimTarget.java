@@ -26,10 +26,6 @@ public class SetRandomSwimTarget extends SetRandomWalkTarget<Penguin> {
 
     @Override
     protected @Nullable Vec3 getTargetPos(Penguin penguin) {
-        Vec3 vec3 = this.avoidLandPredicate.test(penguin) ? BehaviorUtils.getRandomSwimmablePos(penguin, (int) this.radius.xzRadius(), (int) this.radius.yRadius()) : DefaultRandomPos.getPos(penguin, (int) this.radius.xzRadius(), (int) this.radius.yRadius());
-        if (vec3 != null && penguin.level().getFluidState(BlockPos.containing(vec3)).is(FluidTags.WATER)) {
-            penguin.setPathfindingMalus(BlockPathTypes.WATER_BORDER, 0.0F);
-        }
-        return vec3;
+        return this.avoidLandPredicate.test(penguin) ? BehaviorUtils.getRandomSwimmablePos(penguin, (int) this.radius.xzRadius(), (int) this.radius.yRadius()) : DefaultRandomPos.getPos(penguin, (int) this.radius.xzRadius(), (int) this.radius.yRadius());
     }
 }

@@ -1,5 +1,6 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers;
 
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersActivities;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersBlocks;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersItems;
@@ -7,6 +8,7 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryM
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSensorTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSoundEvents;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.Registry;
@@ -24,6 +26,7 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
         RockhoppersItems.registerItems(Registry::register);
         RockhoppersEntityTypes.registerEntityTypes(Registry::register);
         RockhoppersSoundEvents.registerSoundEvents(Registry::register);
+        RockhoppersActivities.registerActivities(Registry::register);
         RockhoppersMemoryModuleTypes.registerMemoryModuleTypes(Registry::register);
         RockhoppersSensorTypes.registerSensorTypes(Registry::register);
 
@@ -31,5 +34,9 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
 
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.NATURAL_BLOCKS).register(entries -> RockhoppersItems.addAfterNaturalBlocksTab(entries::addAfter));
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.SPAWN_EGGS).register(entries -> RockhoppersItems.addSpawnEggsTab(entries::accept));
+    }
+
+    public static void handleUnloadingEntities() {
+        ServerEntityEvents.ENTITY_UNLOAD.register(RapscallionsAndRockhoppers::onUnload);
     }
 }

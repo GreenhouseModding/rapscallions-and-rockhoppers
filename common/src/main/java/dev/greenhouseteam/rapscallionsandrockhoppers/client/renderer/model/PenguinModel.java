@@ -1,9 +1,6 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.client.renderer.model;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
-import dev.greenhouseteam.rapscallionsandrockhoppers.mixin.client.HierarchicalModelAccessor;
-import net.minecraft.client.animation.AnimationDefinition;
-import net.minecraft.client.animation.KeyframeAnimations;
 import net.minecraft.client.model.AgeableHierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -15,17 +12,13 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.AnimationState;
 
 public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("modid", "penguin"), "main");
-
 	private final ModelPart root;
 	private final ModelPart body;
 	private final ModelPart head;
 	private final ModelPart brows;
-
-	private long previousStumbleTime = Long.MIN_VALUE;
 
 	public PenguinModel(ModelPart root) {
 		super(0.5F, 24.0F);
@@ -89,7 +82,7 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 		this.animateBodyInWater(penguin, yRot, xRot);
 		this.animateSwim(penguin, delta);
 
-		this.animateHeadLookTarget(penguin, yRot, xRot);
+		this.animateHeadTowardsLookTarget(penguin, yRot, xRot);
 	}
 
 	protected void animateWaddle(Penguin penguin, float delta, float limbSwing, float limbSwingAmount, float animationSpeed) {
@@ -102,18 +95,8 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 
 	protected void animateStumble(Penguin penguin, float delta) {
 		this.animate(penguin.stumbleAnimationState, PenguinAnimation.STUMBLE, delta, 1.0F);
-		if (penguin.stumbleFallingAnimationState.isStarted()) {
-			if (this.previousStumbleTime == Long.MIN_VALUE) {
-				this.previousStumbleTime = penguin.stumbleGroundAnimationState.getAccumulatedTime();
-			}
-			this.animateAtSpecificFrame(penguin.stumbleGroundAnimationState, PenguinAnimation.STUMBLE_LAND, this.previousStumbleTime, delta, 1.0F);
-		} else {
-			if (this.previousStumbleTime != Long.MIN_VALUE) {
-				this.previousStumbleTime = Long.MIN_VALUE;
-			}
-			this.animate(penguin.stumbleGroundAnimationState, PenguinAnimation.STUMBLE_LAND, delta, 1.0F);
-		}
-		this.animate(penguin.stumbleFallingAnimationState, PenguinAnimation.STUMBLE_FALLING, delta, 1.0F);
+		this.animate(penguin.stumbleGroundAnimationState, PenguinAnimation.STUMBLE_LAND, delta, 1.0F);
+		this.animate(penguin.stumbleFallingAnimationState, PenguinAnimation.SHOCK_ARMS, delta, 1.0F);
 		this.animate(penguin.stumbleGetUpAnimationState, PenguinAnimation.GET_UP, delta, 1.0F);
 	}
 
@@ -131,7 +114,7 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 		this.animate(penguin.swimEaseOutAnimationState, PenguinAnimation.SWIM_EASE_OUT, delta, 1.0F);
 	}
 
-	protected void animateHeadLookTarget(Penguin penguin, float yRot, float xRot) {
+	protected void animateHeadTowardsLookTarget(Penguin penguin, float yRot, float xRot) {
 		if (!canAnimateHead(penguin)) return;
 		this.head.xRot = xRot * (float) (Mth.PI / 180.0);
 		this.head.yRot = yRot * (float) (Mth.PI / 180.0);
@@ -148,10 +131,5 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 	}
 	protected boolean canRotateBodyInWater(Penguin penguin) {
 		return penguin.swimAnimationState.isStarted();
-	}
-
-	protected void animateAtSpecificFrame(AnimationState state, AnimationDefinition definition, long time, float delta, float animationSpeed) {
-		state.updateTime(delta, animationSpeed);
-		state.ifStarted(st -> KeyframeAnimations.animate(this, definition, time, 1.0F, HierarchicalModelAccessor.rapscallionsandrockhoppers$ANIMATION_VECTOR_CACHE()));
 	}
 }

@@ -13,6 +13,10 @@ repositories {
         name "SmartBrainLib (SBL) Maven Repo"
         url "https://dl.cloudsmith.io/public/tslat/sbl/maven/"
     }
+    maven {
+        name 'Ladysnake Mods'
+        url 'https://maven.ladysnake.org/releases'
+    }
 }
 
 dependencies {
@@ -25,6 +29,9 @@ dependencies {
 
     compileOnly group:'com.google.auto.service', name:'auto-service', version:'1.0.1'
     annotationProcessor group:'com.google.auto.service', name:'auto-service', version:'1.0.1'
+
+    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${cca_version}"
+    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${cca_version}"
 
     include(modImplementation("net.tslat.smartbrainlib:SmartBrainLib-fabric-${minecraft_version}:${sbl_version}"))
 }

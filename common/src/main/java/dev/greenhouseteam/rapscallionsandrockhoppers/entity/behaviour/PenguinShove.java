@@ -53,11 +53,6 @@ public class PenguinShove extends ExtendedBehaviour<Penguin> {
     }
 
     @Override
-    public boolean shouldKeepRunning(Penguin penguin) {
-        return !penguin.isStumbling() && !penguin.isInWaterOrBubble() && penguin.getShoveTicks() != Integer.MIN_VALUE;
-    }
-
-    @Override
     public void start(Penguin penguin) {
         penguin.lookAt(EntityAnchorArgument.Anchor.FEET, this.lookPos);
         this.shoveTarget.lookAt(EntityAnchorArgument.Anchor.FEET, this.lookPos);
