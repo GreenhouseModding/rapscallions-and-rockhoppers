@@ -2,10 +2,14 @@ package dev.greenhouseteam.rapscallionsandrockhoppers;
 
 import com.mojang.datafixers.util.Pair;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
+import dev.greenhouseteam.rdpr.api.IReloadableRegistryCreationHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -27,9 +31,35 @@ public class RapscallionsAndRockhoppers {
     public static final Logger LOG = LoggerFactory.getLogger(MOD_NAME);
 
     private static final List<Pair<Integer, Integer>> PENGUIN_LOADED_CHUNKS = new ArrayList<>();
+    private static Registry<PenguinType> cachedPenguinTypeRegistry = null;
 
     public static void init() {
 
+    }
+
+    public static void createRDPRContents(IReloadableRegistryCreationHelper helper) {
+        helper.fromExistingRegistry(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY);
+    }
+
+    /**
+     * Gets the cached PenguinType registry.
+     * This should only be used when you're working with methods that don't have access to
+     * the {@link net.minecraft.world.level.Level}.
+     * If you're on the client, don't use or set this value, as you can reference the
+     * client's registry access at any time.
+     *
+     * @return The PenguinType registry.
+     */
+    public static Registry<PenguinType> getCachedPenguinTypeRegistry() {
+        return cachedPenguinTypeRegistry;
+    }
+
+    protected static void setCachedPenguinTypeRegistry(Registry<PenguinType> value) {
+        cachedPenguinTypeRegistry = value;
+    }
+
+    protected static void removeCachedPenguinTypeRegistry() {
+        cachedPenguinTypeRegistry = null;
     }
 
     protected static void onUnload(Entity entity, Level level) {

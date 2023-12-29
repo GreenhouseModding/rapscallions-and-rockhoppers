@@ -17,6 +17,10 @@ repositories {
         name 'Ladysnake Mods'
         url 'https://maven.ladysnake.org/releases'
     }
+    maven {
+        name "MerchantPug/Greenhouse Maven"
+        url 'https://maven.merchantpug.net/releases/'
+    }
 }
 
 dependencies {
@@ -30,8 +34,12 @@ dependencies {
     compileOnly group:'com.google.auto.service', name:'auto-service', version:'1.0.1'
     annotationProcessor group:'com.google.auto.service', name:'auto-service', version:'1.0.1'
 
-    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${cca_version}"
-    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${cca_version}"
+    // TODO: Fabric API JAR does not allow compiling, fix that.
+    // modCompileOnlyApi("dev.greenhouseteam.rdpr:rdpr-fabric:${rdpr_version}:api")
+    modImplementation(include("dev.greenhouseteam.rdpr:rdpr-fabric:${rdpr_version}"))
+
+    modImplementation(include("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${cca_version}"))
+    modImplementation(include("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${cca_version}"))
 
     include(modImplementation("net.tslat.smartbrainlib:SmartBrainLib-fabric-${minecraft_version}:${sbl_version}"))
 }
