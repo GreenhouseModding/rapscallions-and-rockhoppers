@@ -1,6 +1,7 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.client.renderer;
 
 import com.mojang.authlib.minecraft.client.MinecraftClient;
+import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import dev.greenhouseteam.rapscallionsandrockhoppers.client.renderer.model.PenguinModel;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import net.minecraft.client.Minecraft;
@@ -14,7 +15,7 @@ import java.util.Map;
 
 public class PenguinRenderer extends MobRenderer<Penguin, PenguinModel> {
 
-    private static Map<ResourceLocation, Boolean> PENGUIN_TEXTURE_CACHE = new HashMap<>();
+    private static final Map<ResourceLocation, Boolean> PENGUIN_TEXTURE_CACHE = new HashMap<>();
 
     public PenguinRenderer(EntityRendererProvider.Context context) {
         super(context, new PenguinModel(context.bakeLayer(PenguinModel.LAYER_LOCATION)), 0.5F);
@@ -35,7 +36,7 @@ public class PenguinRenderer extends MobRenderer<Penguin, PenguinModel> {
                 return textureLocation;
             }
         }
-        return penguin.getPenguinType().surprisedTextureLocation().orElse(new ResourceLocation(penguin.getPenguinTypeKey().getNamespace(), "textures/entity/rapscallionsandrockhoppers/penguin/missing_penguin.png"));
+        return penguin.getPenguinType().textureLocation().orElse(new ResourceLocation(penguin.getPenguinTypeKey().getNamespace(), "textures/entity/penguin/missing_penguin.png"));
     }
 
     private void addToTextureCache(ResourceLocation textureLocation) {

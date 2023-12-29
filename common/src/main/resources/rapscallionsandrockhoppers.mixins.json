@@ -9,7 +9,8 @@
     "EntityAccessor",
     "EntityMixin",
     "LevelAccessor",
-    "LivingEntityMixin"
+    "LivingEntityMixin",
+    "RegistryDataLoaderRegistryDataMixin"
   ],
   "client": [
     "client.ClientLevelAccessor"

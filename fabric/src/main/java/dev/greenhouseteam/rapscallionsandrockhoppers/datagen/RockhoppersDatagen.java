@@ -1,5 +1,6 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.datagen;
 
+import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersBlocks;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersItems;
@@ -15,6 +16,7 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.models.BlockModelGenerators;
@@ -30,6 +32,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 import java.util.List;
@@ -41,8 +44,8 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
     public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
         FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
         pack.addProvider(RockhoppersBiomeTagProvider::new);
-        pack.addProvider(RockhoppersDynamicRegistryProvider::new);
         pack.addProvider(RockhoppersItemTagProvider::new);
+        pack.addProvider(RockhoppersDynamicRegistryProvider::new);
         pack.addProvider(RockhoppersModelProvider::new);
         pack.addProvider(RockhoppersBlockLootProvider::new);
 
@@ -67,13 +70,13 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
             Optional<Holder<SoundEvent>> waterJumpSound = Optional.of(registries.lookup(Registries.SOUND_EVENT).orElseThrow().getOrThrow(RockhoppersResourceKeys.SoundEventKeys.PENGUIN_JUMP));
 
             entries.add(RockhoppersResourceKeys.PenguinTypeKeys.ROCKHOPPER, new PenguinType(
-                    Optional.empty(), Optional.empty(), List.of(new WeightedHolderSet<>(registries.lookupOrThrow(Registries.BIOME).getOrThrow(RockhoppersTags.BiomeTags.ROCKHOPPER_PENGUIN_SPAWN_BIOMES), 1)),
+                    Optional.empty(), Optional.empty(), List.of(new WeightedHolderSet<>(new DummyHolderSet<>(RockhoppersTags.BiomeTags.ROCKHOPPER_PENGUIN_SPAWN_BIOMES), 1)),
                     new PenguinType.PenguinSounds(idleSound, hurtSound, deathSound, waterJumpSound), Optional.empty()));
             entries.add(RockhoppersResourceKeys.PenguinTypeKeys.CHINSTRAP, new PenguinType(
-                    Optional.empty(), Optional.empty(), List.of(new WeightedHolderSet<>(registries.lookupOrThrow(Registries.BIOME).getOrThrow(RockhoppersTags.BiomeTags.CHINSTRAP_PENGUIN_SPAWN_BIOMES), 1)),
+                    Optional.empty(), Optional.empty(), List.of(new WeightedHolderSet<>(new DummyHolderSet<>(RockhoppersTags.BiomeTags.CHINSTRAP_PENGUIN_SPAWN_BIOMES), 1)),
                     new PenguinType.PenguinSounds(idleSound, hurtSound, deathSound, waterJumpSound), Optional.empty()));
             entries.add(RockhoppersResourceKeys.PenguinTypeKeys.GUNTER, new PenguinType(
-                    Optional.empty(), Optional.empty(), List.of(),
+                    Optional.empty(), Optional.of(RapscallionsAndRockhoppers.asResource("penguin/gunter_penguin")), List.of(),
                     new PenguinType.PenguinSounds(idleSound, hurtSound, deathSound, waterJumpSound), Optional.of("Gunter")));
         }
 

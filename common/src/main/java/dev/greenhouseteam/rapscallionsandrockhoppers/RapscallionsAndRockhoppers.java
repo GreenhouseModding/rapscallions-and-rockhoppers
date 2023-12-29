@@ -54,7 +54,7 @@ public class RapscallionsAndRockhoppers {
         return cachedPenguinTypeRegistry;
     }
 
-    protected static void setCachedPenguinTypeRegistry(Registry<PenguinType> value) {
+    public static void setCachedPenguinTypeRegistry(Registry<PenguinType> value) {
         cachedPenguinTypeRegistry = value;
     }
 
@@ -66,20 +66,9 @@ public class RapscallionsAndRockhoppers {
         if (entity instanceof Penguin penguin) {
             GlobalPos home = BrainUtils.getMemory(penguin, MemoryModuleType.HOME);
             if (home != null && level.dimension() == home.dimension() && penguin.blockPosition().distSqr(home.pos()) > 24 * 24) {
-                int xCoord = SectionPos.blockToSectionCoord(home.pos().getX());
-                int zCoord = SectionPos.blockToSectionCoord(home.pos().getZ());
-                for (int x = -1; x < 2; ++x) {
-                    for (int z = -1; z < 2; ++z) {
-                        int xSection = xCoord + x;
-                        int zSection = zCoord + z;
-                        if (!level.hasChunk(xSection, zSection)) {
-                            level.getChunk(xSection, zSection).setLoaded(true);
-                            PENGUIN_LOADED_CHUNKS.add(Pair.of(xSection, zSection));
-                        }
-                    }
-                }
                 BlockPos randomPos = null;
 
+                loadNearbyChunks(home.pos(), level);
                 for (int i = 0; i < 10 || !level.getBlockState(randomPos).isPathfindable(level, randomPos, PathComputationType.WATER); ++i) {
                     randomPos = getRandomPos(penguin, home.pos());
                 }
@@ -95,12 +84,33 @@ public class RapscallionsAndRockhoppers {
                     }
                     penguin.teleportTo(randomPos.getX(), randomPos.getY(), randomPos.getZ());
                 }
-
-                PENGUIN_LOADED_CHUNKS.forEach(pair -> level.getChunk(pair.getFirst(), pair.getSecond()).setLoaded(false));
+                unloadChunks(level);
             }
             penguin.setBoatToFollow(null);
         } else if (entity instanceof Boat boat) {
             IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat).clearFollowingPenguins();
+        }
+    }
+
+    public static void loadNearbyChunks(BlockPos pos, Level level) {
+        int xCoord = SectionPos.blockToSectionCoord(pos.getX());
+        int zCoord = SectionPos.blockToSectionCoord(pos.getZ());
+        for (int x = -1; x < 2; ++x) {
+            for (int z = -1; z < 2; ++z) {
+                int xSection = xCoord + x;
+                int zSection = zCoord + z;
+                if (!level.hasChunk(xSection, zSection)) {
+                    level.getChunk(xSection, zSection).setLoaded(true);
+                    PENGUIN_LOADED_CHUNKS.add(Pair.of(xSection, zSection));
+                }
+            }
+        }
+    }
+
+
+    public static void unloadChunks(Level level) {
+        for (Pair<Integer, Integer> pair : PENGUIN_LOADED_CHUNKS) {
+            level.getChunk(pair.getFirst(), pair.getSecond()).setLoaded(false);
         }
     }
 
