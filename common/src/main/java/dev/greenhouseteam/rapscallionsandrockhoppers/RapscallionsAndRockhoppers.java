@@ -4,14 +4,16 @@ import com.mojang.datafixers.util.Pair;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
 import dev.greenhouseteam.rdpr.api.IReloadableRegistryCreationHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.vehicle.Boat;
@@ -64,35 +66,42 @@ public class RapscallionsAndRockhoppers {
 
     protected static void onUnload(Entity entity, Level level) {
         if (entity instanceof Penguin penguin) {
+            penguin.setBoatToFollow(null);
             GlobalPos home = BrainUtils.getMemory(penguin, MemoryModuleType.HOME);
             if (home != null && level.dimension() == home.dimension() && penguin.blockPosition().distSqr(home.pos()) > 24 * 24) {
                 BlockPos randomPos = null;
 
-                loadNearbyChunks(home.pos(), level);
+                if (level instanceof ServerLevel serverLevel) {
+                    loadNearbyChunks(home.pos(), serverLevel);
+                }
                 for (int i = 0; i < 10 || !level.getBlockState(randomPos).isPathfindable(level, randomPos, PathComputationType.WATER); ++i) {
                     randomPos = getRandomPos(penguin, home.pos());
                 }
                 if (!level.getBlockState(randomPos).isPathfindable(level, randomPos, PathComputationType.WATER)) {
                     randomPos = null;
                 }
-                if (randomPos != null)
-                    penguin.teleportTo(randomPos.getX(), randomPos.getY(), randomPos.getZ());
-                else {
+                if (randomPos == null) {
                     randomPos = home.pos();
                     for (int i = 0; i < 10 || !level.getBlockState(randomPos).isPathfindable(level, randomPos, PathComputationType.LAND); ++i) {
                         randomPos = home.pos().above();
                     }
-                    penguin.teleportTo(randomPos.getX(), randomPos.getY(), randomPos.getZ());
                 }
-                unloadChunks(level);
+                Penguin penguin1 = RockhoppersEntityTypes.PENGUIN.create(level);
+                if (penguin1 != null) {
+                    penguin1.load(penguin.saveWithoutId(new CompoundTag()));
+                    penguin1.teleportTo(randomPos.getX(), randomPos.getY(), randomPos.getZ());
+                }
+                penguin.remove(Entity.RemovalReason.DISCARDED);
+                if (level instanceof ServerLevel serverLevel) {
+                    unloadChunks(serverLevel);
+                }
             }
-            penguin.setBoatToFollow(null);
         } else if (entity instanceof Boat boat) {
             IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat).clearFollowingPenguins();
         }
     }
 
-    public static void loadNearbyChunks(BlockPos pos, Level level) {
+    public static void loadNearbyChunks(BlockPos pos, ServerLevel level) {
         int xCoord = SectionPos.blockToSectionCoord(pos.getX());
         int zCoord = SectionPos.blockToSectionCoord(pos.getZ());
         for (int x = -1; x < 2; ++x) {
@@ -100,7 +109,7 @@ public class RapscallionsAndRockhoppers {
                 int xSection = xCoord + x;
                 int zSection = zCoord + z;
                 if (!level.hasChunk(xSection, zSection)) {
-                    level.getChunk(xSection, zSection).setLoaded(true);
+                    level.setChunkForced(xSection, zSection, true);
                     PENGUIN_LOADED_CHUNKS.add(Pair.of(xSection, zSection));
                 }
             }
@@ -108,9 +117,9 @@ public class RapscallionsAndRockhoppers {
     }
 
 
-    public static void unloadChunks(Level level) {
+    public static void unloadChunks(ServerLevel level) {
         for (Pair<Integer, Integer> pair : PENGUIN_LOADED_CHUNKS) {
-            level.getChunk(pair.getFirst(), pair.getSecond()).setLoaded(false);
+            level.setChunkForced(pair.getFirst(), pair.getSecond(), false);
         }
     }
 

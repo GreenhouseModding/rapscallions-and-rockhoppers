@@ -70,7 +70,7 @@ public class PenguinHomeSensor extends ExtendedSensor<Penguin> {
         if (optionalPenguin.isPresent()) {
             return BrainUtils.getMemory(optionalPenguin.get(), MemoryModuleType.HOME);
         }
-        Optional<BlockPos> waterPos = BlockPos.findClosestMatch(penguin.blockPosition(), 12, 6, p -> penguin.level().getFluidState(p).is(FluidTags.WATER));
+        Optional<BlockPos> waterPos = BlockPos.findClosestMatch(penguin.blockPosition(), 24, 18, p -> penguin.level().getFluidState(p).is(FluidTags.WATER));
         return waterPos.map(blockPos -> GlobalPos.of(penguin.level().dimension(), blockPos)).orElse(null);
     }
 

@@ -2,6 +2,7 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.entity;
 
 import com.mojang.datafixers.util.Pair;
 import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.BreatheAir;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.PenguinJump;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.PenguinShove;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.PenguinStumble;
@@ -21,7 +22,6 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersBlocks;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersTags;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSoundEvents;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.WeightedHolderSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -66,7 +66,6 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.ItemStack;
@@ -75,7 +74,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
@@ -105,6 +103,7 @@ import net.tslat.smartbrainlib.api.core.sensor.vanilla.ItemTemptingSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyAdultSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyLivingEntitySensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyPlayersSensor;
+import net.tslat.smartbrainlib.registry.SBLMemoryTypes;
 import net.tslat.smartbrainlib.util.BrainUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -114,8 +113,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     public static final int STUMBLE_ANIMATION_LENGTH = 40;
@@ -280,7 +277,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 Activity.SWIM, new BrainActivityGroup<Penguin>(Activity.SWIM)
                         .priority(10)
                         .behaviours(
-                                new SetWalkTargetToBlock<>().closeEnoughWhen((mob, blockPosBlockStatePair) -> 0).predicate((mob, pair) -> (pair.getSecond().getFluidState().isEmpty() && pair.getSecond().isPathfindable(mob.level(), pair.getFirst(), PathComputationType.LAND) || pair.getSecond().is(Blocks.BUBBLE_COLUMN)) || pair.getFirst() == mob.blockPosition().above(8)).startCondition(mob -> mob.getAirSupply() < 140),
+                                new BreatheAir(),
                                 new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
                                 new BreedWithPartner<>(),
                                 new StayWithinHome().setRadius(8),
@@ -494,12 +491,12 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     public static boolean checkPenguinSpawnRules(
             EntityType<? extends Penguin> entityType, net.minecraft.world.level.LevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random
     ) {
-        int i = level.getSeaLevel();
-        int j = i - 13;
-        return pos.getY() >= j
-                && pos.getY() <= i
-                && level.getFluidState(pos.below()).is(FluidTags.WATER)
-                && level.getBlockState(pos.above()).is(Blocks.WATER);
+        return BlockPos.betweenClosedStream(AABB.ofSize(pos.getCenter(), 24, 18, 24)).anyMatch(pos1 -> {
+            if (level.hasChunkAt(pos1)) {
+                return level.getBlockState(pos1).getFluidState().is(FluidTags.WATER);
+            }
+            return false;
+        });
     }
 
 
