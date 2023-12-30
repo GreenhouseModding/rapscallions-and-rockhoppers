@@ -1,7 +1,9 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.componability;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersAttachments;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -11,6 +13,36 @@ public class BoatDataCapability implements IBoatData {
 
     public BoatDataCapability(Boat entity) {
         this.provider = entity;
+    }
+
+    @Override
+    public @Nullable Boat getNextLinkedBoat() {
+        return provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getNextLinkedBoat();
+    }
+
+    @Override
+    public @Nullable Boat getPreviousLinkedBoat() {
+        return provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getPreviousLinkedBoat();
+    }
+
+    @Override
+    public @Nullable Player getLinkedPlayer() {
+        return provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getLinkedPlayer();
+    }
+
+    @Override
+    public void setLinkedPlayer(@Nullable Player player) {
+        provider.getData(RockhoppersAttachments.BOAT_DATA.get()).setLinkedPlayer(player);
+    }
+
+    @Override
+    public void setNextLinkedBoat(Boat boat) {
+        provider.getData(RockhoppersAttachments.BOAT_DATA.get()).setNextLinkedBoat(boat);
+    }
+
+    @Override
+    public void setPreviousLinkedBoat(Boat boat) {
+        provider.getData(RockhoppersAttachments.BOAT_DATA.get()).setPreviousLinkedBoat(boat);
     }
 
     @Override

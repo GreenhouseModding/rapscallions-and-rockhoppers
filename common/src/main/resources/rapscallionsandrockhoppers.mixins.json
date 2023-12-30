@@ -7,11 +7,10 @@
   "mixins": [
     "BoatMixin",
     "EntityMixin",
-    "LivingEntityMixin",
-    "client.BoatRendererMixin"
+    "LivingEntityMixin"
   ],
   "client": [
-    "client.HierarchicalModelAccessor"
+    "client.BoatRendererMixin"
   ],
   "server": [
   ],

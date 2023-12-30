@@ -6,12 +6,31 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.Boat;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface IBoatData {
     ResourceLocation ID = RapscallionsAndRockhoppers.asResource("boat_data");
+
+    double HOOK_DAMPENING_FACTOR = 0.2d;
+
+    @Nullable Boat getNextLinkedBoat();
+    @Nullable Boat getPreviousLinkedBoat();
+    @Nullable Player getLinkedPlayer();
+    void setLinkedPlayer(@Nullable Player player);
+
+    void setNextLinkedBoat(Boat boat);
+    void setPreviousLinkedBoat(Boat boat);
+    default boolean canLinkTo(Boat otherBoat) {
+        // This means the back of the current boat is free to be linked from.
+        if (getPreviousLinkedBoat() != null) return true;
+        // This means the front of the other boat is free to be linked to.
+        return ((IBoatData)otherBoat).getNextLinkedBoat() == null;
+    }
 
     List<UUID> getFollowingPenguins();
     int penguinCount();

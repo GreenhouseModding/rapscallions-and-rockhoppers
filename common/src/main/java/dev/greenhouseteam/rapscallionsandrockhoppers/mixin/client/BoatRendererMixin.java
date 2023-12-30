@@ -2,7 +2,8 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.BoatLink;
+import dev.greenhouseteam.rapscallionsandrockhoppers.componability.IBoatData;
+import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -29,14 +31,15 @@ public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
 
     @Inject(method = "render(Lnet/minecraft/world/entity/vehicle/Boat;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"))
     public void addBoatHookRenderering(Boat boat, float yaw, float tickDelta, PoseStack poseStack, MultiBufferSource multiBufferSource, int light, CallbackInfo ci) {
-        if (((BoatLink)boat).getPreviousLinkedBoat() != null) {
-            renderLeash(boat, yaw, tickDelta, poseStack, multiBufferSource, ((BoatLink)boat).getPreviousLinkedBoat());
-
+        IBoatData boatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat);
+        if (boatData.getPreviousLinkedBoat() != null) {
+            rapscallionsandrockhoppers$renderLeash(boat, yaw, tickDelta, poseStack, multiBufferSource, boatData.getPreviousLinkedBoat());
         }
     }
 
 
-    private void renderLeash(Boat thisBoat, float yaw, float tickDelta, PoseStack poseStack, MultiBufferSource bufferSource, Boat previousBoat) {
+    @Unique
+    private void rapscallionsandrockhoppers$renderLeash(Boat thisBoat, float yaw, float tickDelta, PoseStack poseStack, MultiBufferSource bufferSource, Boat previousBoat) {
         poseStack.pushPose();
         Vec3 previousBoatPosition = previousBoat.getRopeHoldPosition(tickDelta).add(0, 2, 0);
         double $$6 = (double)(Mth.lerp(tickDelta, thisBoat.getYRot(), thisBoat.getYHeadRot()) * 0.017453292F) + 1.5707963267948966;
@@ -65,17 +68,17 @@ public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
         int otherBoatSkyLight = thisBoat.level().getBrightness(LightLayer.SKY, $$23);
 
         for(int pieceIndex = 0; pieceIndex <= 24; ++pieceIndex) {
-            addBoatHookVertexPair(vertexConsumer, matrix, xDisplacement, yDisplacement, zDisplacement, thisBoatBlockLight, otherBoatBlockLight, thisBoatSkyLight, otherBoatSkyLight, 0.025F, 0.025F, crossXDirection, crossZDirection, pieceIndex, false);
+            rapscallionsandrockhoppers$addBoatHookVertexPair(vertexConsumer, matrix, xDisplacement, yDisplacement, zDisplacement, thisBoatBlockLight, otherBoatBlockLight, thisBoatSkyLight, otherBoatSkyLight, 0.025F, 0.025F, crossXDirection, crossZDirection, pieceIndex, false);
         }
 
         for(int pieceIndex = 24; pieceIndex >= 0; --pieceIndex) {
-            addBoatHookVertexPair(vertexConsumer, matrix, xDisplacement, yDisplacement, zDisplacement, thisBoatBlockLight, otherBoatBlockLight, thisBoatSkyLight, otherBoatSkyLight, 0.025F, 0.0F, crossXDirection, crossZDirection, pieceIndex, true);
+            rapscallionsandrockhoppers$addBoatHookVertexPair(vertexConsumer, matrix, xDisplacement, yDisplacement, zDisplacement, thisBoatBlockLight, otherBoatBlockLight, thisBoatSkyLight, otherBoatSkyLight, 0.025F, 0.0F, crossXDirection, crossZDirection, pieceIndex, true);
         }
 
         poseStack.popPose();
     }
 
-    private static void addBoatHookVertexPair(VertexConsumer vertexConsumer, Matrix4f matrix4f, float xDisplacement, float yDisplacement, float zDisplacement, int leashedEntityBlockLight, int holdingEntityBlockLight, int leashedEntitySkyLight, int holdingEntitySkyLight, float leashYOffset, float crossYDirection, float crossXDirection, float crossZDirection, int pieceIndex, boolean swapDarkDirection) {
+    private static void rapscallionsandrockhoppers$addBoatHookVertexPair(VertexConsumer vertexConsumer, Matrix4f matrix4f, float xDisplacement, float yDisplacement, float zDisplacement, int leashedEntityBlockLight, int holdingEntityBlockLight, int leashedEntitySkyLight, int holdingEntitySkyLight, float leashYOffset, float crossYDirection, float crossXDirection, float crossZDirection, int pieceIndex, boolean swapDarkDirection) {
         float f = (float)pieceIndex / 24.0F;
         int blockLight = (int)Mth.lerp(f, (float)leashedEntityBlockLight, (float)holdingEntityBlockLight);
         int skyLight = (int)Mth.lerp(f, (float)leashedEntitySkyLight, (float)holdingEntitySkyLight);

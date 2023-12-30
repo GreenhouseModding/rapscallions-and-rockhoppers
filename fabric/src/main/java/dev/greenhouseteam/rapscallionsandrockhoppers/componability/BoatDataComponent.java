@@ -6,7 +6,11 @@ import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Unique;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +18,46 @@ import java.util.UUID;
 
 public class BoatDataComponent implements AutoSyncedComponent, IBoatData {
     private final List<UUID> penguins = new ArrayList<>();
+    @Unique
+    private @Nullable Boat nextLinkedBoat;
+    @Unique
+    private @Nullable Boat previousLinkedBoat;
+    @Unique
+    private @Nullable Player linkedPlayer;
     private Boat provider;
 
     public BoatDataComponent(Boat boat) {
         this.provider = boat;
+    }
+
+    @Override
+    public @Nullable Boat getNextLinkedBoat() {
+        return nextLinkedBoat;
+    }
+
+    @Override
+    public @Nullable Boat getPreviousLinkedBoat() {
+        return previousLinkedBoat;
+    }
+
+    @Override
+    public @Nullable Player getLinkedPlayer() {
+        return linkedPlayer;
+    }
+
+    @Override
+    public void setLinkedPlayer(@Nullable Player player) {
+        this.linkedPlayer = player;
+    }
+
+    @Override
+    public void setNextLinkedBoat(Boat boat) {
+        this.nextLinkedBoat = boat;
+    }
+
+    @Override
+    public void setPreviousLinkedBoat(Boat boat) {
+        this.previousLinkedBoat = boat;
     }
 
     @Override
