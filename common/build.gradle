@@ -19,15 +19,20 @@ repositories {
         name "SmartBrainLib (SBL) Maven Repo"
         url "https://dl.cloudsmith.io/public/tslat/sbl/maven/"
     }
+    maven {
+        name "MerchantPug/Greenhouse Maven"
+        url 'https://maven.merchantpug.net/releases/'
+    }
 }
 
 dependencies {
+    compileOnly("dev.greenhouseteam.rdpr:rdpr-common-mojmap:${rdpr_version}:api")
+    compileOnly("net.tslat.smartbrainlib:SmartBrainLib-common-${minecraft_version}:${sbl_version}")
+
     annotationProcessor(compileOnly("io.github.llamalad7:mixinextras-common:${mixin_extras_version}"))
 
     compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.5'
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
-
-    implementation "net.tslat.smartbrainlib:SmartBrainLib-common-${minecraft_version}:${sbl_version}"
 }
 
 sourceSets {

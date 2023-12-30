@@ -9,6 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.level.material.FluidState;
@@ -17,6 +18,7 @@ import net.tslat.smartbrainlib.api.core.behaviour.ExtendedBehaviour;
 import net.tslat.smartbrainlib.util.BrainUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 public class PenguinJump extends ExtendedBehaviour<Penguin> {
     private static final int[] STEPS_TO_CHECK = new int[]{0, 1, 4, 5, 6, 7, 8};
@@ -24,6 +26,10 @@ public class PenguinJump extends ExtendedBehaviour<Penguin> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, Penguin penguin) {
+        if (penguin.getTimeAllowedToWaterJump() > penguin.tickCount) {
+            return false;
+        }
+
         Direction direction = penguin.getMotionDirection();
         int x = direction.getStepX();
         int z = direction.getStepZ();
@@ -40,18 +46,11 @@ public class PenguinJump extends ExtendedBehaviour<Penguin> {
 
     private boolean waterIsClear(ServerLevel level, BlockPos pos, int x, int z, int step) {
         BlockPos blockPos = pos.offset(x * step, 0, z * step);
-        while (level.getFluidState(blockPos).is(FluidTags.WATER)) {
-            blockPos = blockPos.offset(0, 1, 0);
-        }
-        blockPos = blockPos.offset(0, -1, 0);
         return level.getFluidState(blockPos).is(FluidTags.WATER) && !level.getBlockState(blockPos).blocksMotion();
     }
 
     private boolean surfaceIsClear(ServerLevel level, BlockPos pos, int x, int z, int step) {
         BlockPos blockPos = pos.offset(x * step, 1, z * step);
-        while (level.getFluidState(blockPos).is(FluidTags.WATER)) {
-            blockPos = blockPos.offset(0, 1, 0);
-        }
         return level.getBlockState(blockPos).isAir()
                 && level.getBlockState(blockPos).isAir();
     }
@@ -65,15 +64,17 @@ public class PenguinJump extends ExtendedBehaviour<Penguin> {
 
     @Override
     protected void start(Penguin penguin) {
+        BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.IS_JUMPING, Unit.INSTANCE);
         Direction direction = penguin.getMotionDirection();
-        penguin.setDeltaMovement(penguin.getDeltaMovement().add(direction.getStepX() * 0.8, 0.6, direction.getStepZ() * 0.8));
+        penguin.setDeltaMovement(penguin.getDeltaMovement().add(direction.getStepX() * 0.6, 0.4, direction.getStepZ() * 0.6));
     }
 
     @Override
     protected void stop(Penguin penguin) {
         this.breached = false;
         penguin.setXRot(0.0F);
-        BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.WATER_JUMP_COOLDOWN_TICKS, Mth.randomBetweenInclusive(penguin.getRandom(), 60, 100));
+        penguin.setTimeAllowedToWaterJump(Optional.of(penguin.tickCount + Mth.randomBetweenInclusive(penguin.getRandom(), 200, 400)));
+        BrainUtils.clearMemories(penguin, RockhoppersMemoryModuleTypes.IS_JUMPING);
     }
 
     @Override
@@ -85,7 +86,7 @@ public class PenguinJump extends ExtendedBehaviour<Penguin> {
         }
 
         if (this.breached && !breached) {
-            penguin.playSound(RockhoppersSoundEvents.PENGUIN_JUMP, 1.0F, 1.0F);
+            penguin.playSound(penguin.getWaterJumpSound(), 1.0F, 1.0F);
         }
 
         Vec3 movement = penguin.getDeltaMovement();
@@ -100,6 +101,6 @@ public class PenguinJump extends ExtendedBehaviour<Penguin> {
 
     @Override
     protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-        return List.of(Pair.of(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT), Pair.of(RockhoppersMemoryModuleTypes.WATER_JUMP_COOLDOWN_TICKS, MemoryStatus.VALUE_ABSENT));
+        return List.of(Pair.of(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT));
     }
 }

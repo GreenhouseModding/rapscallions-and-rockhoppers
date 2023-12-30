@@ -28,7 +28,15 @@
             "dev.greenhouseteam.rapscallionsandrockhoppers.client.RapscallionsAndRockhoppersFabricClient"
         ],
         "fabric-datagen": [
-          "dev.greenhouseteam.rapscallionsandrockhoppers.datagen.RockhoppersDatagen"
+            "dev.greenhouseteam.rapscallionsandrockhoppers.datagen.RockhoppersDatagen"
+        ],
+        "cardinal-components": [
+            "dev.greenhouseteam.rapscallionsandrockhoppers.RockhoppersEntityComponents"
+        ]
+    },
+    "custom": {
+        "cardinal-components": [
+            "rapscallionsandrockhoppers:boat_data"
         ]
     },
     "mixins": [

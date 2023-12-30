@@ -1,5 +1,6 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.network;
 
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.InvalidateCachedPenguinTypePacket;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.RapscallionsAndRockhoppersPacketS2C;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBlockPosLookPacketS2C;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -17,6 +18,7 @@ public class RockhoppersPackets {
     public static void registerS2C() {
         ClientPlayConnectionEvents.INIT.register((handler, client) -> {
             ClientPlayNetworking.registerReceiver(SyncBlockPosLookPacketS2C.ID, createS2CHandler(SyncBlockPosLookPacketS2C::decode, SyncBlockPosLookPacketS2C::handle));
+            ClientPlayNetworking.registerReceiver(InvalidateCachedPenguinTypePacket.ID, createS2CHandler(InvalidateCachedPenguinTypePacket::decode, InvalidateCachedPenguinTypePacket::handle));
         });
     }
 

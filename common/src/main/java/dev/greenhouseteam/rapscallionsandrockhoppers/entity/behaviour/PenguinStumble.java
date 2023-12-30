@@ -13,17 +13,26 @@ import net.tslat.smartbrainlib.util.BrainUtils;
 import java.util.List;
 
 public class PenguinStumble extends ExtendedBehaviour<Penguin> {
-    private static final int REQUIRED_WALKING_TIME = 30;
     private boolean hasSlid = false;
+
+    public PenguinStumble() {
+        this.runFor(Penguin::getTotalStumbleAnimationLength);
+    }
 
     @Override
     public boolean checkExtraStartConditions(ServerLevel level, Penguin penguin) {
-        return penguin.getStumbleTicks() != Integer.MIN_VALUE || BrainUtils.hasMemory(penguin, MemoryModuleType.WALK_TARGET) && penguin.getWalkStartTime() != Integer.MIN_VALUE && penguin.tickCount > REQUIRED_WALKING_TIME + penguin.getWalkStartTime() && penguin.getRandom().nextFloat() < Mth.clamp(penguin.getStumbleChance(), 0.0F, 1.0F);
+        boolean bl = penguin.isStumbling() || BrainUtils.hasMemory(penguin, MemoryModuleType.WALK_TARGET) && penguin.getRandom().nextFloat() < Mth.clamp(penguin.getStumbleChance(), 0.0F, 1.0F);
+        // This has to be done here rather than the start method.
+        if (bl && !penguin.isStumbling()) {
+            penguin.setStumbleTicks(0);
+            penguin.setStumbleTicksBeforeGettingUp(penguin.getRandom().nextIntBetweenInclusive(30, 60));
+        }
+        return bl;
     }
 
     @Override
     protected boolean shouldKeepRunning(Penguin penguin) {
-        return penguin.getStumbleTicks() != Integer.MIN_VALUE;
+        return penguin.getStumbleTicks() <= penguin.getTotalStumbleAnimationLength();
     }
 
     @Override
@@ -41,18 +50,17 @@ public class PenguinStumble extends ExtendedBehaviour<Penguin> {
             penguin.hurtMarked = true;
             this.hasSlid = true;
         }
+        penguin.setStumbleTicks(penguin.getStumbleTicks() + 1);
     }
 
     @Override
     public void start(Penguin penguin) {
-        if (penguin.getStumbleTicks() == Integer.MIN_VALUE) {
-            penguin.setStumbleTicks(0);
-            penguin.setStumbleTicksBeforeGettingUp(penguin.getRandom().nextIntBetweenInclusive(30, 60));
-        }
+        BrainUtils.clearMemories(penguin, MemoryModuleType.WALK_TARGET, MemoryModuleType.LOOK_TARGET);
     }
 
     @Override
     public void stop(Penguin penguin) {
+        penguin.setStumbleTicks(Integer.MIN_VALUE);
         penguin.setStumbleTicksBeforeGettingUp(Integer.MIN_VALUE);
         this.hasSlid = false;
     }
