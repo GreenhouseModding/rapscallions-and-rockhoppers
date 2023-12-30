@@ -124,11 +124,6 @@ public class RapscallionsAndRockhoppersEvents {
     @Mod.EventBusSubscriber(modid = RapscallionsAndRockhoppers.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static class ForgeBusEvents {
         @SubscribeEvent
-        public static void onEntityLeaveLevel(EntityLeaveLevelEvent event) {
-            RapscallionsAndRockhoppers.onUnload(event.getEntity(), event.getLevel());
-        }
-
-        @SubscribeEvent
         public static void onServerStopped(ServerStoppingEvent event) {
             RapscallionsAndRockhoppers.removeCachedPenguinTypeRegistry();
         }

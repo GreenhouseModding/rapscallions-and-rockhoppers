@@ -37,7 +37,6 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
         handleRegistration();
         handleBiomeModifications();
         handlePenguinTypeRegistryEvents();
-        handleUnloadingEntities();
     }
 
     private static Predicate<BiomeSelectionContext> createPenguinSpawnPredicate() {
@@ -52,7 +51,7 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
     public static void handleBiomeModifications() {
         SpawnPlacements.register(RockhoppersEntityTypes.PENGUIN, SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Penguin::checkPenguinSpawnRules);
         createBiomeModifications(RapscallionsAndRockhoppers.asResource("penguin"),
-                createPenguinSpawnPredicate(), RockhoppersEntityTypes.PENGUIN, 2, 2, 4);
+                createPenguinSpawnPredicate(), RockhoppersEntityTypes.PENGUIN, 15, 4, 6);
     }
 
     public static void createBiomeModifications(ResourceLocation location, Predicate<BiomeSelectionContext> predicate, EntityType<?> entityType, int weight, int min, int max) {
@@ -84,9 +83,5 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
             }
         });
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> RapscallionsAndRockhoppers.removeCachedPenguinTypeRegistry());
-    }
-
-    public static void handleUnloadingEntities() {
-        ServerEntityEvents.ENTITY_UNLOAD.register(RapscallionsAndRockhoppers::onUnload);
     }
 }

@@ -11,13 +11,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.tslat.smartbrainlib.util.BrainUtils;
 import org.slf4j.Logger;
@@ -64,43 +64,6 @@ public class RapscallionsAndRockhoppers {
         cachedPenguinTypeRegistry = null;
     }
 
-    protected static void onUnload(Entity entity, Level level) {
-        if (entity instanceof Penguin penguin) {
-            penguin.setBoatToFollow(null);
-            GlobalPos home = BrainUtils.getMemory(penguin, MemoryModuleType.HOME);
-            if (home != null && level.dimension() == home.dimension() && penguin.blockPosition().distSqr(home.pos()) > 24 * 24) {
-                BlockPos randomPos = null;
-
-                if (level instanceof ServerLevel serverLevel) {
-                    loadNearbyChunks(home.pos(), serverLevel);
-                }
-                for (int i = 0; i < 10 || !level.getBlockState(randomPos).isPathfindable(level, randomPos, PathComputationType.WATER); ++i) {
-                    randomPos = getRandomPos(penguin, home.pos());
-                }
-                if (!level.getBlockState(randomPos).isPathfindable(level, randomPos, PathComputationType.WATER)) {
-                    randomPos = null;
-                }
-                if (randomPos == null) {
-                    randomPos = home.pos();
-                    for (int i = 0; i < 10 || !level.getBlockState(randomPos).isPathfindable(level, randomPos, PathComputationType.LAND); ++i) {
-                        randomPos = home.pos().above();
-                    }
-                }
-                Penguin penguin1 = RockhoppersEntityTypes.PENGUIN.create(level);
-                if (penguin1 != null) {
-                    penguin1.load(penguin.saveWithoutId(new CompoundTag()));
-                    penguin1.teleportTo(randomPos.getX(), randomPos.getY(), randomPos.getZ());
-                }
-                penguin.remove(Entity.RemovalReason.DISCARDED);
-                if (level instanceof ServerLevel serverLevel) {
-                    unloadChunks(serverLevel);
-                }
-            }
-        } else if (entity instanceof Boat boat) {
-            IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat).clearFollowingPenguins();
-        }
-    }
-
     public static void loadNearbyChunks(BlockPos pos, ServerLevel level) {
         int xCoord = SectionPos.blockToSectionCoord(pos.getX());
         int zCoord = SectionPos.blockToSectionCoord(pos.getZ());
@@ -108,7 +71,7 @@ public class RapscallionsAndRockhoppers {
             for (int z = -1; z < 2; ++z) {
                 int xSection = xCoord + x;
                 int zSection = zCoord + z;
-                if (!level.hasChunk(xSection, zSection)) {
+                if (level.getChunk(xSection, zSection, ChunkStatus.FULL, true) == null && !PENGUIN_LOADED_CHUNKS.contains(Pair.of(xSection, zSection))) {
                     level.setChunkForced(xSection, zSection, true);
                     PENGUIN_LOADED_CHUNKS.add(Pair.of(xSection, zSection));
                 }
@@ -121,19 +84,6 @@ public class RapscallionsAndRockhoppers {
         for (Pair<Integer, Integer> pair : PENGUIN_LOADED_CHUNKS) {
             level.setChunkForced(pair.getFirst(), pair.getSecond(), false);
         }
-    }
-
-    // TODO: There's probably a better algorithm for calculating this... Oh well.
-    private static BlockPos getRandomPos(Penguin penguin, BlockPos home) {
-        int xOffset = penguin.getRandom().nextIntBetweenInclusive(8, 12);
-        int zOffset = penguin.getRandom().nextIntBetweenInclusive(8, 12);
-        if (penguin.getRandom().nextBoolean()) {
-            xOffset = -xOffset;
-        }
-        if (penguin.getRandom().nextBoolean()) {
-            zOffset = -zOffset;
-        }
-        return new BlockPos(home.getX() + xOffset, home.getY(), home.getZ() + zOffset);
     }
 
     public static ResourceLocation asResource(String path) {

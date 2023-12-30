@@ -3,7 +3,7 @@
   "spawners": {
     "type": "rapscallionsandrockhoppers:penguin",
     "weight": 2,
-    "minCount": 3,
+    "minCount": 4,
     "maxCount": 6
   }
 }

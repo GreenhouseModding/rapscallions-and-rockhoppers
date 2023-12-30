@@ -465,6 +465,49 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         this.refreshDimensionsIfShould();
     }
 
+
+    // TODO: Use this for when a penguin leaves a boat.
+    public void returnToHome() {
+        GlobalPos home = BrainUtils.getMemory(this, MemoryModuleType.HOME);
+        if (home != null && this.level().dimension() == home.dimension() && this.blockPosition().distSqr(home.pos()) > 24 * 24) {
+            BlockPos randomPos = null;
+
+            if (this.level() instanceof ServerLevel serverLevel) {
+                RapscallionsAndRockhoppers.loadNearbyChunks(home.pos(), serverLevel);
+            }
+            for (int i = 0; i < 10 || !this.level().getBlockState(randomPos).isPathfindable(this.level(), randomPos, PathComputationType.WATER); ++i) {
+                randomPos = getRandomPos(home.pos());
+            }
+            if (!this.level().getBlockState(randomPos).isPathfindable(this.level(), randomPos, PathComputationType.WATER)) {
+                randomPos = null;
+            }
+            if (randomPos == null) {
+                randomPos = home.pos();
+                for (int i = 0; i < 10 || !this.level().getBlockState(randomPos).isPathfindable(this.level(), randomPos, PathComputationType.LAND); ++i) {
+                    randomPos = home.pos().above();
+                }
+            }
+            this.teleportTo(randomPos.getX(), randomPos.getY(), randomPos.getZ());
+            if (this.level() instanceof ServerLevel serverLevel) {
+                RapscallionsAndRockhoppers.unloadChunks(serverLevel);
+            }
+        }
+    }
+
+
+    // TODO: There's probably a better algorithm for calculating this... Oh well.
+    private BlockPos getRandomPos(BlockPos home) {
+        int xOffset = this.getRandom().nextIntBetweenInclusive(8, 12);
+        int zOffset = this.getRandom().nextIntBetweenInclusive(8, 12);
+        if (this.getRandom().nextBoolean()) {
+            xOffset = -xOffset;
+        }
+        if (this.getRandom().nextBoolean()) {
+            zOffset = -zOffset;
+        }
+        return new BlockPos(home.getX() + xOffset, home.getY(), home.getZ() + zOffset);
+    }
+
     public int getTotalStumbleAnimationLength() {
         if (this.getStumbleTicksBeforeGettingUp() == Integer.MIN_VALUE) {
             return Integer.MIN_VALUE;
@@ -488,15 +531,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         return super.finalizeSpawn(level, difficultyInstance, mobSpawnType, spawnGroupData, tag);
     }
 
-    public static boolean checkPenguinSpawnRules(
-            EntityType<? extends Penguin> entityType, net.minecraft.world.level.LevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random
-    ) {
-        return BlockPos.betweenClosedStream(AABB.ofSize(pos.getCenter(), 24, 18, 24)).anyMatch(pos1 -> {
-            if (level.hasChunkAt(pos1)) {
-                return level.getBlockState(pos1).getFluidState().is(FluidTags.WATER);
-            }
-            return false;
-        });
+    public static boolean checkPenguinSpawnRules(EntityType<? extends Penguin> entityType, net.minecraft.world.level.LevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {
+        return Animal.isBrightEnoughToSpawn(level, pos);
     }
 
 
