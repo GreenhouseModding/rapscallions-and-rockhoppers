@@ -12,6 +12,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.VehicleEntity;
@@ -25,6 +26,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import javax.annotation.Nullable;
 
 @Mixin(Boat.class)
 public abstract class BoatMixin extends VehicleEntity {
@@ -51,6 +54,15 @@ public abstract class BoatMixin extends VehicleEntity {
                 this.spawnAtLocation(RockhoppersItems.BOAT_HOOK);
             }
             cir.setReturnValue(InteractionResult.SUCCESS);
+            return;
+        }
+        if (player.getItemInHand(interactionHand).is(RockhoppersItems.BOAT_HOOK)) {
+            boatData.setLinkedPlayer(player.getUUID());
+            playerData.addLinkedBoat(this.getUUID());
+            boatData.sync();
+            playerData.sync();
+            cir.setReturnValue(InteractionResult.SUCCESS);
+            return;
         }
         if (boatData.getLinkedPlayer() == null && playerData.getLinkedBoats() != null) {
             var otherBoats = playerData.getLinkedBoats();
@@ -66,23 +78,14 @@ public abstract class BoatMixin extends VehicleEntity {
                         otherBoatData.sync();
                         playerData.sync();
                         cir.setReturnValue(InteractionResult.SUCCESS);
-                        return;
                     }
                 }
             }
-        }
-        if (player.getItemInHand(interactionHand).is(RockhoppersItems.BOAT_HOOK)) {
-            boatData.setLinkedPlayer(player.getUUID());
-            playerData.addLinkedBoat(this.getUUID());
-            boatData.sync();
-            playerData.sync();
-            cir.setReturnValue(InteractionResult.SUCCESS);
         }
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
     public void rapscallionsandrockhoppers$addBoatMovementCode(CallbackInfo ci) {
-        if (this.level().isClientSide()) return;
         IBoatData boatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData((Boat)(Object)this);
         if (boatData.getLinkedPlayer() != null) {
             var distanceBetween = boatData.getLinkedPlayer().distanceTo((Boat)(Object)this);
@@ -97,27 +100,31 @@ public abstract class BoatMixin extends VehicleEntity {
         rapscallionsandrockhoppers$moveTowardsBoats(boatData.getNextLinkedBoat(), boatData.getPreviousLinkedBoat());
     }
 
+    @Unique
     private void rapscallionsandrockhoppers$moveTowardsBoats(Boat next, Boat previous) {
         IBoatData boatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData((Boat)(Object)this);
         if (next != null) {
-            if (next.isAlive()) {
+            var distanceBetween = next.distanceTo((Boat)(Object)this);
+            if (next.isAlive() && distanceBetween < 16) {
                 rapscallionsandrockhoppers$doBoatLinkedMovementTo(next);
             } else {
                 IBoatData nextBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData((Boat)(Object)this);
                 nextBoatData.setPreviousLinkedBoat(null);
                 boatData.setNextLinkedBoat(null);
+                next.spawnAtLocation(RockhoppersItems.BOAT_HOOK);
             }
         }
         if (previous != null) {
-            if (previous.isAlive()) {
+            var distanceBetween = previous.distanceTo((Boat)(Object)this);
+            if (previous.isAlive() && distanceBetween < 16) {
                 rapscallionsandrockhoppers$doBoatLinkedMovementTo(previous);
             } else {
                 IBoatData previousBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData((Boat)(Object)this);
                 previousBoatData.setNextLinkedBoat(null);
                 boatData.setPreviousLinkedBoat(null);
+                this.spawnAtLocation(RockhoppersItems.BOAT_HOOK);
             }
         }
-
 
     }
 
@@ -127,8 +134,10 @@ public abstract class BoatMixin extends VehicleEntity {
         var thisPos = this.position();
         var otherPos = other.position();
         var distanceBetween = other.distanceTo((Boat)(Object)this);
-        if (distanceBetween <= 3 || distanceBetween > 10) return;
+        if (distanceBetween <= 3 || distanceBetween > 16) return;
         var distanceFactor = (distanceBetween - 3) / 7;
+
+        if (this.level().isClientSide()) return;
         // This controls the velocity of the boat, making it quicker the further away it is
         var betweenVec = thisPos.vectorTo(otherPos).scale(IBoatData.HOOK_DAMPENING_FACTOR);
         var thisDelta = betweenVec.normalize().scale(distanceBetween).scale(distanceFactor);
@@ -137,10 +146,25 @@ public abstract class BoatMixin extends VehicleEntity {
         thisDelta.multiply(1f, 0f, 1f);
         thisDelta.add(0f, this.getDeltaMovement().y(), 0f);
         this.setDeltaMovement(thisDelta);
+
+        if (this.getDeltaMovement().horizontalDistance() > 0.05 && (!this.hasControllingPassenger() || !(this.getControllingPassenger() instanceof Player))) {
+            float cross = (float) (otherPos.subtract(thisPos).cross(this.getForward()).y());
+            this.setYRot(this.getYRot() + cross);
+            this.setYHeadRot(this.getYHeadRot() + cross);
+            this.clampRotation(this);
+        }
     }
 
     @Unique
     private void rapscallionsandrockhoppers$moveTowards(Entity other) {
+        var thisPos = this.position();
+        var otherPos = other.position();
+        if (other.getDeltaMovement().horizontalDistance() > 0.05) {
+            float rotation = (float) (otherPos.subtract(thisPos).cross(this.getForward()).y() * 0.02);
+            this.setYRot(this.getYRot() + rotation);
+        }
+
+        if (this.level().isClientSide()) return;
         var distanceBetween = other.distanceTo((Boat) (Object) this);
         if (distanceBetween > 3) {
             var distanceFactor = (distanceBetween - 3) / 7;
@@ -152,6 +176,10 @@ public abstract class BoatMixin extends VehicleEntity {
     @Shadow public abstract Direction getMotionDirection();
 
     @Shadow private float deltaRotation;
+
+    @Shadow @Nullable public abstract LivingEntity getControllingPassenger();
+
+    @Shadow protected abstract void clampRotation(Entity p_38322_);
 
     @ModifyArg(method = "controlBoat", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V"))
     private Vec3 rapscallionsandrockhoppers$controlBoat(Vec3 original) {
