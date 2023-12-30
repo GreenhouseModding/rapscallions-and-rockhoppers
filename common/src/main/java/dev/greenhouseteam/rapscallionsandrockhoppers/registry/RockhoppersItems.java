@@ -23,6 +23,11 @@ public class RockhoppersItems {
         function.register(BuiltInRegistries.ITEM, RapscallionsAndRockhoppers.asResource("boat_hook"), BOAT_HOOK);
     }
 
+
+    public static void addAfterToolsAndUtilitiesTab(BiConsumer<ItemStack, ItemStack> consumer) {
+        consumer.accept(new ItemStack(Items.LEAD), new ItemStack(BOAT_HOOK));
+    }
+
     public static void addAfterNaturalBlocksTab(BiConsumer<ItemStack, ItemStack> consumer) {
         consumer.accept(new ItemStack(Items.TURTLE_EGG), new ItemStack(PENGUIN_EGG));
     }

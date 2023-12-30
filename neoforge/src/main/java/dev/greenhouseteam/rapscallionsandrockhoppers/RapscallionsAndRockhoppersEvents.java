@@ -39,6 +39,7 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
+import javax.swing.RootPaneContainer;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
@@ -115,7 +116,9 @@ public class RapscallionsAndRockhoppersEvents {
 
         @SubscribeEvent
         public static void onCreativeModeTabBuild(BuildCreativeModeTabContentsEvent event) {
-            if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
+            if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+                RockhoppersItems.addAfterToolsAndUtilitiesTab((stack, itemLike) -> event.getEntries().putAfter(itemLike, stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
+            } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
                 RockhoppersItems.addAfterNaturalBlocksTab((stack, itemLike) -> event.getEntries().putAfter(itemLike, stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
             } else if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
                 RockhoppersItems.addSpawnEggsTab(event::accept);
