@@ -2,18 +2,8 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.entity;
 
 import com.mojang.datafixers.util.Pair;
 import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.BreatheAir;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.PenguinJump;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.PenguinShove;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.PenguinStumble;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.FollowBoat;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.StayWithinHome;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.SetRandomSwimTarget;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.BoatToFollowSensor;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.NearbyPufferfishSensor;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.NearbyShoveableSensor;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.NearbyWaterSensor;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.PenguinHomeSensor;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.*;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.mixin.LevelAccessor;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.InvalidateCachedPenguinTypePacket;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
@@ -238,7 +228,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 new NearbyPufferfishSensor(),
                 new ItemTemptingSensor<Penguin>().temptedWith((entity, stack) -> TEMPTATION_ITEM.test(stack)),
                 new InWaterSensor<Penguin>().setPredicate((entity, entity2) -> entity.isInWater() || BrainUtils.hasMemory(entity, RockhoppersMemoryModuleTypes.IS_JUMPING)),
-                new HurtBySensor<>()
+                new HurtBySensor<>(),
+                new NearbyEggSensor()
         );
     }
 
@@ -257,6 +248,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 new BreedWithPartner<>(),
                 new SetPlayerLookTarget<>(),
                 new SetRandomLookTarget<>().lookChance(ConstantFloat.of(0.6F)),
+                new PenguinSitEgg().setRadius(16).runFor((penguin -> penguin.random.nextInt(3600, 9000))), // Between 180 and 450 seconds
                 new StayWithinHome().setRadius(5).startCondition(penguin -> !penguin.isStumbling() && penguin.getBoatToFollow() == null),
                 new PenguinShove(),
                 new PenguinStumble(),
