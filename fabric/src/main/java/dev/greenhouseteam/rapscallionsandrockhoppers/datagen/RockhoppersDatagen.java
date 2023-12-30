@@ -154,7 +154,7 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
         @Override
         protected void addTags(HolderLookup.Provider provider) {
             this.tag(RockhoppersTags.BiomeTags.ROCKHOPPER_PENGUIN_SPAWN_BIOMES).add(Biomes.STONY_SHORE);
-            this.tag(RockhoppersTags.BiomeTags.CHINSTRAP_PENGUIN_SPAWN_BIOMES).add(Biomes.FROZEN_OCEAN);
+            this.tag(RockhoppersTags.BiomeTags.CHINSTRAP_PENGUIN_SPAWN_BIOMES).add(Biomes.FROZEN_OCEAN, Biomes.DEEP_FROZEN_OCEAN);
         }
     }
 }
