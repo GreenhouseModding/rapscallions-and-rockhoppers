@@ -44,20 +44,13 @@ public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
     private void rapscallionsandrockhoppers$renderLeash(Boat thisBoat, float yaw, float tickDelta, PoseStack poseStack, MultiBufferSource bufferSource, Entity linkedTo) {
         poseStack.pushPose();
         Vec3 linkedToPosition;
-        float piDivisionAmount = Mth.PI / 180.0F;
         if (linkedTo instanceof Boat) {
-            double x = linkedTo.position().normalize().x - thisBoat.position().normalize().x;
-            double z = linkedTo.position().normalize().z - thisBoat.position().normalize().z;
-            double rotVec = Mth.atan2(z, x);
-            linkedToPosition = linkedTo.getRopeHoldPosition(tickDelta).add(Mth.sin((float) (-rotVec * piDivisionAmount)) * linkedTo.getBbWidth(), 0, Mth.cos((float) (rotVec * piDivisionAmount)) * linkedTo.getBbWidth());
+            linkedToPosition = rapscallionsandrockhoppers$approximateClosestHitPoint(linkedTo, thisBoat).add(0.0, linkedTo.position().y() + (linkedTo.getEyeHeight() / 2.0), 0.0);
         } else
             linkedToPosition = linkedTo.getRopeHoldPosition(tickDelta);
         double $$6 = (double)(Mth.lerp(tickDelta, thisBoat.getYRot(), thisBoat.lerpTargetYRot()) * 0.017453292F) + 1.5707963267948966;
 
-        double x = thisBoat.position().x - linkedTo.position().x;
-        double z = thisBoat.position().z - linkedTo.position().z;
-        double rotVec = Mth.atan2(z, x);
-        Vec3 $$7 = new Vec3(0.0, thisBoat.getEyeHeight(), 0.0).add(Mth.sin((float) (-rotVec * piDivisionAmount)) * thisBoat.getBbWidth(), 0, Mth.cos((float) (rotVec * piDivisionAmount)) * thisBoat.getBbWidth());
+        Vec3 $$7 = rapscallionsandrockhoppers$approximateClosestHitPoint(thisBoat, linkedTo).subtract(thisBoat.position().x(), 0.0, thisBoat.position().z()).add(0.0, thisBoat.getEyeHeight() / 2.0, 0.0);
         double $$8 = Math.cos($$6) * $$7.z + Math.sin($$6) * $$7.x;
         double $$9 = Math.sin($$6) * $$7.z - Math.cos($$6) * $$7.x;
         double xLerped = Mth.lerp(tickDelta, thisBoat.xo, thisBoat.getX()) + $$8;
@@ -90,15 +83,37 @@ public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
         poseStack.popPose();
     }
 
+    @Unique
+    Vec3 rapscallionsandrockhoppers$approximateClosestHitPoint(Entity thisBoat, Entity linkedTo) {
+        Vec3 hitboxVec = new Vec3(thisBoat.getBoundingBox().getXsize() / 2, 0, thisBoat.getBoundingBox().getZsize() / 2);
+        Vec3 otherHitboxVec = new Vec3(linkedTo.getBoundingBox().getXsize() / 2, 0, linkedTo.getBoundingBox().getZsize() / 2);
+        Vec3 closestPoint1 = rapscallionsandrockhoppers$getClosestHitPoint(thisBoat.position(), linkedTo.position(), hitboxVec);
+        Vec3 closestPoint2 = rapscallionsandrockhoppers$getClosestHitPoint(linkedTo.position(), thisBoat.position(),  otherHitboxVec);
+        Vec3 closestPoint3 = rapscallionsandrockhoppers$getClosestHitPoint(thisBoat.position(), closestPoint2, hitboxVec);
+        return closestPoint1.add(closestPoint3).multiply(0.5, 0.0, 0.5);
+    }
+
+    @Unique
+    Vec3 rapscallionsandrockhoppers$getClosestHitPoint(Vec3 selfPos, Vec3 targetPos, Vec3 hitBox) {
+        Vec3 relative = targetPos.subtract(selfPos);
+        Vec3 clampedPos = new Vec3(
+                Math.min(Math.max(relative.x, -hitBox.x), hitBox.x),
+                relative.y(),
+                Math.min(Math.max(relative.z, -hitBox.z), hitBox.z)
+        );
+        return clampedPos.add(selfPos);
+    }
+
+    @Unique
     private static void rapscallionsandrockhoppers$addBoatHookVertexPair(VertexConsumer vertexConsumer, Matrix4f matrix4f, float xDisplacement, float yDisplacement, float zDisplacement, int leashedEntityBlockLight, int holdingEntityBlockLight, int leashedEntitySkyLight, int holdingEntitySkyLight, float leashYOffset, float crossYDirection, float crossXDirection, float crossZDirection, int pieceIndex, boolean swapDarkDirection) {
         float f = (float)pieceIndex / 24.0F;
         int blockLight = (int)Mth.lerp(f, (float)leashedEntityBlockLight, (float)holdingEntityBlockLight);
         int skyLight = (int)Mth.lerp(f, (float)leashedEntitySkyLight, (float)holdingEntitySkyLight);
         int packedLight = LightTexture.pack(blockLight, skyLight);
         float darkOrLight = pieceIndex % 2 == (swapDarkDirection ? 1 : 0) ? 0.7F : 1.0F;
-        float r = 0.7F * darkOrLight;
-        float g = 0.7F * darkOrLight;
-        float b = 0.7F * darkOrLight;
+        float r = 0.5F * darkOrLight;
+        float g = 0.4F * darkOrLight;
+        float b = 0.3F * darkOrLight;
         float n = xDisplacement * f;
         float o = yDisplacement > 0.0F ? yDisplacement * f * f : yDisplacement - yDisplacement * (1.0F - f) * (1.0F - f);
         float p = zDisplacement * f;
