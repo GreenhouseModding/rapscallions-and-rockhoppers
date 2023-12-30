@@ -28,6 +28,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 @Mixin(Boat.class)
 public abstract class BoatMixin extends VehicleEntity {
@@ -61,6 +62,9 @@ public abstract class BoatMixin extends VehicleEntity {
             playerData.addLinkedBoat(this.getUUID());
             boatData.sync();
             playerData.sync();
+            if (!player.getAbilities().instabuild) {
+                player.getItemInHand(interactionHand).shrink(1);
+            }
             cir.setReturnValue(InteractionResult.SUCCESS);
             return;
         }
@@ -97,33 +101,35 @@ public abstract class BoatMixin extends VehicleEntity {
                 this.spawnAtLocation(RockhoppersItems.BOAT_HOOK);
             }
         }
-        rapscallionsandrockhoppers$moveTowardsBoats(boatData.getNextLinkedBoat(), boatData.getPreviousLinkedBoat());
+        rapscallionsandrockhoppers$moveTowardsBoats(boatData.getNextLinkedBoatUuid(), boatData.getPreviousLinkedBoatUuid(), boatData.getNextLinkedBoat(), boatData.getPreviousLinkedBoat());
     }
 
     @Unique
-    private void rapscallionsandrockhoppers$moveTowardsBoats(Boat next, Boat previous) {
+    private void rapscallionsandrockhoppers$moveTowardsBoats(UUID nextUuid, UUID previousUuid, Boat next, Boat previous) {
         IBoatData boatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData((Boat)(Object)this);
-        if (next != null) {
-            var distanceBetween = next.distanceTo((Boat)(Object)this);
-            if (next.isAlive() && distanceBetween < 16) {
-                rapscallionsandrockhoppers$doBoatLinkedMovementTo(next);
-            } else {
-                IBoatData nextBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData((Boat)(Object)this);
-                nextBoatData.setPreviousLinkedBoat(null);
+        if (nextUuid != null) {
+            if (next == null || next.isRemoved() && next.distanceTo((Boat)(Object)this) > 16) {
+                if (next != null) {
+                    IBoatData nextBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData((Boat) (Object) this);
+                    nextBoatData.setPreviousLinkedBoat(null);
+                }
                 boatData.setNextLinkedBoat(null);
-                next.spawnAtLocation(RockhoppersItems.BOAT_HOOK);
+                this.spawnAtLocation(RockhoppersItems.BOAT_HOOK);
+                return;
             }
+            rapscallionsandrockhoppers$doBoatLinkedMovementTo(next);
         }
-        if (previous != null) {
-            var distanceBetween = previous.distanceTo((Boat)(Object)this);
-            if (previous.isAlive() && distanceBetween < 16) {
-                rapscallionsandrockhoppers$doBoatLinkedMovementTo(previous);
-            } else {
-                IBoatData previousBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData((Boat)(Object)this);
-                previousBoatData.setNextLinkedBoat(null);
+        if (previousUuid != null) {
+            if (previous == null || previous.isRemoved() && previous.distanceTo((Boat)(Object)this) > 16) {
+                if (previous != null) {
+                    IBoatData nextBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData((Boat)(Object)this);
+                    nextBoatData.setNextLinkedBoat(null);
+                }
                 boatData.setPreviousLinkedBoat(null);
                 this.spawnAtLocation(RockhoppersItems.BOAT_HOOK);
+                return;
             }
+            rapscallionsandrockhoppers$doBoatLinkedMovementTo(previous);
         }
 
     }
