@@ -5,13 +5,12 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Unique;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class PlayerDataAttachment implements IPlayerData, INBTSerializable<CompoundTag> {
     @Unique
-    private @Nullable UUID linkedBoat;
+    private @Nullable List<UUID> linkedBoats;
 
     @Override
     public CompoundTag serializeNBT() {
@@ -25,13 +24,24 @@ public class PlayerDataAttachment implements IPlayerData, INBTSerializable<Compo
         this.deserialize(tag);
     }
 
+
     @Override
-    public @Nullable UUID getLinkedBoatUUID() {
-        return this.linkedBoat;
+    public List<UUID> getLinkedBoatUUIDs() {
+        return this.linkedBoats;
     }
 
     @Override
-    public @Nullable void setLinkedBoat(UUID boat) {
-        this.linkedBoat = boat;
+    public void addLinkedBoat(UUID boat) {
+        this.linkedBoats.add(boat);
+    }
+
+    @Override
+    public void removeLinkedBoat(UUID boat) {
+        this.linkedBoats.remove(boat);
+    }
+
+    @Override
+    public void clearLinkedBoats() {
+        this.linkedBoats.clear();
     }
 }

@@ -7,6 +7,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class PlayerDataCapability implements IPlayerData {
@@ -17,21 +19,33 @@ public class PlayerDataCapability implements IPlayerData {
     }
 
     @Override
-    public @Nullable UUID getLinkedBoatUUID() {
-        return this.provider.getData(RockhoppersAttachments.PLAYER_DATA.get()).getLinkedBoatUUID();
+    public List<UUID> getLinkedBoatUUIDs() {
+        return this.provider.getData(RockhoppersAttachments.PLAYER_DATA.get()).getLinkedBoatUUIDs();
     }
 
     @Override
-    public @Nullable Boat getLinkedBoat() {
-        Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), this.getLinkedBoatUUID());
-        if (entity instanceof Boat boat) {
-            return boat;
-        }
-        return null;
+    public void addLinkedBoat(UUID boat) {
+        this.provider.getData(RockhoppersAttachments.PLAYER_DATA.get()).addLinkedBoat(boat);
     }
 
     @Override
-    public void setLinkedBoat(UUID boat) {
-        this.provider.getData(RockhoppersAttachments.PLAYER_DATA.get()).setLinkedBoat(boat);
+    public void removeLinkedBoat(UUID boat) {
+        this.provider.getData(RockhoppersAttachments.PLAYER_DATA.get()).removeLinkedBoat(boat);
+    }
+
+    @Override
+    public void clearLinkedBoats() {
+        this.provider.getData(RockhoppersAttachments.PLAYER_DATA.get()).clearLinkedBoats();
+    }
+
+    @Override
+    public @Nullable List<Boat> getLinkedBoats() {
+        return this.getLinkedBoatUUIDs().stream().map(uuid -> {
+            Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), uuid);
+            if (entity instanceof Boat boat) {
+                return boat;
+            }
+            return null;
+        }).filter(Objects::nonNull).toList();
     }
 }
