@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
@@ -34,36 +35,47 @@ public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
         IBoatData boatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat);
         if (boatData.getPreviousLinkedBoat() != null) {
             rapscallionsandrockhoppers$renderLeash(boat, yaw, tickDelta, poseStack, multiBufferSource, boatData.getPreviousLinkedBoat());
+        } else if (boatData.getLinkedPlayer() != null) {
+            rapscallionsandrockhoppers$renderLeash(boat, yaw, tickDelta, poseStack, multiBufferSource, boatData.getLinkedPlayer());
         }
     }
 
-
     @Unique
-    private void rapscallionsandrockhoppers$renderLeash(Boat thisBoat, float yaw, float tickDelta, PoseStack poseStack, MultiBufferSource bufferSource, Boat previousBoat) {
+    private void rapscallionsandrockhoppers$renderLeash(Boat thisBoat, float yaw, float tickDelta, PoseStack poseStack, MultiBufferSource bufferSource, Entity linkedTo) {
         poseStack.pushPose();
-        Vec3 previousBoatPosition = previousBoat.getRopeHoldPosition(tickDelta).add(0, 2, 0);
-        double $$6 = (double)(Mth.lerp(tickDelta, thisBoat.getYRot(), thisBoat.getYHeadRot()) * 0.017453292F) + 1.5707963267948966;
+        Vec3 linkedToPosition;
+        float piDivisionAmount = Mth.PI / 180.0F;
+        if (linkedTo instanceof Boat) {
+            double x = linkedTo.position().normalize().x - thisBoat.position().normalize().x;
+            double z = linkedTo.position().normalize().z - thisBoat.position().normalize().z;
+            double rotVec = Mth.atan2(z, x);
+            linkedToPosition = linkedTo.getRopeHoldPosition(tickDelta).add(Mth.sin((float) (-rotVec * piDivisionAmount)) * linkedTo.getBbWidth(), 0, Mth.cos((float) (rotVec * piDivisionAmount)) * linkedTo.getBbWidth());
+        } else
+            linkedToPosition = linkedTo.getRopeHoldPosition(tickDelta);
+        double $$6 = (double)(Mth.lerp(tickDelta, thisBoat.getYRot(), thisBoat.lerpTargetYRot()) * 0.017453292F) + 1.5707963267948966;
 
-        Vec3 thisBoatPosition = thisBoat.getRopeHoldPosition(tickDelta);
-        Vec3 $$7 = thisBoat.getLeashOffset(tickDelta);
+        double x = thisBoat.position().x - linkedTo.position().x;
+        double z = thisBoat.position().z - linkedTo.position().z;
+        double rotVec = Mth.atan2(z, x);
+        Vec3 $$7 = new Vec3(0.0, thisBoat.getEyeHeight(), 0.0).add(Mth.sin((float) (-rotVec * piDivisionAmount)) * thisBoat.getBbWidth(), 0, Mth.cos((float) (rotVec * piDivisionAmount)) * thisBoat.getBbWidth());
         double $$8 = Math.cos($$6) * $$7.z + Math.sin($$6) * $$7.x;
         double $$9 = Math.sin($$6) * $$7.z - Math.cos($$6) * $$7.x;
         double xLerped = Mth.lerp(tickDelta, thisBoat.xo, thisBoat.getX()) + $$8;
         double yLerped = Mth.lerp(tickDelta, thisBoat.yo, thisBoat.getY()) + $$7.y;
         double zLerped = Mth.lerp(tickDelta, thisBoat.zo, thisBoat.getZ()) + $$9;
         poseStack.translate($$8, $$7.y, $$9);
-        float xDisplacement = (float)(previousBoatPosition.x - xLerped);
-        float yDisplacement = (float)(previousBoatPosition.y - yLerped);
-        float zDisplacement = (float)(previousBoatPosition.z - zLerped);
+        float xDisplacement = (float)(linkedToPosition.x - xLerped);
+        float yDisplacement = (float)(linkedToPosition.y - yLerped);
+        float zDisplacement = (float)(linkedToPosition.z - zLerped);
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.leash());
         Matrix4f matrix = poseStack.last().pose();
         float $$19 = Mth.invSqrt(xDisplacement * xDisplacement + zDisplacement * zDisplacement) * 0.025F / 2.0F;
         float crossXDirection = zDisplacement * $$19;
         float crossZDirection = xDisplacement * $$19;
         BlockPos $$22 = BlockPos.containing(thisBoat.getEyePosition(tickDelta));
-        BlockPos $$23 = BlockPos.containing(previousBoat.getEyePosition(tickDelta));
+        BlockPos $$23 = BlockPos.containing(linkedTo.getEyePosition(tickDelta));
         int thisBoatBlockLight = this.getBlockLightLevel(thisBoat, $$22);
-        int otherBoatBlockLight = getBlockLightLevel(previousBoat, $$23);
+        int otherBoatBlockLight = linkedTo.isOnFire() ? 15 : linkedTo.level().getBrightness(LightLayer.BLOCK, $$23);
         int thisBoatSkyLight = thisBoat.level().getBrightness(LightLayer.SKY, $$22);
         int otherBoatSkyLight = thisBoat.level().getBrightness(LightLayer.SKY, $$23);
 
@@ -84,15 +96,14 @@ public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
         int skyLight = (int)Mth.lerp(f, (float)leashedEntitySkyLight, (float)holdingEntitySkyLight);
         int packedLight = LightTexture.pack(blockLight, skyLight);
         float darkOrLight = pieceIndex % 2 == (swapDarkDirection ? 1 : 0) ? 0.7F : 1.0F;
-        float r = 0.5F * darkOrLight;
-        float g = 0.4F * darkOrLight;
-        float b = 0.3F * darkOrLight;
+        float r = 0.7F * darkOrLight;
+        float g = 0.7F * darkOrLight;
+        float b = 0.7F * darkOrLight;
         float n = xDisplacement * f;
         float o = yDisplacement > 0.0F ? yDisplacement * f * f : yDisplacement - yDisplacement * (1.0F - f) * (1.0F - f);
         float p = zDisplacement * f;
         vertexConsumer.vertex(matrix4f, n - crossXDirection, o + crossYDirection, p + crossZDirection).color(r, g, b, 1.0F).uv2(packedLight).endVertex();
         vertexConsumer.vertex(matrix4f, n + crossXDirection, o + leashYOffset - crossYDirection, p - crossZDirection).color(r, g, b, 1.0F).uv2(packedLight).endVertex();
-
     }
 
 }

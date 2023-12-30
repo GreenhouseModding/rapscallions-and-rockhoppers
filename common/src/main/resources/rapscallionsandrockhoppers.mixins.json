@@ -6,8 +6,12 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "BoatMixin",
+    "EntityAccessor",
     "EntityMixin",
-    "LivingEntityMixin"
+    "LevelAccessor",
+    "LivingEntityMixin",
+    "RegistryDataLoaderRegistryDataMixin",
+    "client.ClientLevelAccessor"
   ],
   "client": [
     "client.BoatRendererMixin"

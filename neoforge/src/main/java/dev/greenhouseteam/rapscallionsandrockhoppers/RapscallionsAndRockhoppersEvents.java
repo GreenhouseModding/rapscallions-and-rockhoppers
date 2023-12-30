@@ -1,6 +1,7 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.componability.BoatDataCapability;
+import dev.greenhouseteam.rapscallionsandrockhoppers.componability.PlayerDataCapability;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.RockhoppersPacketHandler;
@@ -20,7 +21,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.SpawnPlacements;
-import net.minecraft.world.entity.animal.WaterAnimal;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -33,7 +34,6 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
-import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.SpawnPlacementRegisterEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
@@ -84,6 +84,7 @@ public class RapscallionsAndRockhoppersEvents {
             consumer.accept((registry, id, value) -> event.register(registry.key(), id, () -> value));
         }
 
+        private static final Map<Player, PlayerDataCapability> PLAYER_DATA_CAPABILITY_CACHE = new WeakHashMap<>(512);
         private static final Map<Boat, BoatDataCapability> BOAT_DATA_CAPABILITY_CACHE = new WeakHashMap<>(512);
 
 
@@ -104,6 +105,7 @@ public class RapscallionsAndRockhoppersEvents {
                     });
                 }
             }
+            event.registerEntity(RockhoppersCapabilities.PLAYER_DATA, EntityType.PLAYER, (player, context) -> PLAYER_DATA_CAPABILITY_CACHE.computeIfAbsent(player, PlayerDataCapability::new));
         }
 
         @SubscribeEvent

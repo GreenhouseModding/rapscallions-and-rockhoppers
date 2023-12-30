@@ -119,7 +119,7 @@ public class BoatDataComponent implements AutoSyncedComponent, IBoatData {
 
     @Override
     public void sync() {
-        RockhoppersEntityComponents.BOAT_ATTACHMENTS_COMPONENT.sync(this.provider);
+        RockhoppersEntityComponents.BOAT_DATA_COMPONENT.sync(this.provider);
     }
 
     @Override
