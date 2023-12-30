@@ -1,14 +1,14 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.componability;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.RockhoppersEntityComponents;
-import dev.onyxstudios.cca.api.v3.component.ComponentKey;
+import dev.greenhouseteam.rapscallionsandrockhoppers.util.EntityGetUtil;
 import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Unique;
 
@@ -19,11 +19,11 @@ import java.util.UUID;
 public class BoatDataComponent implements AutoSyncedComponent, IBoatData {
     private final List<UUID> penguins = new ArrayList<>();
     @Unique
-    private @Nullable Boat nextLinkedBoat;
+    private @Nullable UUID nextLinkedBoat;
     @Unique
-    private @Nullable Boat previousLinkedBoat;
+    private @Nullable UUID previousLinkedBoat;
     @Unique
-    private @Nullable Player linkedPlayer;
+    private @Nullable UUID linkedPlayer;
     private Boat provider;
 
     public BoatDataComponent(Boat boat) {
@@ -31,32 +31,64 @@ public class BoatDataComponent implements AutoSyncedComponent, IBoatData {
     }
 
     @Override
-    public @Nullable Boat getNextLinkedBoat() {
+    public @Nullable Boat getProvider() {
+        return this.provider;
+    }
+
+    @Override
+    public @Nullable UUID getNextLinkedBoatUuid() {
         return nextLinkedBoat;
     }
 
     @Override
-    public @Nullable Boat getPreviousLinkedBoat() {
+    public @Nullable UUID getPreviousLinkedBoatUuid() {
         return previousLinkedBoat;
     }
 
     @Override
-    public @Nullable Player getLinkedPlayer() {
+    public @Nullable UUID getLinkedPlayerUuid() {
         return linkedPlayer;
     }
 
     @Override
-    public void setLinkedPlayer(@Nullable Player player) {
+    public @Nullable Boat getNextLinkedBoat() {
+        Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), nextLinkedBoat);
+        if (entity instanceof Boat boat) {
+            return boat;
+        }
+        return null;
+    }
+
+    @Override
+    public @Nullable Boat getPreviousLinkedBoat() {
+        Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), previousLinkedBoat);
+        if (entity instanceof Boat boat) {
+            return boat;
+        }
+        return null;
+    }
+
+    @Override
+    public @Nullable Player getLinkedPlayer() {
+        Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), linkedPlayer);
+        if (entity instanceof Player player) {
+            return player;
+        }
+        return null;
+    }
+
+    @Override
+    public void setLinkedPlayer(@Nullable UUID player) {
         this.linkedPlayer = player;
     }
 
     @Override
-    public void setNextLinkedBoat(Boat boat) {
+    public void setNextLinkedBoat(@Nullable UUID boat) {
         this.nextLinkedBoat = boat;
     }
 
     @Override
-    public void setPreviousLinkedBoat(Boat boat) {
+    public void setPreviousLinkedBoat(@Nullable UUID boat) {
         this.previousLinkedBoat = boat;
     }
 

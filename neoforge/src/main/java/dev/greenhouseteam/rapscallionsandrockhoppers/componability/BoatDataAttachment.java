@@ -1,8 +1,6 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.componability;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Unique;
@@ -14,39 +12,39 @@ import java.util.UUID;
 public class BoatDataAttachment implements IBoatData, INBTSerializable<CompoundTag> {
     private final List<UUID> penguins = new ArrayList<>();
     @Unique
-    private @Nullable Boat nextLinkedBoat;
+    private @Nullable UUID nextLinkedBoat;
     @Unique
-    private @Nullable Boat previousLinkedBoat;
+    private @Nullable UUID previousLinkedBoat;
     @Unique
-    private @Nullable Player linkedPlayer;
+    private @Nullable UUID linkedPlayer;
 
     @Override
-    public @Nullable Boat getNextLinkedBoat() {
+    public @Nullable UUID getNextLinkedBoatUuid() {
         return nextLinkedBoat;
     }
 
     @Override
-    public @Nullable Boat getPreviousLinkedBoat() {
+    public @Nullable UUID getPreviousLinkedBoatUuid() {
         return previousLinkedBoat;
     }
 
     @Override
-    public @Nullable Player getLinkedPlayer() {
+    public @Nullable UUID getLinkedPlayerUuid() {
         return linkedPlayer;
     }
 
     @Override
-    public void setLinkedPlayer(@Nullable Player player) {
+    public void setLinkedPlayer(@Nullable UUID player) {
         this.linkedPlayer = player;
     }
 
     @Override
-    public void setNextLinkedBoat(Boat boat) {
+    public void setNextLinkedBoat(UUID boat) {
         this.nextLinkedBoat = boat;
     }
 
     @Override
-    public void setPreviousLinkedBoat(Boat boat) {
+    public void setPreviousLinkedBoat(UUID boat) {
         this.previousLinkedBoat = boat;
     }
 

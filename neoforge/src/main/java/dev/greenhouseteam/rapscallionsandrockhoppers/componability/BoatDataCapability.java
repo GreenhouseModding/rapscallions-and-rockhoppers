@@ -1,6 +1,8 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.componability;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersAttachments;
+import dev.greenhouseteam.rapscallionsandrockhoppers.util.EntityGetUtil;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import org.jetbrains.annotations.Nullable;
@@ -16,32 +18,64 @@ public class BoatDataCapability implements IBoatData {
     }
 
     @Override
+    public @Nullable Boat getProvider() {
+        return this.provider;
+    }
+
+    @Override
+    public @Nullable UUID getNextLinkedBoatUuid() {
+        return this.provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getNextLinkedBoatUuid();
+    }
+
+    @Override
+    public @Nullable UUID getPreviousLinkedBoatUuid() {
+        return this.provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getPreviousLinkedBoatUuid();
+    }
+
+    @Override
+    public @Nullable UUID getLinkedPlayerUuid() {
+        return this.provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getLinkedPlayerUuid();
+    }
+
+    @Override
     public @Nullable Boat getNextLinkedBoat() {
-        return provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getNextLinkedBoat();
+        Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), this.provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getNextLinkedBoatUuid());
+        if (entity instanceof Boat boat) {
+            return boat;
+        }
+        return null;
     }
 
     @Override
     public @Nullable Boat getPreviousLinkedBoat() {
-        return provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getPreviousLinkedBoat();
+        Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), this.provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getPreviousLinkedBoatUuid());
+        if (entity instanceof Boat boat) {
+            return boat;
+        }
+        return null;
     }
 
     @Override
     public @Nullable Player getLinkedPlayer() {
-        return provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getLinkedPlayer();
+        Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), this.provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getLinkedPlayerUuid());
+        if (entity instanceof Player player) {
+            return player;
+        }
+        return null;
     }
 
     @Override
-    public void setLinkedPlayer(@Nullable Player player) {
+    public void setLinkedPlayer(@Nullable UUID player) {
         provider.getData(RockhoppersAttachments.BOAT_DATA.get()).setLinkedPlayer(player);
     }
 
     @Override
-    public void setNextLinkedBoat(Boat boat) {
+    public void setNextLinkedBoat(UUID boat) {
         provider.getData(RockhoppersAttachments.BOAT_DATA.get()).setNextLinkedBoat(boat);
     }
 
     @Override
-    public void setPreviousLinkedBoat(Boat boat) {
+    public void setPreviousLinkedBoat(UUID boat) {
         provider.getData(RockhoppersAttachments.BOAT_DATA.get()).setPreviousLinkedBoat(boat);
     }
 
