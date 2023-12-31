@@ -508,7 +508,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
     public void returnToHome() {
         GlobalPos home = BrainUtils.getMemory(this, MemoryModuleType.HOME);
-        if (home != null && this.level().dimension() == home.dimension() && this.blockPosition().distSqr(home.pos()) > 24 * 24) {
+        if (home != null && this.level().dimension() == home.dimension() && this.blockPosition().distSqr(home.pos()) > 48 * 48) {
             BlockPos randomPos = null;
 
             int xSection = SectionPos.blockToSectionCoord(home.pos().getX());
@@ -566,7 +566,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             }
         }
         if (tag == null || !tag.contains("hungry_time")) {
-            this.setHungryTime(integerOptional(this.tickCount + Mth.randomBetweenInclusive(level.getRandom(), 1800, 2400)));
+            this.setHungryTime(integerOptional(this.tickCount + Mth.randomBetweenInclusive(level.getRandom(), 3600, 4800)));
         }
 
         this.setStumbleChance(Mth.randomBetween(this.getRandom(), 0.0025F, 0.005F));
@@ -672,11 +672,6 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     @Override
     public int getMaxAirSupply() {
         return 900;
-    }
-
-    @Override
-    public void setAirSupply(int value) {
-        super.setAirSupply(this.getMaxAirSupply());
     }
 
     @Override

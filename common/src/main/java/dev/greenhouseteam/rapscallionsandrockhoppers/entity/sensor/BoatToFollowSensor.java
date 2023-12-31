@@ -70,7 +70,7 @@ public class BoatToFollowSensor extends PredicateSensor<Boat, Penguin> {
                 }
                 IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat.get()).addFollowingPenguin(penguin.getUUID());
                 IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat.get()).sync();
-                penguin.setHungryTime(Optional.of(penguin.tickCount + 2400));
+                penguin.setHungryTime(Optional.of(penguin.tickCount + 4800));
                 ((ServerLevel)penguin.level()).sendParticles(ParticleTypes.GLOW, boat.get().getX(), boat.get().getY(), boat.get().getZ(), 8, 0.5, 0.25, 0.5, 0.02);
                 penguin.previousBoatPos = penguin.getBoatToFollow().position();
             }
