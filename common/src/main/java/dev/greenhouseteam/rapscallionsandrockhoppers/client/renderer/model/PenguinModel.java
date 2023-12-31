@@ -19,6 +19,7 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 	private final ModelPart body;
 	private final ModelPart head;
 	private final ModelPart brows;
+	private final ModelPart belly;
 
 	public PenguinModel(ModelPart root) {
 		super(0.5F, 24.0F);
@@ -26,6 +27,7 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 		this.body = this.root.getChild("body");
 		this.head = this.body.getChild("head");
 		this.brows = this.head.getChild("brows");
+		this.belly = this.body.getChild("body2");
 	}
 
 	public static LayerDefinition createLayer() {
@@ -35,7 +37,7 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 		PartDefinition root = partdefinition.addOrReplaceChild("root", CubeListBuilder.create(), PartPose.offset(0.0F, 17.5F, 0.5F));
 
 		PartDefinition body = root.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 14).addBox(-4.5F, -5.5F, -3.5F, 9.0F, 11.0F, 7.0F, new CubeDeformation(-0.001F)), PartPose.offset(0.0F, 0.0F, 0.0F));
-
+		PartDefinition body2 = body.addOrReplaceChild("body2", CubeListBuilder.create().texOffs(7, 23).addBox(-3.5F, -2.5F, -4.5F, 7.0F, 8.0F, 1.0F, new CubeDeformation(-0.001F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 		PartDefinition head = body.addOrReplaceChild("head", CubeListBuilder.create().texOffs(0, 0).addBox(-3.5F, -3.0F, -3.5F, 7.0F, 5.0F, 7.0F, new CubeDeformation(0.0F))
 				.texOffs(0, 0).addBox(-0.5F, 0.001F, -5.5F, 1.0F, 2.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -7.5F, 0.0F));
 
@@ -84,6 +86,7 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 		this.animate(penguin.peckAnimationState, PenguinAnimation.PECK, delta, 1.0F);
 
 		this.animateHeadTowardsLookTarget(penguin, yRot, xRot);
+		this.belly.visible = penguin.hasEgg();
 	}
 
 	protected void animateWaddle(Penguin penguin, float delta, float limbSwing, float limbSwingAmount, float animationSpeed) {
