@@ -690,7 +690,9 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             if (cachedPenguinType == null && this.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY).containsKey(resourceKey)) {
                 this.cachedPenguinType = this.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY).get(ResourceKey.create(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY, new ResourceLocation(this.getEntityData().get(Penguin.DATA_TYPE))));
             }
-            return this.cachedPenguinType;
+            if (this.cachedPenguinType != null) {
+                return this.cachedPenguinType;
+            }
         } catch (Exception ex) {
             if (!this.hasLoggedMissingError) {
                 RapscallionsAndRockhoppers.LOG.error("Could not load PenguinType for penguin with UUID '{}'.", this.getStringUUID());
