@@ -41,10 +41,10 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
 
     private static Predicate<BiomeSelectionContext> createPenguinSpawnPredicate() {
         return biomeSelectionContext -> {
-            if (RapscallionsAndRockhoppers.getCachedPenguinTypeRegistry() == null) {
+            if (RapscallionsAndRockhoppers.getBiomePopulationPenguinTypeRegistry() == null) {
                 return false;
             }
-            return RapscallionsAndRockhoppers.getCachedPenguinTypeRegistry().stream().anyMatch(penguinType -> penguinType.spawnBiomes().stream().anyMatch(holderSet -> holderSet.holders().contains(biomeSelectionContext.getBiomeRegistryEntry())));
+            return RapscallionsAndRockhoppers.getBiomePopulationPenguinTypeRegistry().stream().anyMatch(penguinType -> penguinType.spawnBiomes().stream().anyMatch(holderSet -> holderSet.holders().contains(biomeSelectionContext.getBiomeRegistryEntry())));
         };
     }
 
@@ -77,9 +77,9 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
     }
 
     public static void handlePenguinTypeRegistryEvents() {
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> RapscallionsAndRockhoppers.setBiomePopulationPenguinTypeRegistry(null));
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, closeableResourceManager, success) -> {
             if (success) {
-                RapscallionsAndRockhoppers.setCachedPenguinTypeRegistry(server.registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY));
                 server.getAllLevels().forEach(Penguin::invalidateCachedPenguinTypes);
             }
         });

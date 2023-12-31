@@ -35,11 +35,11 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.SpawnPlacementRegisterEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
-import javax.swing.RootPaneContainer;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
@@ -129,6 +129,11 @@ public class RapscallionsAndRockhoppersEvents {
     @Mod.EventBusSubscriber(modid = RapscallionsAndRockhoppers.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static class ForgeBusEvents {
         @SubscribeEvent
+        public static void onServerStarted(ServerStartedEvent event) {
+            RapscallionsAndRockhoppers.setBiomePopulationPenguinTypeRegistry(null);
+        }
+
+        @SubscribeEvent
         public static void onServerStopped(ServerStoppingEvent event) {
             RapscallionsAndRockhoppers.removeCachedPenguinTypeRegistry();
         }
@@ -136,7 +141,6 @@ public class RapscallionsAndRockhoppersEvents {
         @SubscribeEvent
         public static void onDataPackSync(OnDatapackSyncEvent event) {
             if (event.getPlayer() == null) {
-                RapscallionsAndRockhoppers.setCachedPenguinTypeRegistry(event.getPlayerList().getServer().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY));
                 event.getPlayerList().getServer().getAllLevels().forEach(Penguin::invalidateCachedPenguinTypes);
             }
         }

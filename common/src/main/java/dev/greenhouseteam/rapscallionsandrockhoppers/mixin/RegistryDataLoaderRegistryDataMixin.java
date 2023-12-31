@@ -24,8 +24,8 @@ public abstract class RegistryDataLoaderRegistryDataMixin<T> {
 
     @Inject(method = { "method_45132", "lambda$create$0" }, at = @At("RETURN"), locals = LocalCapture.CAPTURE_FAILHARD)
     private void rapscallionsandrockhoppers$cachePenguinRegistry(WritableRegistry writableRegistry, Map map, ResourceManager resourceManager, RegistryOps.RegistryInfoLookup registryInfoLookup, CallbackInfo ci) {
-        if (this.key().location() == RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY.location() && RapscallionsAndRockhoppers.getCachedPenguinTypeRegistry() == null) {
-            RapscallionsAndRockhoppers.setCachedPenguinTypeRegistry((Registry<PenguinType>) writableRegistry);
+        if (this.key().location() == RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY.location()) {
+            RapscallionsAndRockhoppers.setBiomePopulationPenguinTypeRegistry((Registry<PenguinType>) writableRegistry);
         }
     }
 }

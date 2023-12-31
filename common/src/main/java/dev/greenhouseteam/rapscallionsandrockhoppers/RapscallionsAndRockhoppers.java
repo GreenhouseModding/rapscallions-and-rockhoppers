@@ -33,7 +33,8 @@ public class RapscallionsAndRockhoppers {
     public static final Logger LOG = LoggerFactory.getLogger(MOD_NAME);
 
     private static final List<Pair<Integer, Integer>> PENGUIN_LOADED_CHUNKS = new ArrayList<>();
-    private static Registry<PenguinType> cachedPenguinTypeRegistry = null;
+    private static Registry<PenguinType> biomePopulationPenguinTypeRegistry = null;
+    private static boolean hasBiomePopulationBeenHandled;
 
     public static void init() {
 
@@ -45,23 +46,28 @@ public class RapscallionsAndRockhoppers {
 
     /**
      * Gets the cached PenguinType registry.
-     * This should only be used when you're working with methods that don't have access to
-     * the {@link net.minecraft.world.level.Level}.
+     * This should only be used at biome modification time, where a {@link net.minecraft.world.level.Level}
+     * is not accessible. This will be null after biome modification.
      * If you're on the client, don't use or set this value, as you can reference the
      * client's registry access at any time.
      *
      * @return The PenguinType registry.
      */
-    public static Registry<PenguinType> getCachedPenguinTypeRegistry() {
-        return cachedPenguinTypeRegistry;
+    public static Registry<PenguinType> getBiomePopulationPenguinTypeRegistry() {
+        return biomePopulationPenguinTypeRegistry;
     }
 
-    public static void setCachedPenguinTypeRegistry(Registry<PenguinType> value) {
-        cachedPenguinTypeRegistry = value;
+    public static void setBiomePopulationPenguinTypeRegistry(Registry<PenguinType> value) {
+        if (hasBiomePopulationBeenHandled) {
+            return;
+        } else {
+            hasBiomePopulationBeenHandled = true;
+        }
+        biomePopulationPenguinTypeRegistry = value;
     }
 
     protected static void removeCachedPenguinTypeRegistry() {
-        cachedPenguinTypeRegistry = null;
+        biomePopulationPenguinTypeRegistry = null;
     }
 
     public static void loadNearbyChunks(BlockPos pos, ServerLevel level) {
