@@ -9,7 +9,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class BoatDataCapability implements IBoatData {
     private final Boat provider;
@@ -24,7 +26,7 @@ public class BoatDataCapability implements IBoatData {
     }
 
     @Override
-    public List<UUID> getNextLinkedBoatUuids() {
+    public Set<UUID> getNextLinkedBoatUuids() {
         return this.provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getNextLinkedBoatUuids();
     }
 
@@ -34,7 +36,7 @@ public class BoatDataCapability implements IBoatData {
     }
 
     @Override
-    public List<UUID> getPreviousLinkedBoatUuids() {
+    public Set<UUID> getPreviousLinkedBoatUuids() {
         return this.provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getPreviousLinkedBoatUuids();
     }
 
@@ -49,25 +51,25 @@ public class BoatDataCapability implements IBoatData {
     }
 
     @Override
-    public List<Boat> getNextLinkedBoats() {
+    public Set<Boat> getNextLinkedBoats() {
         return this.getNextLinkedBoatUuids().stream().map(uuid -> {
             Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), uuid);
             if (entity instanceof Boat boat) {
                 return boat;
             }
             return null;
-        }).filter(Objects::nonNull).toList();
+        }).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
     @Override
-    public List<Boat> getPreviousLinkedBoats() {
+    public Set<Boat> getPreviousLinkedBoats() {
         return this.getPreviousLinkedBoatUuids().stream().map(uuid -> {
             Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), uuid);
             if (entity instanceof Boat boat) {
                 return boat;
             }
             return null;
-        }).filter(Objects::nonNull).toList();
+        }).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
     @Override

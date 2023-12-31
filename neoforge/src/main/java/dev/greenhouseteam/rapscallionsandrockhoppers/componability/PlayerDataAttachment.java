@@ -5,12 +5,12 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Unique;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class PlayerDataAttachment implements IPlayerData, INBTSerializable<CompoundTag> {
     @Unique
-    private @Nullable List<UUID> linkedBoats;
+    private @Nullable Set<UUID> linkedBoats;
 
     @Override
     public CompoundTag serializeNBT() {
@@ -26,7 +26,7 @@ public class PlayerDataAttachment implements IPlayerData, INBTSerializable<Compo
 
 
     @Override
-    public List<UUID> getLinkedBoatUUIDs() {
+    public Set<UUID> getLinkedBoatUUIDs() {
         return this.linkedBoats;
     }
 

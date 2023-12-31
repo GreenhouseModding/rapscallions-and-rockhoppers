@@ -49,12 +49,12 @@ public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
             linkedToPosition = linkedTo.getRopeHoldPosition(tickDelta);
         double $$6 = (double)(Mth.lerp(tickDelta, thisBoat.getYRot(), thisBoat.lerpTargetYRot()) * 0.017453292F) + 1.5707963267948966;
 
-        Vec3 $$7 = rapscallionsandrockhoppers$approximateClosestHitPoint(thisBoat, linkedTo).add(0.0, thisBoat.getEyeHeight() / 2.0, 0.0);
+        Vec3 $$7 = rapscallionsandrockhoppers$approximateClosestHitPoint(thisBoat, linkedTo).subtract(Mth.lerp(tickDelta, thisBoat.xo, thisBoat.getX()), 0.0, Mth.lerp(tickDelta, thisBoat.zo, thisBoat.getZ())).add(0.0, thisBoat.getEyeHeight() / 2.0, 0.0);
         double $$8 = Math.cos($$6) * $$7.z + Math.sin($$6) * $$7.x;
         double $$9 = Math.sin($$6) * $$7.z - Math.cos($$6) * $$7.x;
-        double xLerped = $$8;
-        double yLerped = $$7.y;
-        double zLerped = $$9;
+        double xLerped = Mth.lerp(tickDelta, thisBoat.xo, thisBoat.getX()) + $$8;
+        double yLerped = Mth.lerp(tickDelta, thisBoat.yo, thisBoat.getY()) + $$7.y;
+        double zLerped = Mth.lerp(tickDelta, thisBoat.zo, thisBoat.getZ()) + $$9;
         poseStack.translate($$8, $$7.y, $$9);
         float xDisplacement = (float)(linkedToPosition.x - xLerped);
         float yDisplacement = (float)(linkedToPosition.y - yLerped);

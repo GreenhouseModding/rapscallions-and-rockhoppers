@@ -7,9 +7,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class PlayerDataCapability implements IPlayerData {
     private final Player provider;
@@ -19,7 +20,7 @@ public class PlayerDataCapability implements IPlayerData {
     }
 
     @Override
-    public List<UUID> getLinkedBoatUUIDs() {
+    public Set<UUID> getLinkedBoatUUIDs() {
         return this.provider.getData(RockhoppersAttachments.PLAYER_DATA.get()).getLinkedBoatUUIDs();
     }
 
@@ -39,13 +40,17 @@ public class PlayerDataCapability implements IPlayerData {
     }
 
     @Override
-    public @Nullable List<Boat> getLinkedBoats() {
+    public Set<Boat> getLinkedBoats() {
         return this.getLinkedBoatUUIDs().stream().map(uuid -> {
             Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), uuid);
             if (entity instanceof Boat boat) {
                 return boat;
             }
             return null;
-        }).filter(Objects::nonNull).toList();
+        }).filter(Objects::nonNull).collect(Collectors.toSet());
+    }
+
+    public void invalidateNonExistentBoats() {
+        this.getLinkedBoatUUIDs().removeIf(uuid -> this.getLinkedBoats().stream().noneMatch(boat -> boat.getUUID() == uuid && !boat.isRemoved()));
     }
 }

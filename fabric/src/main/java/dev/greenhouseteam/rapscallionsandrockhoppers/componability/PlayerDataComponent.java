@@ -10,15 +10,15 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Unique;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class PlayerDataComponent implements AutoSyncedComponent, IPlayerData {
-    private final List<UUID> linkedBoats = new ArrayList<>();
+    private final Set<UUID> linkedBoats = new HashSet<>();
     private final Player provider;
 
     public PlayerDataComponent(Player player) {
@@ -26,7 +26,7 @@ public class PlayerDataComponent implements AutoSyncedComponent, IPlayerData {
     }
 
     @Override
-    public List<UUID> getLinkedBoatUUIDs() {
+    public Set<UUID> getLinkedBoatUUIDs() {
         return this.linkedBoats;
     }
 
@@ -46,14 +46,14 @@ public class PlayerDataComponent implements AutoSyncedComponent, IPlayerData {
     }
 
     @Override
-    public @Nullable List<Boat> getLinkedBoats() {
+    public Set<Boat> getLinkedBoats() {
         return this.getLinkedBoatUUIDs().stream().map(uuid -> {
             Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), uuid);
             if (entity instanceof Boat boat) {
                 return boat;
             }
             return null;
-        }).filter(Objects::nonNull).toList();
+        }).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
     @Override
@@ -67,7 +67,16 @@ public class PlayerDataComponent implements AutoSyncedComponent, IPlayerData {
     }
 
     @Override
+    public boolean shouldSyncWith(ServerPlayer player) {
+        return PlayerLookup.tracking(this.provider).contains(player);
+    }
+
+    @Override
     public void sync() {
         RockhoppersEntityComponents.PLAYER_DATA_COMPONENT.sync(this.provider);
+    }
+
+    public void invalidateNonExistentBoats() {
+        this.getLinkedBoatUUIDs().removeIf(uuid -> this.getLinkedBoats().stream().noneMatch(boat -> boat.getUUID() == uuid && !boat.isRemoved()));
     }
 }

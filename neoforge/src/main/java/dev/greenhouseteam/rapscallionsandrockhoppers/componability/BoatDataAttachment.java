@@ -3,27 +3,26 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.componability;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Unique;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class BoatDataAttachment implements IBoatData, INBTSerializable<CompoundTag> {
-    private final List<UUID> penguins = new ArrayList<>();
+    private final Set<UUID> penguins = new HashSet<>();
+    private final Set<UUID> nextLinkedBoats = new HashSet<>();
+    private final Set<UUID> previousLinkedBoats = new HashSet<>();
 
-    private final List<UUID> nextLinkedBoats = new ArrayList<>();
-
-    private final List<UUID> previousLinkedBoats = new ArrayList<>();
     private @Nullable UUID linkedPlayer;
 
     @Override
-    public List<UUID> getNextLinkedBoatUuids() {
+    public Set<UUID> getNextLinkedBoatUuids() {
         return this.nextLinkedBoats;
     }
 
     @Override
-    public List<UUID> getPreviousLinkedBoatUuids() {
+    public Set<UUID> getPreviousLinkedBoatUuids() {
         return this.previousLinkedBoats;
     }
 

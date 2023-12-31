@@ -12,7 +12,9 @@ import dev.greenhouseteam.rdpr.api.ReloadableRegistryEvent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
@@ -26,8 +28,11 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
+import net.neoforged.neoforge.event.entity.EntityEvent;
 import net.neoforged.neoforge.event.entity.SpawnPlacementRegisterEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
@@ -102,6 +107,28 @@ public class RapscallionsAndRockhoppersEvents {
                 }
             }
             event.registerEntity(RockhoppersCapabilities.PLAYER_DATA, EntityType.PLAYER, (player, context) -> PLAYER_DATA_CAPABILITY_CACHE.computeIfAbsent(player, PlayerDataCapability::new));
+        }
+
+        @SubscribeEvent
+        public static void onBoatInteraction(PlayerInteractEvent.EntityInteract event) {
+            if (event.getTarget() instanceof Boat boat) {
+                BoatDataCapability capability = boat.getCapability(RockhoppersCapabilities.BOAT_DATA);
+                if (capability != null) {
+                    InteractionResult result = capability.handleInteractionWithBoatHook(event.getEntity(), event.getHand());
+                    if (result != InteractionResult.PASS) {
+                        event.setCancellationResult(result);
+                        event.setCanceled(true);
+                    }
+                }
+            }
+        }
+
+        @SubscribeEvent
+        public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+            PlayerDataCapability capability = event.player.getCapability(RockhoppersCapabilities.PLAYER_DATA);
+            if (capability != null && event.player.tickCount % 20 == 0) {
+                capability.invalidateNonExistentBoats();
+            }
         }
 
         @SubscribeEvent

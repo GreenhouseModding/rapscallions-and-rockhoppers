@@ -9,15 +9,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.vehicle.Boat;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface IPlayerData {
     ResourceLocation ID = RapscallionsAndRockhoppers.asResource("player_data");
 
-    List<UUID> getLinkedBoatUUIDs();
+    Set<UUID> getLinkedBoatUUIDs();
 
-    default @Nullable List<Boat> getLinkedBoats() {
+    default Set<Boat> getLinkedBoats() {
         return null;
     }
 

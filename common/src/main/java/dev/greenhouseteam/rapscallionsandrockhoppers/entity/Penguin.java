@@ -582,7 +582,6 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
     @Override
     public void spawnChildFromBreeding(ServerLevel level, Animal animal) {
-        AgeableMob ageablemob = this.getBreedOffspring(level, animal);
         boolean cancelled = IRockhoppersPlatformHelper.INSTANCE.runAndIsBreedEventCancelled(this, animal);
         if (cancelled) {
             this.setAge(6000);
@@ -599,7 +598,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     @Override
     public boolean canRide(Entity vehicle) {
         if (vehicle instanceof Boat boat) {
-            return IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat).penguinCount() == 0;
+            return IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat).penguinCount() == 0 && IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat).getPreviousLinkedBoats().stream().noneMatch(boat1 -> IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat1).penguinCount() > 0) && IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat).getNextLinkedBoats().stream().noneMatch(boat1 -> IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat1).penguinCount() > 0);
         }
         return true;
     }
