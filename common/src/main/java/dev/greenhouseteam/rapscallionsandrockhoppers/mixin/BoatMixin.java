@@ -57,7 +57,7 @@ public abstract class BoatMixin extends VehicleEntity {
             cir.setReturnValue(InteractionResult.SUCCESS);
             return;
         }
-        if (player.getItemInHand(interactionHand).is(RockhoppersItems.BOAT_HOOK)) {
+        if (player.getItemInHand(interactionHand).is(RockhoppersItems.BOAT_HOOK) && (playerData.getLinkedBoats().isEmpty() || player.isShiftKeyDown())) {
             boatData.setLinkedPlayer(player.getUUID());
             playerData.addLinkedBoat(this.getUUID());
             boatData.sync();
