@@ -7,16 +7,17 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
-public record InvalidateCachedPenguinTypePacket(int penguinEntityId) implements RapscallionsAndRockhoppersPacketS2C {
+public record InvalidateCachedPenguinTypePacket(int penguinEntityId, ResourceLocation penguinTypeId) implements RapscallionsAndRockhoppersPacketS2C {
     public static final ResourceLocation ID = RapscallionsAndRockhoppers.asResource("invalidate_cached_penguin_type");
 
     @Override
     public void encode(FriendlyByteBuf buf) {
         buf.writeInt(this.penguinEntityId());
+        buf.writeResourceLocation(this.penguinTypeId());
     }
 
     public static InvalidateCachedPenguinTypePacket decode(FriendlyByteBuf buf) {
-        return new InvalidateCachedPenguinTypePacket(buf.readInt());
+        return new InvalidateCachedPenguinTypePacket(buf.readInt(), buf.readResourceLocation());
     }
 
     @Override
@@ -37,7 +38,7 @@ public record InvalidateCachedPenguinTypePacket(int penguinEntityId) implements 
                     return;
                 }
 
-                penguin.invalidateCachedPenguinType();
+                penguin.setPenguinType(penguinTypeId());
             }
         });
     }

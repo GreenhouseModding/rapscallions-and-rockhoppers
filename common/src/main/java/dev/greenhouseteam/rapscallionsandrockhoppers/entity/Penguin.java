@@ -717,7 +717,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     public void invalidateCachedPenguinType() {
         this.cachedPenguinType = null;
         if (!this.level().isClientSide()) {
-            IRockhoppersPlatformHelper.INSTANCE.sendS2CTracking(new InvalidateCachedPenguinTypePacket(this.getId()), this);
+            IRockhoppersPlatformHelper.INSTANCE.sendS2CTracking(new InvalidateCachedPenguinTypePacket(this.getId(), this.getPenguinTypeKey()), this);
         }
         this.getPenguinType();
     }
