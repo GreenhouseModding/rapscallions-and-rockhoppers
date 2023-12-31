@@ -23,28 +23,28 @@ public interface IBoatData {
         return null;
     }
 
-    @Nullable UUID getNextLinkedBoatUuid();
-    @Nullable UUID getPreviousLinkedBoatUuid();
+    List<UUID> getNextLinkedBoatUuids();
+    void clearNextLinkedBoatUuids();
+    List<UUID> getPreviousLinkedBoatUuids();
+    void clearPreviousLinkedBoatUuids();
     @Nullable UUID getLinkedPlayerUuid();
-    default @Nullable Boat getNextLinkedBoat() {
+    default List<Boat> getNextLinkedBoats() {
         return null;
     }
-    default @Nullable Boat getPreviousLinkedBoat() {
+    default List<Boat> getPreviousLinkedBoats() {
         return null;
     }
     default @Nullable Player getLinkedPlayer() {
         return null;
     }
     void setLinkedPlayer(@Nullable UUID player);
-    void setNextLinkedBoat(@Nullable UUID boat);
-    void setPreviousLinkedBoat(@Nullable UUID boat);
+    void addNextLinkedBoat(@Nullable UUID boat);
+    void removeNextLinkedBoat(@Nullable UUID boat);
+    void addPreviousLinkedBoat(@Nullable UUID boat);
+    void removePreviousLinkedBoat(@Nullable UUID boat);
     default boolean canLinkTo(Boat otherBoat) {
         IBoatData otherBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(otherBoat);
-        if (this.getPreviousLinkedBoat() == otherBoat || this.getNextLinkedBoat() == otherBoat || otherBoatData.getPreviousLinkedBoat() == this.getProvider() || otherBoatData.getNextLinkedBoat() == this.getProvider()) return false;
-        // This means the back of the current boat is free to be linked from.
-        if (getPreviousLinkedBoat() != null) return true;
-        // This means the front of the other boat is free to be linked to.
-        return otherBoatData.getNextLinkedBoat() == null;
+        return !this.getPreviousLinkedBoats().contains(otherBoat) && !this.getNextLinkedBoats().contains(otherBoat) && !otherBoatData.getPreviousLinkedBoats().contains(this.getProvider()) && !otherBoatData.getNextLinkedBoats().contains(this.getProvider());
     }
 
     List<UUID> getFollowingPenguins();
@@ -54,11 +54,19 @@ public interface IBoatData {
     void clearFollowingPenguins();
 
     default void serialize(CompoundTag tag) {
-        if (this.getNextLinkedBoatUuid() != null) {
-            tag.putUUID("next_linked_boat", this.getNextLinkedBoatUuid());
+        if (!this.getNextLinkedBoatUuids().isEmpty()) {
+            ListTag boats = new ListTag();
+            for (UUID uuid : this.getNextLinkedBoatUuids()) {
+                boats.add(NbtUtils.createUUID(uuid));
+            }
+            tag.put("next_linked_boats", boats);
         }
-        if (this.getPreviousLinkedBoatUuid() != null) {
-            tag.putUUID("previous_linked_boat", this.getPreviousLinkedBoatUuid());
+        if (!this.getPreviousLinkedBoatUuids().isEmpty()) {
+            ListTag boats = new ListTag();
+            for (UUID uuid : this.getPreviousLinkedBoatUuids()) {
+                boats.add(NbtUtils.createUUID(uuid));
+            }
+            tag.put("previous_linked_boats", boats);
         }
         if (this.getLinkedPlayerUuid() != null) {
             tag.putUUID("linked_player", this.getLinkedPlayerUuid());
@@ -73,14 +81,19 @@ public interface IBoatData {
     }
 
     default void deserialize(CompoundTag tag) {
-        if (tag.contains("next_linked_boat", Tag.TAG_INT_ARRAY)) {
-            this.setNextLinkedBoat(NbtUtils.loadUUID(tag.get("next_linked_boat")));
+        this.clearNextLinkedBoatUuids();
+        if (tag.contains("next_linked_boats", Tag.TAG_LIST)) {
+            ListTag boats = tag.getList("next_linked_boats", Tag.TAG_INT_ARRAY);
+            for (Tag boat : boats) {
+                this.addNextLinkedBoat(NbtUtils.loadUUID(boat));
+            }
         }
-        if (tag.contains("previous_linked_boat", Tag.TAG_INT_ARRAY)) {
-            this.setPreviousLinkedBoat(NbtUtils.loadUUID(tag.get("previous_linked_boat")));
-        }
-        if (tag.contains("linked_player", Tag.TAG_INT_ARRAY)) {
-            this.setLinkedPlayer(NbtUtils.loadUUID(tag.get("linked_player")));
+        this.clearPreviousLinkedBoatUuids();
+        if (tag.contains("previous_linked_boats", Tag.TAG_LIST)) {
+            ListTag boats = tag.getList("previous_linked_boats", Tag.TAG_INT_ARRAY);
+            for (Tag boat : boats) {
+                this.addPreviousLinkedBoat(NbtUtils.loadUUID(boat));
+            }
         }
         this.clearFollowingPenguins();
         if (tag.contains("following_penguins", Tag.TAG_LIST)) {

@@ -11,21 +11,30 @@ import java.util.UUID;
 
 public class BoatDataAttachment implements IBoatData, INBTSerializable<CompoundTag> {
     private final List<UUID> penguins = new ArrayList<>();
-    @Unique
-    private @Nullable UUID nextLinkedBoat;
-    @Unique
-    private @Nullable UUID previousLinkedBoat;
-    @Unique
+
+    private final List<UUID> nextLinkedBoats = new ArrayList<>();
+
+    private final List<UUID> previousLinkedBoats = new ArrayList<>();
     private @Nullable UUID linkedPlayer;
 
     @Override
-    public @Nullable UUID getNextLinkedBoatUuid() {
-        return nextLinkedBoat;
+    public List<UUID> getNextLinkedBoatUuids() {
+        return this.nextLinkedBoats;
     }
 
     @Override
-    public @Nullable UUID getPreviousLinkedBoatUuid() {
-        return previousLinkedBoat;
+    public List<UUID> getPreviousLinkedBoatUuids() {
+        return this.previousLinkedBoats;
+    }
+
+    @Override
+    public void clearNextLinkedBoatUuids() {
+        this.nextLinkedBoats.clear();
+    }
+
+    @Override
+    public void clearPreviousLinkedBoatUuids() {
+        this.previousLinkedBoats.clear();
     }
 
     @Override
@@ -39,13 +48,23 @@ public class BoatDataAttachment implements IBoatData, INBTSerializable<CompoundT
     }
 
     @Override
-    public void setNextLinkedBoat(UUID boat) {
-        this.nextLinkedBoat = boat;
+    public void addNextLinkedBoat(@Nullable UUID boat) {
+        this.nextLinkedBoats.add(boat);
     }
 
     @Override
-    public void setPreviousLinkedBoat(UUID boat) {
-        this.previousLinkedBoat = boat;
+    public void removeNextLinkedBoat(@Nullable UUID boat) {
+        this.nextLinkedBoats.remove(boat);
+    }
+
+    @Override
+    public void addPreviousLinkedBoat(@Nullable UUID boat) {
+        this.previousLinkedBoats.add(boat);
+    }
+
+    @Override
+    public void removePreviousLinkedBoat(@Nullable UUID boat) {
+        this.previousLinkedBoats.remove(boat);
     }
 
     @Override

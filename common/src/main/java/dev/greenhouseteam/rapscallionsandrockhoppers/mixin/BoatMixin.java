@@ -1,5 +1,6 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.mixin;
 
+import com.mojang.datafixers.util.Pair;
 import dev.greenhouseteam.rapscallionsandrockhoppers.componability.IBoatData;
 import dev.greenhouseteam.rapscallionsandrockhoppers.componability.IPlayerData;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
@@ -8,6 +9,7 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.util.EntityGetUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -28,6 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.UUID;
 
 @Mixin(Boat.class)
@@ -74,8 +77,8 @@ public abstract class BoatMixin extends VehicleEntity {
                 IBoatData otherBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(otherBoat);
                 if (!otherBoat.is(this) && otherBoatData.canLinkTo((Boat) (Object) this)) {
                     if (otherBoatData.getLinkedPlayer() == player) {
-                        otherBoatData.setPreviousLinkedBoat(this.getUUID());
-                        boatData.setNextLinkedBoat(otherBoat.getUUID());
+                        otherBoatData.addPreviousLinkedBoat(this.getUUID());
+                        boatData.addNextLinkedBoat(otherBoat.getUUID());
                         otherBoatData.setLinkedPlayer(null);
                         playerData.removeLinkedBoat(otherBoat.getUUID());
                         boatData.sync();
@@ -90,6 +93,7 @@ public abstract class BoatMixin extends VehicleEntity {
 
     @Inject(method = "tick", at = @At("HEAD"))
     public void rapscallionsandrockhoppers$addBoatMovementCode(CallbackInfo ci) {
+        if (this.level().isClientSide()) return;
         IBoatData boatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData((Boat)(Object)this);
         if (boatData.getLinkedPlayer() != null) {
             var distanceBetween = boatData.getLinkedPlayer().distanceTo((Boat)(Object)this);
@@ -101,35 +105,49 @@ public abstract class BoatMixin extends VehicleEntity {
                 this.spawnAtLocation(RockhoppersItems.BOAT_HOOK);
             }
         }
-        rapscallionsandrockhoppers$moveTowardsBoats(boatData.getNextLinkedBoatUuid(), boatData.getPreviousLinkedBoatUuid(), boatData.getNextLinkedBoat(), boatData.getPreviousLinkedBoat());
+        rapscallionsandrockhoppers$moveTowardsBoats(boatData.getNextLinkedBoatUuids(), boatData.getPreviousLinkedBoatUuids());
     }
 
     @Unique
-    private void rapscallionsandrockhoppers$moveTowardsBoats(UUID nextUuid, UUID previousUuid, Boat next, Boat previous) {
+    private void rapscallionsandrockhoppers$moveTowardsBoats(List<UUID> nextUuids, List<UUID> previousUuids) {
         IBoatData boatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData((Boat)(Object)this);
-        if (nextUuid != null) {
-            if (next == null || next.isRemoved() && next.distanceTo((Boat)(Object)this) > 16) {
-                if (next != null) {
-                    IBoatData nextBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData((Boat) (Object) this);
-                    nextBoatData.setPreviousLinkedBoat(null);
+        if (!nextUuids.isEmpty()) {
+            for (Pair<UUID, Boat> next : nextUuids.stream().map(uuid1 -> {
+                if (((ServerLevel)this.level()).getEntity(uuid1) instanceof Boat boat) {
+                    return Pair.of(uuid1, boat);
                 }
-                boatData.setNextLinkedBoat(null);
-                this.spawnAtLocation(RockhoppersItems.BOAT_HOOK);
-                return;
+                return Pair.of(uuid1, (Boat)null);
+            }).toList()) {
+                if (next.getSecond() == null || next.getSecond().isRemoved() || next.getSecond().distanceTo((Boat)(Object)this) > 16) {
+                    if (next.getSecond() != null) {
+                        IBoatData nextBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(next.getSecond());
+                        nextBoatData.removePreviousLinkedBoat(this.getUUID());
+                    }
+                    boatData.removeNextLinkedBoat(next.getFirst());
+                    this.spawnAtLocation(RockhoppersItems.BOAT_HOOK);
+                    return;
+                }
+                rapscallionsandrockhoppers$doBoatLinkedMovementTo(next.getSecond());
             }
-            rapscallionsandrockhoppers$doBoatLinkedMovementTo(next);
         }
-        if (previousUuid != null) {
-            if (previous == null || previous.isRemoved() && previous.distanceTo((Boat)(Object)this) > 16) {
-                if (previous != null) {
-                    IBoatData nextBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData((Boat)(Object)this);
-                    nextBoatData.setNextLinkedBoat(null);
+        if (!previousUuids.isEmpty()) {
+            for (Pair<UUID, Boat> previous : previousUuids.stream().map(uuid1 -> {
+                if (((ServerLevel)this.level()).getEntity(uuid1) instanceof Boat boat) {
+                    return Pair.of(uuid1, boat);
                 }
-                boatData.setPreviousLinkedBoat(null);
-                this.spawnAtLocation(RockhoppersItems.BOAT_HOOK);
-                return;
+                return Pair.of(uuid1, (Boat)null);
+            }).toList()) {
+                if (previous.getSecond() == null || previous.getSecond().isRemoved() || previous.getSecond().distanceTo((Boat)(Object)this) > 16) {
+                    if (previous.getSecond() != null) {
+                        IBoatData nextBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(previous.getSecond());
+                        nextBoatData.removePreviousLinkedBoat(this.getUUID());
+                    }
+                    boatData.removeNextLinkedBoat(previous.getFirst());
+                    this.spawnAtLocation(RockhoppersItems.BOAT_HOOK);
+                    return;
+                }
+                rapscallionsandrockhoppers$doBoatLinkedMovementTo(previous.getSecond());
             }
-            rapscallionsandrockhoppers$doBoatLinkedMovementTo(previous);
         }
 
     }
@@ -143,7 +161,6 @@ public abstract class BoatMixin extends VehicleEntity {
         if (distanceBetween <= 3 || distanceBetween > 16) return;
         var distanceFactor = (distanceBetween - 3) / 7;
 
-        if (this.level().isClientSide()) return;
         // This controls the velocity of the boat, making it quicker the further away it is
         var betweenVec = thisPos.vectorTo(otherPos).scale(IBoatData.HOOK_DAMPENING_FACTOR);
         var thisDelta = betweenVec.normalize().scale(distanceBetween).scale(distanceFactor);
@@ -186,6 +203,10 @@ public abstract class BoatMixin extends VehicleEntity {
     @Shadow @Nullable public abstract LivingEntity getControllingPassenger();
 
     @Shadow protected abstract void clampRotation(Entity p_38322_);
+
+    @Shadow private boolean inputDown;
+
+    @Shadow private boolean inputLeft;
 
     @ModifyArg(method = "controlBoat", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V"))
     private Vec3 rapscallionsandrockhoppers$controlBoat(Vec3 original) {

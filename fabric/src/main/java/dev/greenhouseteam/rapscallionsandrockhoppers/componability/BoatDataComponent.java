@@ -14,17 +14,16 @@ import org.spongepowered.asm.mixin.Unique;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class BoatDataComponent implements AutoSyncedComponent, IBoatData {
     private final List<UUID> penguins = new ArrayList<>();
-    @Unique
-    private @Nullable UUID nextLinkedBoat;
-    @Unique
-    private @Nullable UUID previousLinkedBoat;
+    private final List<UUID> nextLinkedBoats = new ArrayList<>();
+    private final List<UUID> previousLinkedBoats = new ArrayList<>();
     @Unique
     private @Nullable UUID linkedPlayer;
-    private Boat provider;
+    private final Boat provider;
 
     public BoatDataComponent(Boat boat) {
         this.provider = boat;
@@ -36,13 +35,23 @@ public class BoatDataComponent implements AutoSyncedComponent, IBoatData {
     }
 
     @Override
-    public @Nullable UUID getNextLinkedBoatUuid() {
-        return nextLinkedBoat;
+    public List<UUID> getNextLinkedBoatUuids() {
+        return nextLinkedBoats;
     }
 
     @Override
-    public @Nullable UUID getPreviousLinkedBoatUuid() {
-        return previousLinkedBoat;
+    public void clearNextLinkedBoatUuids() {
+        this.nextLinkedBoats.clear();
+    }
+
+    @Override
+    public List<UUID> getPreviousLinkedBoatUuids() {
+        return previousLinkedBoats;
+    }
+
+    @Override
+    public void clearPreviousLinkedBoatUuids() {
+        this.previousLinkedBoats.clear();
     }
 
     @Override
@@ -51,21 +60,25 @@ public class BoatDataComponent implements AutoSyncedComponent, IBoatData {
     }
 
     @Override
-    public @Nullable Boat getNextLinkedBoat() {
-        Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), nextLinkedBoat);
-        if (entity instanceof Boat boat) {
-            return boat;
-        }
-        return null;
+    public List<Boat> getNextLinkedBoats() {
+        return this.getNextLinkedBoatUuids().stream().map(uuid -> {
+            Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), uuid);
+            if (entity instanceof Boat boat) {
+                return boat;
+            }
+            return null;
+        }).filter(Objects::nonNull).toList();
     }
 
     @Override
-    public @Nullable Boat getPreviousLinkedBoat() {
-        Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), previousLinkedBoat);
-        if (entity instanceof Boat boat) {
-            return boat;
-        }
-        return null;
+    public List<Boat> getPreviousLinkedBoats() {
+        return this.getPreviousLinkedBoatUuids().stream().map(uuid -> {
+            Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), uuid);
+            if (entity instanceof Boat boat) {
+                return boat;
+            }
+            return null;
+        }).filter(Objects::nonNull).toList();
     }
 
     @Override
@@ -83,13 +96,23 @@ public class BoatDataComponent implements AutoSyncedComponent, IBoatData {
     }
 
     @Override
-    public void setNextLinkedBoat(@Nullable UUID boat) {
-        this.nextLinkedBoat = boat;
+    public void addNextLinkedBoat(@Nullable UUID boat) {
+        this.nextLinkedBoats.add(boat);
     }
 
     @Override
-    public void setPreviousLinkedBoat(@Nullable UUID boat) {
-        this.previousLinkedBoat = boat;
+    public void removeNextLinkedBoat(@Nullable UUID boat) {
+        this.nextLinkedBoats.remove(boat);
+    }
+
+    @Override
+    public void addPreviousLinkedBoat(@Nullable UUID boat) {
+        this.previousLinkedBoats.add(boat);
+    }
+
+    @Override
+    public void removePreviousLinkedBoat(@Nullable UUID boat) {
+        this.previousLinkedBoats.remove(boat);
     }
 
     @Override

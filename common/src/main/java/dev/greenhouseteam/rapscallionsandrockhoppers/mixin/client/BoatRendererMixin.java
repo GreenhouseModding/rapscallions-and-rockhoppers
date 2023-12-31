@@ -33,9 +33,8 @@ public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
     @Inject(method = "render(Lnet/minecraft/world/entity/vehicle/Boat;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"))
     public void addBoatHookRenderering(Boat boat, float yaw, float tickDelta, PoseStack poseStack, MultiBufferSource multiBufferSource, int light, CallbackInfo ci) {
         IBoatData boatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat);
-        if (boatData.getPreviousLinkedBoat() != null) {
-            rapscallionsandrockhoppers$renderLeash(boat, yaw, tickDelta, poseStack, multiBufferSource, boatData.getPreviousLinkedBoat());
-        } else if (boatData.getLinkedPlayer() != null) {
+        boatData.getPreviousLinkedBoats().forEach(previous -> rapscallionsandrockhoppers$renderLeash(boat, yaw, tickDelta, poseStack, multiBufferSource, previous));
+        if (boatData.getLinkedPlayer() != null) {
             rapscallionsandrockhoppers$renderLeash(boat, yaw, tickDelta, poseStack, multiBufferSource, boatData.getLinkedPlayer());
         }
     }
@@ -50,12 +49,12 @@ public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
             linkedToPosition = linkedTo.getRopeHoldPosition(tickDelta);
         double $$6 = (double)(Mth.lerp(tickDelta, thisBoat.getYRot(), thisBoat.lerpTargetYRot()) * 0.017453292F) + 1.5707963267948966;
 
-        Vec3 $$7 = rapscallionsandrockhoppers$approximateClosestHitPoint(thisBoat, linkedTo).subtract(thisBoat.position().x(), 0.0, thisBoat.position().z()).add(0.0, thisBoat.getEyeHeight() / 2.0, 0.0);
+        Vec3 $$7 = rapscallionsandrockhoppers$approximateClosestHitPoint(thisBoat, linkedTo).add(0.0, thisBoat.getEyeHeight() / 2.0, 0.0);
         double $$8 = Math.cos($$6) * $$7.z + Math.sin($$6) * $$7.x;
         double $$9 = Math.sin($$6) * $$7.z - Math.cos($$6) * $$7.x;
-        double xLerped = Mth.lerp(tickDelta, thisBoat.xo, thisBoat.getX()) + $$8;
-        double yLerped = Mth.lerp(tickDelta, thisBoat.yo, thisBoat.getY()) + $$7.y;
-        double zLerped = Mth.lerp(tickDelta, thisBoat.zo, thisBoat.getZ()) + $$9;
+        double xLerped = $$8;
+        double yLerped = $$7.y;
+        double zLerped = $$9;
         poseStack.translate($$8, $$7.y, $$9);
         float xDisplacement = (float)(linkedToPosition.x - xLerped);
         float yDisplacement = (float)(linkedToPosition.y - yLerped);

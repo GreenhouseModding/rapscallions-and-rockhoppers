@@ -19,7 +19,7 @@ import java.util.UUID;
 
 public class PlayerDataComponent implements AutoSyncedComponent, IPlayerData {
     private final List<UUID> linkedBoats = new ArrayList<>();
-    private Player provider;
+    private final Player provider;
 
     public PlayerDataComponent(Player player) {
         this.provider = player;

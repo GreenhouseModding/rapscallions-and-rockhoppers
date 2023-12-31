@@ -8,6 +8,7 @@ import net.minecraft.world.entity.vehicle.Boat;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class BoatDataCapability implements IBoatData {
@@ -23,13 +24,23 @@ public class BoatDataCapability implements IBoatData {
     }
 
     @Override
-    public @Nullable UUID getNextLinkedBoatUuid() {
-        return this.provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getNextLinkedBoatUuid();
+    public List<UUID> getNextLinkedBoatUuids() {
+        return this.provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getNextLinkedBoatUuids();
     }
 
     @Override
-    public @Nullable UUID getPreviousLinkedBoatUuid() {
-        return this.provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getPreviousLinkedBoatUuid();
+    public void clearNextLinkedBoatUuids() {
+        this.provider.getData(RockhoppersAttachments.BOAT_DATA.get()).clearNextLinkedBoatUuids();
+    }
+
+    @Override
+    public List<UUID> getPreviousLinkedBoatUuids() {
+        return this.provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getPreviousLinkedBoatUuids();
+    }
+
+    @Override
+    public void clearPreviousLinkedBoatUuids() {
+        this.provider.getData(RockhoppersAttachments.BOAT_DATA.get()).clearPreviousLinkedBoatUuids();
     }
 
     @Override
@@ -38,21 +49,25 @@ public class BoatDataCapability implements IBoatData {
     }
 
     @Override
-    public @Nullable Boat getNextLinkedBoat() {
-        Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), this.provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getNextLinkedBoatUuid());
-        if (entity instanceof Boat boat) {
-            return boat;
-        }
-        return null;
+    public List<Boat> getNextLinkedBoats() {
+        return this.getNextLinkedBoatUuids().stream().map(uuid -> {
+            Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), uuid);
+            if (entity instanceof Boat boat) {
+                return boat;
+            }
+            return null;
+        }).filter(Objects::nonNull).toList();
     }
 
     @Override
-    public @Nullable Boat getPreviousLinkedBoat() {
-        Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), this.provider.getData(RockhoppersAttachments.BOAT_DATA.get()).getPreviousLinkedBoatUuid());
-        if (entity instanceof Boat boat) {
-            return boat;
-        }
-        return null;
+    public List<Boat> getPreviousLinkedBoats() {
+        return this.getPreviousLinkedBoatUuids().stream().map(uuid -> {
+            Entity entity = EntityGetUtil.getEntityFromUuid(this.provider.level(), uuid);
+            if (entity instanceof Boat boat) {
+                return boat;
+            }
+            return null;
+        }).filter(Objects::nonNull).toList();
     }
 
     @Override
@@ -70,13 +85,23 @@ public class BoatDataCapability implements IBoatData {
     }
 
     @Override
-    public void setNextLinkedBoat(UUID boat) {
-        provider.getData(RockhoppersAttachments.BOAT_DATA.get()).setNextLinkedBoat(boat);
+    public void addNextLinkedBoat(@Nullable UUID boat) {
+        provider.getData(RockhoppersAttachments.BOAT_DATA.get()).addNextLinkedBoat(boat);
     }
 
     @Override
-    public void setPreviousLinkedBoat(UUID boat) {
-        provider.getData(RockhoppersAttachments.BOAT_DATA.get()).setPreviousLinkedBoat(boat);
+    public void removeNextLinkedBoat(@Nullable UUID boat) {
+        provider.getData(RockhoppersAttachments.BOAT_DATA.get()).removeNextLinkedBoat(boat);
+    }
+
+    @Override
+    public void addPreviousLinkedBoat(@Nullable UUID boat) {
+        provider.getData(RockhoppersAttachments.BOAT_DATA.get()).addPreviousLinkedBoat(boat);
+    }
+
+    @Override
+    public void removePreviousLinkedBoat(@Nullable UUID boat) {
+        provider.getData(RockhoppersAttachments.BOAT_DATA.get()).removePreviousLinkedBoat(boat);
     }
 
     @Override
