@@ -56,8 +56,11 @@ public class RapscallionsAndRockhoppers {
         biomePopulationPenguinTypeRegistry = value;
     }
 
-    protected static void removeCachedPenguinTypeRegistry() {
+    protected static void removeCachedPenguinTypeRegistry(boolean resetState) {
         biomePopulationPenguinTypeRegistry = null;
+        if (resetState) {
+            hasBiomePopulationBeenHandled = false;
+        }
     }
 
     public static void loadNearbyChunks(BlockPos pos, ServerLevel level) {

@@ -152,12 +152,12 @@ public class RapscallionsAndRockhoppersEvents {
     public static class ForgeBusEvents {
         @SubscribeEvent
         public static void onServerStarted(ServerStartedEvent event) {
-            RapscallionsAndRockhoppers.setBiomePopulationPenguinTypeRegistry(null);
+            RapscallionsAndRockhoppers.removeCachedPenguinTypeRegistry(false);
         }
 
         @SubscribeEvent
         public static void onServerStopped(ServerStoppingEvent event) {
-            RapscallionsAndRockhoppers.removeCachedPenguinTypeRegistry();
+            RapscallionsAndRockhoppers.removeCachedPenguinTypeRegistry(true);
         }
 
         @SubscribeEvent

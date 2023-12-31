@@ -81,12 +81,12 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
     }
 
     public static void handlePenguinTypeRegistryEvents() {
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> RapscallionsAndRockhoppers.setBiomePopulationPenguinTypeRegistry(null));
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> RapscallionsAndRockhoppers.removeCachedPenguinTypeRegistry(false));
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, closeableResourceManager, success) -> {
             if (success) {
                 server.getAllLevels().forEach(Penguin::invalidateCachedPenguinTypes);
             }
         });
-        ServerLifecycleEvents.SERVER_STOPPED.register(server -> RapscallionsAndRockhoppers.removeCachedPenguinTypeRegistry());
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> RapscallionsAndRockhoppers.removeCachedPenguinTypeRegistry(true));
     }
 }
