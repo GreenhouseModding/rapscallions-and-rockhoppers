@@ -13,10 +13,10 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootTableProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricDynamicRegistryProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.models.BlockModelGenerators;
@@ -27,12 +27,15 @@ import net.minecraft.data.models.blockstates.Variant;
 import net.minecraft.data.models.blockstates.VariantProperties;
 import net.minecraft.data.models.model.ModelTemplates;
 import net.minecraft.data.models.model.TextureMapping;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 import java.util.List;
@@ -48,7 +51,7 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
         pack.addProvider(RockhoppersDynamicRegistryProvider::new);
         pack.addProvider(RockhoppersModelProvider::new);
         pack.addProvider(RockhoppersBlockLootProvider::new);
-
+        pack.addProvider(RockhoppersRecipeProvider::new);
     }
 
     @Override
@@ -99,9 +102,10 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
 
         @Override
         public void generateItemModels(ItemModelGenerators itemModelGenerator) {
+            itemModelGenerator.generateFlatItem(RockhoppersItems.BOAT_HOOK, ModelTemplates.FLAT_ITEM);
+            itemModelGenerator.generateFlatItem(RockhoppersItems.FISH_BONES, ModelTemplates.FLAT_ITEM);
             itemModelGenerator.generateFlatItem(RockhoppersItems.PENGUIN_EGG, ModelTemplates.FLAT_ITEM);
             itemModelGenerator.generateFlatItem(RockhoppersItems.PENGUIN_SPAWN_EGG, RockhoppersModelTemplates.SPAWN_EGG);
-
         }
         public void createEgg(Block egg, BlockModelGenerators blockModelGenerators) {
             TextureMapping textureMapping = RockhoppersTextureMappings.createEggMapping(egg);
@@ -127,6 +131,24 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
         public void generate() {
             dropWhenSilkTouch(RockhoppersBlocks.PENGUIN_EGG);
         }
+    }
+
+    public static class RockhoppersRecipeProvider extends FabricRecipeProvider {
+        public RockhoppersRecipeProvider(FabricDataOutput output) {
+            super(output);
+        }
+
+        @Override
+        public void buildRecipes(RecipeOutput exporter) {
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.BONE_MEAL, 3).group("bonemeal").requires(RockhoppersItems.FISH_BONES)
+                    .unlockedBy("has_bone_block", FabricRecipeProvider.has(RockhoppersItems.FISH_BONES))
+                    .save(exporter, "bone_meal_from_fish_bones");
+            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, RockhoppersItems.BOAT_HOOK).pattern("F~ ").pattern("~O ").pattern("  ~")
+                    .define('F', RockhoppersItems.FISH_BONES).define('~', Items.STRING).define('O', Items.SLIME_BALL)
+                    .unlockedBy("has_fish_bones", FabricRecipeProvider.has(RockhoppersItems.FISH_BONES))
+                    .save(exporter, "boat_hook");
+        }
+
     }
 
     public static class RockhoppersItemTagProvider extends FabricTagProvider.ItemTagProvider {

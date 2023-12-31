@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": {
+      "item": "rapscallionsandrockhoppers:fish_bones"
+    },
+    "O": {
+      "item": "minecraft:slime_ball"
+    },
+    "~": {
+      "item": "minecraft:string"
+    }
+  },
+  "pattern": [
+    "F~ ",
+    "~O ",
+    "  ~"
+  ],
+  "result": {
+    "item": "rapscallionsandrockhoppers:boat_hook"
+  }
+}
