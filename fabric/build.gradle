@@ -37,7 +37,7 @@ dependencies {
 
     // TODO: Fabric API JAR does not allow compiling, fix that.
     // modCompileOnlyApi("dev.greenhouseteam.rdpr:rdpr-fabric:${rdpr_version}+${minecraft_version}:api")
-    api(include("dev.greenhouseteam.rdpr:rdpr-fabric:${rdpr_version}+${minecraft_version}"))
+    modApi(include("dev.greenhouseteam.rdpr:rdpr-fabric:${rdpr_version}+${minecraft_version}"))
 
     modImplementation(include("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${cca_version}"))
     modImplementation(include("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${cca_version}"))
