@@ -61,7 +61,7 @@ public class PenguinEggBlock extends Block implements EntityBlock {
 
     @Override
     public void randomTick(BlockState blockState, ServerLevel serverLevel, BlockPos blockPos, RandomSource randomSource) {
-        if (randomSource.nextInt(500) == 0) {
+        if (randomSource.nextInt(600) == 0) {
             // 1/500 chance each random tick of cracking
             crackEgg(blockState, serverLevel, blockPos);
         }
