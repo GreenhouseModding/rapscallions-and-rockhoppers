@@ -1,25 +1,15 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers;
 
 import com.mojang.datafixers.util.Pair;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
-import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
 import dev.greenhouseteam.rdpr.api.IReloadableRegistryCreationHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.tslat.smartbrainlib.util.BrainUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
