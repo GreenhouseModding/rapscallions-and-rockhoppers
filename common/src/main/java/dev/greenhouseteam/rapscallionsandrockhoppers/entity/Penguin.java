@@ -96,7 +96,6 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     private static final EntityDataAccessor<Float> DATA_SHOVE_CHANCE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.FLOAT);
 
     private boolean hasLoggedMissingError = false;
-    private ResourceLocation previousPenguinType;
     private PenguinType cachedPenguinType = null;
 
     public final AnimationState idleAnimationState = new AnimationState();
@@ -689,10 +688,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         try {
             ResourceKey<PenguinType> resourceKey = ResourceKey.create(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY, new ResourceLocation(this.getEntityData().get(Penguin.DATA_TYPE)));
             if (cachedPenguinType == null && this.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY).containsKey(resourceKey)) {
-                this.cachedPenguinType = this.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY).get(resourceKey);
-            } else if (this.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY).containsKey(this.previousPenguinType) && this.previousPenguinType != this.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY).getKey(this.cachedPenguinType) && this.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY).containsKey(resourceKey)) {
                 this.cachedPenguinType = this.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY).get(ResourceKey.create(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY, new ResourceLocation(this.getEntityData().get(Penguin.DATA_TYPE))));
-                this.previousPenguinType = this.getPenguinTypeKey();
             }
             return this.cachedPenguinType;
         } catch (Exception ex) {
@@ -718,7 +714,6 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
     public void invalidateCachedPenguinType() {
         this.cachedPenguinType = null;
-        this.previousPenguinType = null;
         if (!this.level().isClientSide()) {
             IRockhoppersPlatformHelper.INSTANCE.sendS2CTracking(new InvalidateCachedPenguinTypePacket(this.getId()), this);
         }
@@ -731,7 +726,10 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     public void setPenguinType(PenguinType penguinType) {
         Registry<PenguinType> registry = this.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY);
         this.getEntityData().set(DATA_TYPE, registry.getKey(penguinType).toString());
-        this.getEntityData().set(DATA_PREVIOUS_TYPE, "");
+        if (penguinType.whenNamed().isEmpty()) {
+            this.getEntityData().set(DATA_PREVIOUS_TYPE, "");
+        }
+        this.invalidateCachedPenguinType();
     }
 
     public void setPenguinType(ResourceLocation penguinTypeKey) {
@@ -740,6 +738,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         if (registry.containsKey(penguinTypeKey) && registry.get(penguinTypeKey).whenNamed().isEmpty()) {
             this.getEntityData().set(DATA_PREVIOUS_TYPE, "");
         }
+        this.invalidateCachedPenguinType();
     }
 
     public void onNameChange(Component newName) {
