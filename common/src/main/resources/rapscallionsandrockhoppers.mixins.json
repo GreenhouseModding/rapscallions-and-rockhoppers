@@ -10,10 +10,13 @@
     "EntityMixin",
     "LevelAccessor",
     "LivingEntityMixin",
-    "RegistryDataLoaderRegistryDataMixin"
+    "RegistryDataLoaderRegistryDataMixin",
+    "client.ClientLevelAccessor"
   ],
   "client": [
-    "client.ClientLevelAccessor"
+    "client.BoatRendererMixin"
+  ],
+  "server": [
   ],
   "injectors": {
     "defaultRequire": 1

@@ -36,9 +36,11 @@
     },
     "custom": {
         "cardinal-components": [
-            "rapscallionsandrockhoppers:boat_data"
+            "rapscallionsandrockhoppers:boat_data",
+            "rapscallionsandrockhoppers:player_data"
         ]
     },
+    "accessWidener" : "rapscallionsandrockhoppers.accesswidener",
     "mixins": [
         "${mod_id}.mixins.json",
         "${mod_id}.fabric.mixins.json"
