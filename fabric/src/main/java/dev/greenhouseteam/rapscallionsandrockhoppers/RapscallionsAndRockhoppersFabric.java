@@ -54,7 +54,7 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
     public static void handleBiomeModifications() {
         SpawnPlacements.register(RockhoppersEntityTypes.PENGUIN, SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Penguin::checkPenguinSpawnRules);
         createBiomeModifications(RapscallionsAndRockhoppers.asResource("penguin"),
-                createPenguinSpawnPredicate(), RockhoppersEntityTypes.PENGUIN, 15, 4, 6);
+                createPenguinSpawnPredicate(), RockhoppersEntityTypes.PENGUIN, 15, 3, 5);
     }
 
     public static void createBiomeModifications(ResourceLocation location, Predicate<BiomeSelectionContext> predicate, EntityType<?> entityType, int weight, int min, int max) {
