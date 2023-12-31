@@ -751,10 +751,16 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             if (this.getEntityData().get(DATA_PREVIOUS_TYPE).isEmpty()) {
                 this.getEntityData().set(DATA_PREVIOUS_TYPE, this.getEntityData().get(DATA_TYPE));
             }
-            this.getEntityData().set(DATA_TYPE, registry.getKey(nameReference.get()).toString());
+            ResourceLocation nameKey = registry.getKey(nameReference.get());
+            if (nameKey != null) {
+                this.setPenguinType(nameKey);
+            }
         } else if (!this.getEntityData().get(DATA_PREVIOUS_TYPE).isEmpty()) {
-            this.getEntityData().set(DATA_TYPE, this.getEntityData().get(DATA_PREVIOUS_TYPE));
-            this.getEntityData().set(DATA_PREVIOUS_TYPE, "");
+            ResourceLocation nameKey = ResourceLocation.tryParse(this.getEntityData().get(DATA_PREVIOUS_TYPE));
+            if (nameKey != null) {
+                this.setPenguinType(nameKey);
+                this.getEntityData().set(DATA_PREVIOUS_TYPE, "");
+            }
         }
     }
 
