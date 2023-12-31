@@ -35,6 +35,8 @@ public abstract class BoatMixin extends VehicleEntity {
 
     @Shadow @Nullable public abstract LivingEntity getControllingPassenger();
 
+    @Shadow protected abstract Boat.Status getStatus();
+
     @Inject(method = "tick", at = @At("HEAD"))
     private void rapscallionsandrockhoppers$tickMovement(CallbackInfo ci) {
         IRockhoppersPlatformHelper.INSTANCE.getBoatData((Boat)(Object)this).addBoatMovementCode();
@@ -43,7 +45,7 @@ public abstract class BoatMixin extends VehicleEntity {
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;controlBoat()V", shift = At.Shift.BY, by = 2))
     private void rapscallionsandrockhoppers$addPenguinSpeedBonus(CallbackInfo ci) {
         IBoatData boatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData((Boat)(Object)this);
-        if (this.isInWaterOrBubble() && boatData.penguinCount() > 0 && boatData.getFollowingPenguins().stream().anyMatch(uuid -> {
+        if (this.getStatus().equals(Boat.Status.IN_WATER) && boatData.penguinCount() > 0 && boatData.getFollowingPenguins().stream().anyMatch(uuid -> {
             Entity entity = EntityGetUtil.getEntityFromUuid(this.level(), uuid);
             return entity != null && entity.isInWater();
         })) {

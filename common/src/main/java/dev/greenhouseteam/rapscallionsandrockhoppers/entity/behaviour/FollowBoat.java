@@ -31,7 +31,7 @@ public class FollowBoat extends ExtendedBehaviour<Penguin> {
 
     @Override
     protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-        return List.of(Pair.of(RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW, MemoryStatus.VALUE_PRESENT), Pair.of(MemoryModuleType.TEMPTING_PLAYER, MemoryStatus.VALUE_ABSENT));
+        return List.of(Pair.of(MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED), Pair.of(RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW, MemoryStatus.VALUE_PRESENT), Pair.of(MemoryModuleType.TEMPTING_PLAYER, MemoryStatus.VALUE_ABSENT));
     }
 
     @Override
@@ -66,14 +66,19 @@ public class FollowBoat extends ExtendedBehaviour<Penguin> {
     }
 
     @Override
+    protected void start(Penguin penguin) {
+        BrainUtils.clearMemory(penguin, MemoryModuleType.ATTACK_TARGET);
+    }
+
+    @Override
     protected void tick(Penguin penguin) {
         if (--this.timeToRecalcPath <= 0) {
             this.timeToRecalcPath = 10;
             Direction direction = penguin.getBoatToFollow().getDirection().getOpposite();
             Vec3 directionVec = new Vec3(direction.getStepX(), direction.getStepY(), direction.getStepZ()).multiply(this.untilDistance, 1.0F, this.untilDistance);
             BlockPos boatPos = penguin.getBoatToFollow().blockPosition().offset((int) directionVec.x(), (int) directionVec.y(), (int) directionVec.z());
-            boatPos = boatPos.offset(0, -3, 0);
-            BrainUtils.setMemory(penguin, MemoryModuleType.WALK_TARGET, new WalkTarget(boatPos, penguin.isInWater() ? 2.0F : 1.0F, 0));
+            boatPos = boatPos.offset(0, -1, 0);
+            BrainUtils.setMemory(penguin, MemoryModuleType.WALK_TARGET, new WalkTarget(boatPos, penguin.isInWater() ? 2.0F : 1.5F, 1));
         }
     }
 

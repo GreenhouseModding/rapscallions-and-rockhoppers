@@ -32,6 +32,7 @@ import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
@@ -48,6 +49,7 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
         FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
         pack.addProvider(RockhoppersBiomeTagProvider::new);
         pack.addProvider(RockhoppersItemTagProvider::new);
+        pack.addProvider(RockhoppersEntityTagProvider::new);
         pack.addProvider(RockhoppersDynamicRegistryProvider::new);
         pack.addProvider(RockhoppersModelProvider::new);
         pack.addProvider(RockhoppersBlockLootProvider::new);
@@ -177,6 +179,18 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
         protected void addTags(HolderLookup.Provider provider) {
             this.tag(RockhoppersTags.BiomeTags.ROCKHOPPER_PENGUIN_SPAWN_BIOMES).add(Biomes.STONY_SHORE);
             this.tag(RockhoppersTags.BiomeTags.CHINSTRAP_PENGUIN_SPAWN_BIOMES).add(Biomes.FROZEN_OCEAN, Biomes.DEEP_FROZEN_OCEAN);
+        }
+    }
+
+    public static class RockhoppersEntityTagProvider extends FabricTagProvider<EntityType<?>> {
+
+        public RockhoppersEntityTagProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
+            super(output, Registries.ENTITY_TYPE, registriesFuture);
+        }
+
+        @Override
+        protected void addTags(HolderLookup.Provider provider) {
+            this.tag(RockhoppersTags.EntityTypeTags.PENGUIN_ALWAYS_HOSTILES).add(this.reverseLookup(EntityType.COD), this.reverseLookup(EntityType.SALMON), this.reverseLookup(EntityType.TROPICAL_FISH), this.reverseLookup(EntityType.SQUID), this.reverseLookup(EntityType.GLOW_SQUID));
         }
     }
 }

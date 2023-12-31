@@ -81,6 +81,7 @@ public class PenguinModel extends AgeableHierarchicalModel<Penguin> {
 
 		this.animateBodyInWater(penguin, yRot, xRot);
 		this.animateSwim(penguin, delta);
+		this.animate(penguin.peckAnimationState, PenguinAnimation.PECK, delta, 1.0F);
 
 		this.animateHeadTowardsLookTarget(penguin, yRot, xRot);
 	}

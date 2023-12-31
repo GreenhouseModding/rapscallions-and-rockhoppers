@@ -1,6 +1,7 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSensorTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class PenguinHomeSensor extends ExtendedSensor<Penguin> {
+    private boolean hasBeenSetUp;
     private boolean wasInWater;
 
     @Override
@@ -28,6 +30,11 @@ public class PenguinHomeSensor extends ExtendedSensor<Penguin> {
     }
 
     protected void doTick(ServerLevel level, Penguin penguin) {
+        if (!this.hasBeenSetUp) {
+            this.wasInWater = penguin.isInWaterOrBubble();
+            this.hasBeenSetUp = true;
+        }
+
         if (!BrainUtils.hasMemory(penguin, MemoryModuleType.HOME)) {
             BrainUtils.setMemory(penguin, MemoryModuleType.HOME, getInitialHomePos(penguin));
             return;
@@ -42,7 +49,7 @@ public class PenguinHomeSensor extends ExtendedSensor<Penguin> {
     @Nullable
     protected GlobalPos getHomePos(Penguin penguin) {
         ResourceKey<Level> levelResourceKey = penguin.level().dimension();
-        if (penguin.isInWater() && !this.wasInWater) {
+        if (penguin.isInWaterOrBubble() && !BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.IS_JUMPING) && !this.wasInWater) {
             this.wasInWater = true;
             BlockPos.MutableBlockPos mutableBlockPos = penguin.blockPosition().mutable();
             while (!penguin.level().getFluidState(mutableBlockPos).is(FluidTags.WATER)) {
@@ -52,7 +59,7 @@ public class PenguinHomeSensor extends ExtendedSensor<Penguin> {
             if (penguin.level().getBlockState(immutableBlockPos).isPathfindable(penguin.level(), immutableBlockPos, PathComputationType.LAND)) {
                 return GlobalPos.of(levelResourceKey, immutableBlockPos);
             }
-        } else if (!penguin.isInWater() && this.wasInWater) {
+        } else if (!penguin.isInWaterOrBubble() && penguin.onGround() && this.wasInWater) {
             this.wasInWater = false;
             Optional<BlockPos> pos = BlockPos.findClosestMatch(penguin.blockPosition(), 16, 6, p -> penguin.level().getFluidState(p).is(FluidTags.WATER) && penguin.level().getBlockState(p.above()).isPathfindable(penguin.level(), p.above(), PathComputationType.LAND));
             return pos.map(blockPos -> GlobalPos.of(levelResourceKey, blockPos)).orElse(null);

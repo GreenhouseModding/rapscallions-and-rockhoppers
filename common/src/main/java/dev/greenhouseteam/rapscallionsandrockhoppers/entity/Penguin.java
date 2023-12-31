@@ -17,6 +17,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
@@ -49,6 +50,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -66,6 +68,8 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.move.AvoidEntity;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowTemptation;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomWalkTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetAttackTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetPlayerLookTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetRandomLookTarget;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
@@ -78,16 +82,18 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
-    public static final int STUMBLE_ANIMATION_LENGTH = 40;
+    public static final int STUMBLE_ANIMATION_LENGTH = 30;
     private static final int SWIM_EASE_OUT_ANIMATION_LENGTH = 40;
     public static final int GET_UP_ANIMATION_LENGTH = 40;
     public static final int SHOVE_ANIMATION_LENGTH = 40;
+    public static final int PECK_ANIMATION_LENGTH = 40;
 
     protected static final Ingredient TEMPTATION_ITEM = Ingredient.of(RockhoppersTags.ItemTags.PENGUIN_TEMPT_ITEMS);
     protected static final Ingredient BREED_ITEM = Ingredient.of(RockhoppersTags.ItemTags.PENGUIN_BREED_ITEMS);
     private static final EntityDataAccessor<String> DATA_TYPE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<String> DATA_PREVIOUS_TYPE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Integer> DATA_SHOCKED_TIME = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_PECK_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_STUMBLE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_STUMBLE_TICKS_BEFORE_GETTING_UP = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_SHOVE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
@@ -111,6 +117,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     public final AnimationState swimEaseInAnimationState = new AnimationState();
     public final AnimationState swimEaseOutAnimationState = new AnimationState();
     public final AnimationState shoveAnimationState = new AnimationState();
+    public final AnimationState peckAnimationState = new AnimationState();
 
     private boolean animationArmState = false;
     private boolean animationSwimState = false;
@@ -118,6 +125,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     private boolean previousStumbleValue = false;
     private boolean previousWaterValue = false;
     private boolean previousWaterMovementValue = false;
+    public Vec3 previousBoatPos = Vec3.ZERO;
 
     public Penguin(EntityType<? extends Animal> entityType, Level level) {
         super(entityType, level);
@@ -144,6 +152,9 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_WATER_JUMP)) {
             compoundTag.putInt("water_jump_cooldown", BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_WATER_JUMP));
         }
+        if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.HUNGRY_TIME)) {
+            compoundTag.putInt("hungry_time", BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.HUNGRY_TIME));
+        }
         compoundTag.putString("type", this.getEntityData().get(DATA_TYPE));
         if (!this.getEntityData().get(DATA_PREVIOUS_TYPE).isEmpty()) {
             compoundTag.putString("type", this.getEntityData().get(DATA_PREVIOUS_TYPE));
@@ -167,6 +178,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             this.setTimeAllowedToFollowBoat(integerOptional(compoundTag.getInt("boat_follow_cooldown")));
         if (compoundTag.contains("water_jump_cooldown", CompoundTag.TAG_INT))
             this.setTimeAllowedToWaterJump(integerOptional(compoundTag.getInt("water_jump_cooldown")));
+        if (compoundTag.contains("hungry_time", CompoundTag.TAG_INT))
+            this.setHungryTime(integerOptional(compoundTag.getInt("hungry_time")));
 
         if (compoundTag.contains("previous_type"))
             this.getEntityData().set(DATA_PREVIOUS_TYPE, compoundTag.getString("previous_type"));
@@ -205,8 +218,9 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 new NearbyPlayersSensor<Penguin>().setRadius(16.0F),
                 new NearbyAdultSensor<>(),
                 new NearbyWaterSensor().setXZRadius(8).setYRadius(4),
+                new PenguinAttackTargetSensor<Penguin>(),
                 new ItemTemptingSensor<Penguin>().temptedWith((entity, stack) -> TEMPTATION_ITEM.test(stack)),
-                new InWaterSensor<Penguin>().setPredicate((entity, entity2) -> entity.isInWater() || BrainUtils.hasMemory(entity, RockhoppersMemoryModuleTypes.IS_JUMPING)),
+                new InWaterSensor<Penguin>().setPredicate((entity, entity2) -> entity.isInWaterOrBubble() || BrainUtils.hasMemory(entity, RockhoppersMemoryModuleTypes.IS_JUMPING)),
                 new HurtBySensor<>(),
                 new NearbyEggSensor()
         );
@@ -229,13 +243,16 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 new SetRandomLookTarget<>().lookChance(ConstantFloat.of(0.6F)),
                 new PenguinSitEgg().startCondition(penguin -> !penguin.isBaby()).runFor((penguin -> penguin.random.nextInt(3600, 9000))).cooldownFor(penguin -> 1000), // Between 180 and 450 seconds
                 new StayWithinHome().setRadius(5).startCondition(penguin -> !penguin.isStumbling() && penguin.getBoatToFollow() == null),
+                new SetAttackTarget<Penguin>().attackPredicate(penguin -> BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) && penguin.tickCount > BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) - 300),
+                new PenguinPeck(8),
                 new PenguinShove(),
                 new PenguinStumble(),
-                new FollowBoat().untilDistance(2.0F),
+                new FollowBoat().untilDistance(1.5F),
                 new FirstApplicableBehaviour<>(
                         new FollowTemptation<>(),
+                        new SetWalkTargetToAttackTarget<>(),
                         new OneRandomBehaviour<>(
-                                Pair.of(new SetRandomWalkTarget<Penguin>().setRadius(4, 3).avoidWaterWhen(penguin -> penguin.getRandom().nextFloat() < 0.98F), 14),
+                                Pair.of(new SetRandomWalkTarget<Penguin>().setRadius(4, 3).avoidWaterWhen(penguin -> penguin.getRandom().nextFloat() < 0.98F), 9),
                                 Pair.of(new Idle<>().runFor(entity -> entity.getRandom().nextInt(15, 30)), 1)
                         )
                 )
@@ -252,26 +269,45 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                 new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
                                 new BreedWithPartner<>(),
                                 new StayWithinHome().setRadius(8),
+                                new SetAttackTarget<Penguin>().attackPredicate(penguin -> BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) && penguin.tickCount > BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) - 300),
+                                new PenguinPeck(8),
                                 new AvoidEntity<>().avoiding(entity -> entity instanceof Pufferfish),
                                 new FirstApplicableBehaviour<>(
                                         new FollowTemptation<>(),
+                                        new SetWalkTargetToAttackTarget<>(),
                                         new PenguinJump(),
                                         new SetRandomSwimTarget().avoidLandWhen(penguin -> penguin.getRandom().nextFloat() < 0.98F).setRadius(5, 4).walkTargetPredicate((mob, vec3) -> vec3 == null || mob.level().getEntities(EntityTypeTest.forClass(Boat.class), mob.getBoundingBox().move(vec3.subtract(mob.position())).inflate(3.0F, 2.0F, 3.0F), boat -> true).isEmpty())
                                 )
-                        ).onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT)
-                        .onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW, MemoryStatus.VALUE_ABSENT),
+                        ).onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT),
                 RockhoppersActivities.FOLLOW_BOAT, new BrainActivityGroup<Penguin>(RockhoppersActivities.FOLLOW_BOAT)
                         .priority(10)
                         .behaviours(
                                 new BreatheAir(),
+                                new LeaveBoat(),
                                 new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
+                                new SetAttackTarget<Penguin>().attackPredicate(penguin -> {
+                                    if  (!BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME)) {
+                                        return false;
+                                    }
+
+                                    if (penguin.getBoatToFollow() != null && penguin.tickCount > BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) - 2260) {
+                                        // As boats don't have velocity on the server, we must do this.
+                                        boolean bl = penguin.previousBoatPos.subtract(penguin.getBoatToFollow().position()).horizontalDistance() > 0.075;
+                                        penguin.previousBoatPos = penguin.getBoatToFollow().position();
+                                        return bl;
+                                    }
+
+                                    return penguin.tickCount > BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) - 140;
+                                }),
+                                new PenguinPeck(8),
                                 new BreedWithPartner<>(),
                                 new AvoidEntity<>().avoiding(entity -> entity instanceof Pufferfish),
-                                new FollowBoat().untilDistance(2.0F),
+                                new FollowBoat().untilDistance(2.0F).runFor(penguin -> 200),
                                 new FirstApplicableBehaviour<>(
                                         new FollowTemptation<>(),
+                                        new SetWalkTargetToAttackTarget<>(),
                                         new PenguinJump(),
-                                        new SetRandomSwimTarget().setRadius(8.0F, 6.0F).startCondition(penguin -> penguin.getBoatToFollow().getDeltaMovement().horizontalDistanceSqr() < 0.05)
+                                        new SetRandomSwimTarget().setRadius(8.0F, 6.0F).startCondition(penguin -> penguin.getBoatToFollow() != null && penguin.getBoatToFollow().getDeltaMovement().horizontalDistanceSqr() < 0.05)
                                 )
                         ).onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT)
                         .onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW, MemoryStatus.VALUE_PRESENT)
@@ -292,6 +328,17 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             return Integer.MIN_VALUE;
         }
         return BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_WATER_JUMP);
+    }
+
+    public void setHungryTime(Optional<Integer> leaveTime) {
+        BrainUtils.setMemory(this, RockhoppersMemoryModuleTypes.HUNGRY_TIME, leaveTime.orElse(null));
+    }
+
+    public int getHungryTime() {
+        if (!BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.HUNGRY_TIME)) {
+            return Integer.MIN_VALUE;
+        }
+        return BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.HUNGRY_TIME);
     }
 
     public void setTimeAllowedToFollowBoat(Optional<Integer> boatFollowCooldownTicks) {
@@ -330,6 +377,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         this.getEntityData().define(DATA_SHOVE_CHANCE, 0.0F);
         this.getEntityData().define(DATA_SHOVE_TICKS, Integer.MIN_VALUE);
         this.getEntityData().define(DATA_SHOCKED_TIME, 0);
+        this.getEntityData().define(DATA_PECK_TICKS, Integer.MIN_VALUE);
         this.getEntityData().define(DATA_EGG, "");
     }
 
@@ -387,6 +435,14 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 }
             }
         } else {
+            if (this.isPecking()) {
+                this.peckAnimationState.startIfStopped(this.tickCount);
+                if (this.getPeckTicks() > PECK_ANIMATION_LENGTH) {
+                    this.peckAnimationState.stop();
+                    this.setPeckTicks(Integer.MIN_VALUE);
+                }
+            }
+
             if (this.getPose() == Pose.SWIMMING) {
                 this.stopAllLandAnimations();
                 this.swimIdleAnimationState.animateWhen(!this.walkAnimation.isMoving(), this.tickCount);
@@ -450,13 +506,14 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     }
 
 
-    // TODO: Use this for when a penguin leaves a boat.
     public void returnToHome() {
         GlobalPos home = BrainUtils.getMemory(this, MemoryModuleType.HOME);
         if (home != null && this.level().dimension() == home.dimension() && this.blockPosition().distSqr(home.pos()) > 24 * 24) {
             BlockPos randomPos = null;
 
-            if (this.level() instanceof ServerLevel serverLevel) {
+            int xSection = SectionPos.blockToSectionCoord(home.pos().getX());
+            int zSection = SectionPos.blockToSectionCoord(home.pos().getZ());
+            if (this.level() instanceof ServerLevel serverLevel && serverLevel.getChunk(xSection, zSection, ChunkStatus.FULL, true) == null) {
                 RapscallionsAndRockhoppers.loadNearbyChunks(home.pos(), serverLevel);
             }
             for (int i = 0; i < 10 || !this.level().getBlockState(randomPos).isPathfindable(this.level(), randomPos, PathComputationType.WATER); ++i) {
@@ -507,6 +564,9 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             } else {
                 this.setPenguinType(getPenguinSpawnTypeGlobal(level, this.blockPosition(), this.getRandom()));
             }
+        }
+        if (tag == null || !tag.contains("hungry_time")) {
+            this.setHungryTime(integerOptional(this.tickCount + Mth.randomBetweenInclusive(level.getRandom(), 1800, 2400)));
         }
 
         this.setStumbleChance(Mth.randomBetween(this.getRandom(), 0.0025F, 0.005F));
@@ -786,7 +846,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     }
 
     public void refreshDimensionsIfShould() {
-        if (this.isInWaterOrBubble() && this.previousWaterMovementValue ^ this.getPose() == Pose.SWIMMING) {
+        if (this.isInWater() && this.previousWaterMovementValue ^ this.getPose() == Pose.SWIMMING) {
             this.previousWaterMovementValue = !this.previousWaterMovementValue;
             this.refreshDimensions();
         } else if (this.isStumbling() && this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE && (this.getStumbleTicks() == STUMBLE_ANIMATION_LENGTH + 2 || this.getStumbleTicks() == this.getStumbleTicksBeforeGettingUp() + 5)) {
@@ -847,6 +907,9 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         this.setShockedTime(this.random.nextInt(60, 120));
         this.setShoveTicks(Integer.MIN_VALUE);
         this.setStumbleTicks(Integer.MIN_VALUE);
+        if (this.getHungryTime() != Integer.MIN_VALUE) {
+            this.setHungryTime(integerOptional(this.getHungryTime() - 40));
+        }
     }
 
     public void stumbleWithoutInitialAnimation() {
@@ -874,6 +937,18 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
     public boolean isShocked() {
         return this.entityData.get(DATA_SHOCKED_TIME) > 0;
+    }
+
+    public void setPeckTicks(int peckTime) {
+        this.entityData.set(DATA_PECK_TICKS, peckTime);
+    }
+
+    public boolean isPecking() {
+        return this.entityData.get(DATA_PECK_TICKS) != Integer.MIN_VALUE;
+    }
+
+    public int getPeckTicks() {
+        return this.entityData.get(DATA_PECK_TICKS);
     }
 
     public void setStumbleTicks(int stumbleTime) {

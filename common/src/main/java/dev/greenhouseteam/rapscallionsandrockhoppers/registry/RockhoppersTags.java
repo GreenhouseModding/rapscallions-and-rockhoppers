@@ -2,10 +2,14 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.registry;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
+
+import javax.swing.text.html.parser.Entity;
 
 public class RockhoppersTags {
 
@@ -22,6 +26,10 @@ public class RockhoppersTags {
     public static class BiomeTags {
         public static final TagKey<Biome> ROCKHOPPER_PENGUIN_SPAWN_BIOMES = TagKey.create(Registries.BIOME, RapscallionsAndRockhoppers.asResource("rockhopper_penguin_spawn_biomes"));
         public static final TagKey<Biome> CHINSTRAP_PENGUIN_SPAWN_BIOMES = TagKey.create(Registries.BIOME, RapscallionsAndRockhoppers.asResource("chinstrap_penguin_spawn_biomes"));
+    }
+
+    public static class EntityTypeTags {
+        public static final TagKey<EntityType<?>> PENGUIN_ALWAYS_HOSTILES = TagKey.create(Registries.ENTITY_TYPE, RapscallionsAndRockhoppers.asResource("penguin_always_hostiles"));
     }
 
 }

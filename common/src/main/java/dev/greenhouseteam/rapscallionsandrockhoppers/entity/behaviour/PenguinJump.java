@@ -26,7 +26,7 @@ public class PenguinJump extends ExtendedBehaviour<Penguin> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, Penguin penguin) {
-        if (penguin.getTimeAllowedToWaterJump() > penguin.tickCount) {
+        if (penguin.getTimeAllowedToWaterJump() < penguin.tickCount) {
             return false;
         }
 
@@ -94,7 +94,7 @@ public class PenguinJump extends ExtendedBehaviour<Penguin> {
             penguin.setXRot(Mth.rotLerp(0.2F, penguin.getXRot(), 0.0F));
         } else if (movement.length() > 1.0E-5F) {
             double horizontalDistance = movement.horizontalDistance();
-            double atan2 = Math.atan2(-movement.y, horizontalDistance) * 180.0F / (float)Math.PI;
+            double atan2 = Math.atan2(-movement.y, horizontalDistance) * 180.0F / Mth.HALF_PI;
             penguin.setXRot((float)atan2);
         }
     }
