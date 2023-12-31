@@ -9,6 +9,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.SensorType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.PredicateSensor;
@@ -35,7 +36,7 @@ public class BoatToFollowSensor extends PredicateSensor<Boat, Penguin> {
 
     @Override
     public List<MemoryModuleType<?>> memoriesUsed() {
-        return List.of(RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW);
+        return List.of(RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER);
     }
 
     public BoatToFollowSensor setRadius(double radius) {
@@ -62,7 +63,7 @@ public class BoatToFollowSensor extends PredicateSensor<Boat, Penguin> {
         }
 
         if (penguin.getBoatToFollow() == null && penguin.getTimeAllowedToFollowBoat() < penguin.tickCount && !penguin.isBaby()) {
-            Optional<Boat> boat = EntityRetrievalUtil.<Boat>getEntities(level, radius.inflateAABB(penguin.getBoundingBox()), obj -> obj instanceof Boat b && ((BoatAccessor)b).rapscallionsandrockhoppers$getStatus().equals(Boat.Status.IN_WATER) && b.hasControllingPassenger() && IRockhoppersPlatformHelper.INSTANCE.getBoatData(b).penguinCount() < 3).stream().min(Comparator.comparingInt(b -> IRockhoppersPlatformHelper.INSTANCE.getBoatData(b).penguinCount()));
+            Optional<Boat> boat = EntityRetrievalUtil.<Boat>getEntities(level, radius.inflateAABB(penguin.getBoundingBox()), obj -> obj instanceof Boat b && ((BoatAccessor)b).rapscallionsandrockhoppers$getStatus() != null && ((BoatAccessor)b).rapscallionsandrockhoppers$getStatus().equals(Boat.Status.IN_WATER) && b.hasControllingPassenger() && IRockhoppersPlatformHelper.INSTANCE.getBoatData(b).penguinCount() < 3).stream().min(Comparator.comparingInt(b -> IRockhoppersPlatformHelper.INSTANCE.getBoatData(b).penguinCount()));
             if (boat.isPresent()) {
                 penguin.setBoatToFollow(boat.get().getUUID());
                 if (this.updatePenguinRadius != null) {
@@ -77,8 +78,12 @@ public class BoatToFollowSensor extends PredicateSensor<Boat, Penguin> {
             }
         } else if (BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW)) {
             Boat boat = penguin.getBoatToFollow();
+            if (boat != null && boat.getControllingPassenger() instanceof Player) {
+                BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER, boat.getControllingPassenger().getUUID());
+            }
             if (boat == null || boat.isRemoved()) {
                 penguin.setBoatToFollow(null);
+                BrainUtils.clearMemory(penguin, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER);
             }
         }
     }

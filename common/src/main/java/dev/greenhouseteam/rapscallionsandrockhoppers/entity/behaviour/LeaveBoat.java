@@ -28,21 +28,22 @@ public class LeaveBoat extends ExtendedBehaviour<Penguin> {
 
     @Override
     public boolean checkExtraStartConditions(ServerLevel level, Penguin penguin) {
-        if (penguin.getBoatToFollow() == null || penguin.tickCount < BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) && penguin.getBoatToFollow().distanceTo(penguin) < 32.0) {
+        if (penguin.tickCount < BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) && penguin.getBoatToFollow().distanceTo(penguin) < 128.0) {
             return false;
         }
 
-        this.leavingBoatPos = penguin.getBoatToFollow().position();
+        this.leavingBoatPos = penguin.getBoatToFollow() == null ? penguin.position() : penguin.getBoatToFollow().position();
         return true;
     }
 
     @Override
     public boolean shouldKeepRunning(Penguin penguin) {
-        return penguin.distanceTo(penguin.getBoatToFollow()) < 12.0;
+        return penguin.distanceToSqr(this.leavingBoatPos) < 64.0 * 64.0;
     }
 
     @Override
     protected void start(Penguin penguin) {
+        BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW, null);
         Vec3 posAway = DefaultRandomPos.getPosAway(penguin, 14, 8, leavingBoatPos);
         if (posAway != null) {
             BrainUtils.setMemory(penguin, MemoryModuleType.WALK_TARGET, new WalkTarget(posAway, 1.0F, 0));
@@ -52,9 +53,8 @@ public class LeaveBoat extends ExtendedBehaviour<Penguin> {
     @Override
     protected void stop(Penguin penguin) {
         this.leavingBoatPos = null;
-        if (penguin.distanceTo(penguin.getBoatToFollow()) >= 12.0) {
+        if (penguin.distanceTo(penguin.getBoatToFollow()) >= 64.0) {
             penguin.returnToHome();
-            BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW, null);
         }
     }
 }

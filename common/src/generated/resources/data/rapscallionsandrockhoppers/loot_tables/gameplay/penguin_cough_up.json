@@ -1,0 +1,58 @@
+{
+  "type": "minecraft:gift",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "rapscallionsandrockhoppers:fish_bones"
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "name": "minecraft:gameplay/fishing/junk",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:loot_table",
+          "name": "rapscallionsandrockhoppers:gameplay/penguin_cough_up_ink_sac",
+          "weight": 15
+        },
+        {
+          "type": "minecraft:loot_table",
+          "name": "rapscallionsandrockhoppers:gameplay/penguin_cough_up_rocks",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "enchantments": [
+                "minecraft:depth_strider"
+              ],
+              "function": "minecraft:enchant_randomly"
+            }
+          ],
+          "name": "minecraft:book",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:nautilus_shell",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:name_tag"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ]
+}

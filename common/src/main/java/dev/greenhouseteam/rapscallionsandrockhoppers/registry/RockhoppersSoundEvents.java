@@ -7,6 +7,7 @@ import net.minecraft.sounds.SoundEvent;
 
 public class RockhoppersSoundEvents {
     public static final SoundEvent PENGUIN_AMBIENT = SoundEvent.createVariableRangeEvent(RapscallionsAndRockhoppers.asResource("entity.penguin.ambient"));
+    public static final SoundEvent PENGUIN_COUGH = SoundEvent.createVariableRangeEvent(RapscallionsAndRockhoppers.asResource("entity.penguin.cough"));
     public static final SoundEvent PENGUIN_DEATH = SoundEvent.createVariableRangeEvent(RapscallionsAndRockhoppers.asResource("entity.penguin.death"));
     public static final SoundEvent PENGUIN_HURT = SoundEvent.createVariableRangeEvent(RapscallionsAndRockhoppers.asResource("entity.penguin.hurt"));
     public static final SoundEvent PENGUIN_JUMP = SoundEvent.createVariableRangeEvent(RapscallionsAndRockhoppers.asResource("entity.penguin.jump"));

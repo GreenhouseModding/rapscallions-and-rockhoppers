@@ -35,7 +35,7 @@ public class PenguinHomeSensor extends ExtendedSensor<Penguin> {
             this.hasBeenSetUp = true;
         }
 
-        if (!BrainUtils.hasMemory(penguin, MemoryModuleType.HOME)) {
+        if (!BrainUtils.hasMemory(penguin, MemoryModuleType.HOME) && !BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW)) {
             BrainUtils.setMemory(penguin, MemoryModuleType.HOME, getInitialHomePos(penguin));
             return;
         }

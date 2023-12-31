@@ -21,6 +21,12 @@
     ],
     "subtitle": "subtitles.rapscallionsandrockhoppers.entity.penguin.hurt"
   },
+  "entity.penguin.cough": {
+    "sounds": [
+      "rapscallionsandrockhoppers:mob/penguin/cough"
+    ],
+    "subtitle": "subtitles.rapscallionsandrockhoppers.entity.penguin.cough"
+  },
   "entity.penguin.jump": {
     "sounds": [
       "mob/dolphin/jump1",

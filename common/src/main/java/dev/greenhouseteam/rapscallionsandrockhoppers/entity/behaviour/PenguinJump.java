@@ -26,7 +26,7 @@ public class PenguinJump extends ExtendedBehaviour<Penguin> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, Penguin penguin) {
-        if (penguin.getTimeAllowedToWaterJump() < penguin.tickCount) {
+        if (penguin.getTimeAllowedToWaterJump() > penguin.tickCount) {
             return false;
         }
 
@@ -73,7 +73,7 @@ public class PenguinJump extends ExtendedBehaviour<Penguin> {
     protected void stop(Penguin penguin) {
         this.breached = false;
         penguin.setXRot(0.0F);
-        penguin.setTimeAllowedToWaterJump(Optional.of(penguin.tickCount + Mth.randomBetweenInclusive(penguin.getRandom(), 200, 400)));
+        penguin.setTimeAllowedToWaterJump(Optional.of(penguin.tickCount + Mth.randomBetweenInclusive(penguin.getRandom(), 400, 600)));
         BrainUtils.clearMemories(penguin, RockhoppersMemoryModuleTypes.IS_JUMPING);
     }
 

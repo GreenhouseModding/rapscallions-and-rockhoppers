@@ -15,6 +15,9 @@ import java.util.UUID;
 
 public class RockhoppersMemoryModuleTypes {
     public static final MemoryModuleType<UUID> BOAT_TO_FOLLOW = createEmpty();
+    public static final MemoryModuleType<UUID> LAST_FOLLOWING_BOAT_CONTROLLER = createEmpty();
+    public static final MemoryModuleType<UUID> PLAYER_TO_COUGH_FOR = createEmpty();
+    public static final MemoryModuleType<Integer> FISH_EATEN = createEmpty();
     public static final MemoryModuleType<Integer> HUNGRY_TIME = createEmpty();
     public static final MemoryModuleType<Penguin> NEAREST_VISIBLE_SHOVEABLE = createEmpty();
     public static final MemoryModuleType<BlockPos> NEAREST_WATER = createEmpty();
@@ -27,6 +30,9 @@ public class RockhoppersMemoryModuleTypes {
 
     public static void registerMemoryModuleTypes(RegisterFunction<MemoryModuleType<?>> function) {
         function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("boat_to_follow"), BOAT_TO_FOLLOW);
+        function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("last_following_boat_controller"), LAST_FOLLOWING_BOAT_CONTROLLER);
+        function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("player_to_cough_for"), PLAYER_TO_COUGH_FOR);
+        function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("fish_eaten"), FISH_EATEN);
         function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("hungry_time"), HUNGRY_TIME);
         function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("nearest_visible_shoveable"), NEAREST_VISIBLE_SHOVEABLE);
         function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("nearest_water"), NEAREST_WATER);
