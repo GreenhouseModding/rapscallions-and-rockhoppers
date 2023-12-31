@@ -15,16 +15,27 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class PenguinEggBlock extends Block implements EntityBlock {
     private static final VoxelShape SHAPE = Block.box(5.0, 0.0, 5.0, 11.0, 8.0, 11.0);
+    private static final VoxelShape PENGUIN_SHAPE = Block.box(5.0, 0.0, 5.0, 11.0, 4.0, 11.0);
     public static final IntegerProperty HATCH = BlockStateProperties.HATCH;
 
     public PenguinEggBlock(Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any().setValue(HATCH, 0));
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
+        if (collisionContext instanceof EntityCollisionContext entityCollisionContext && entityCollisionContext.getEntity() instanceof Penguin) {
+            return this.hasCollision ? PENGUIN_SHAPE : Shapes.empty();
+        }
+        return this.hasCollision ? state.getShape(blockGetter, blockPos) : Shapes.empty();
     }
 
     @Override
