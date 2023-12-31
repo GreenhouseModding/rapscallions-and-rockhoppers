@@ -2,26 +2,12 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.entity;
 
 import com.mojang.datafixers.util.Pair;
 import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.BreatheAir;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.PenguinJump;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.PenguinShove;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.PenguinStumble;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.FollowBoat;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.StayWithinHome;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.SetRandomSwimTarget;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.BoatToFollowSensor;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.NearbyPufferfishSensor;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.NearbyShoveableSensor;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.NearbyWaterSensor;
-import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.PenguinHomeSensor;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.*;
+import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.mixin.LevelAccessor;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.InvalidateCachedPenguinTypePacket;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersActivities;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersBlocks;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersTags;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.WeightedHolderSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -40,24 +26,13 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.ConstantFloat;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.AnimationState;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
@@ -78,7 +53,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
@@ -97,22 +71,12 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetPlayerLookTar
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetRandomLookTarget;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.custom.NearbyBlocksSensor;
-import net.tslat.smartbrainlib.api.core.sensor.vanilla.HurtBySensor;
-import net.tslat.smartbrainlib.api.core.sensor.vanilla.InWaterSensor;
-import net.tslat.smartbrainlib.api.core.sensor.vanilla.ItemTemptingSensor;
-import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyAdultSensor;
-import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyLivingEntitySensor;
-import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyPlayersSensor;
-import net.tslat.smartbrainlib.registry.SBLMemoryTypes;
+import net.tslat.smartbrainlib.api.core.sensor.vanilla.*;
 import net.tslat.smartbrainlib.util.BrainUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     public static final int STUMBLE_ANIMATION_LENGTH = 40;
@@ -238,7 +202,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 new NearbyPufferfishSensor(),
                 new ItemTemptingSensor<Penguin>().temptedWith((entity, stack) -> TEMPTATION_ITEM.test(stack)),
                 new InWaterSensor<Penguin>().setPredicate((entity, entity2) -> entity.isInWater() || BrainUtils.hasMemory(entity, RockhoppersMemoryModuleTypes.IS_JUMPING)),
-                new HurtBySensor<>()
+                new HurtBySensor<>(),
+                new NearbyEggSensor()
         );
     }
 
@@ -257,6 +222,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 new BreedWithPartner<>(),
                 new SetPlayerLookTarget<>(),
                 new SetRandomLookTarget<>().lookChance(ConstantFloat.of(0.6F)),
+                new PenguinSitEgg().startCondition(penguin -> !penguin.isBaby()).runFor((penguin -> penguin.random.nextInt(3600, 9000))).cooldownFor(penguin -> 1000), // Between 180 and 450 seconds
                 new StayWithinHome().setRadius(5).startCondition(penguin -> !penguin.isStumbling() && penguin.getBoatToFollow() == null),
                 new PenguinShove(),
                 new PenguinStumble(),
