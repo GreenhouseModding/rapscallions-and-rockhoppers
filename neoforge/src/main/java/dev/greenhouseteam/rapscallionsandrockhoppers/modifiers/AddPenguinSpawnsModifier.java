@@ -17,7 +17,7 @@ import java.util.List;
 public record AddPenguinSpawnsModifier(List<MobSpawnSettings.SpawnerData> spawners) implements BiomeModifier {
     @Override
     public void modify(Holder<Biome> biome, BiomeModifier.Phase phase, ModifiableBiomeInfo.BiomeInfo.Builder builder) {
-        if (RapscallionsAndRockhoppers.getCachedPenguinTypeRegistry().stream().anyMatch(penguinType -> penguinType.spawnBiomes().stream().anyMatch(holderSet -> holderSet.holders().contains(biome)))) {
+        if (RapscallionsAndRockhoppers.getBiomePopulationPenguinTypeRegistry().stream().anyMatch(penguinType -> penguinType.spawnBiomes().stream().anyMatch(holderSet -> holderSet.holders().contains(biome)))) {
             if (phase == Phase.ADD) {
                 MobSpawnSettingsBuilder spawns = builder.getMobSpawnSettings();
                 for (MobSpawnSettings.SpawnerData spawner : this.spawners) {

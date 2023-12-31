@@ -26,7 +26,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("dev.greenhouseteam.rdpr:rdpr-common-mojmap:${rdpr_version}:api")
+    compileOnly("dev.greenhouseteam.rdpr:rdpr-common-mojmap:${rdpr_version}+${minecraft_version}:api")
     compileOnly("net.tslat.smartbrainlib:SmartBrainLib-common-${minecraft_version}:${sbl_version}")
 
     annotationProcessor(compileOnly("io.github.llamalad7:mixinextras-common:${mixin_extras_version}"))

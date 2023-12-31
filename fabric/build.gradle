@@ -35,8 +35,8 @@ dependencies {
     annotationProcessor group:'com.google.auto.service', name:'auto-service', version:'1.0.1'
 
     // TODO: Fabric API JAR does not allow compiling, fix that.
-    // modCompileOnlyApi("dev.greenhouseteam.rdpr:rdpr-fabric:${rdpr_version}:api")
-    modImplementation(include("dev.greenhouseteam.rdpr:rdpr-fabric:${rdpr_version}"))
+    // modCompileOnlyApi("dev.greenhouseteam.rdpr:rdpr-fabric:${rdpr_version}+${minecraft_version}:api")
+    modImplementation(include("dev.greenhouseteam.rdpr:rdpr-fabric:${rdpr_version}+${minecraft_version}"))
 
     modImplementation(include("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${cca_version}"))
     modImplementation(include("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${cca_version}"))

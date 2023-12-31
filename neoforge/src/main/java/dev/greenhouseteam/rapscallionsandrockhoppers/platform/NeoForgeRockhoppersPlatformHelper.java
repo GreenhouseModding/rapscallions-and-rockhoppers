@@ -2,12 +2,14 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.platform;
 
 import com.google.auto.service.AutoService;
 import dev.greenhouseteam.rapscallionsandrockhoppers.componability.IBoatData;
+import dev.greenhouseteam.rapscallionsandrockhoppers.componability.IPlayerData;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.RockhoppersPacketHandler;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.RapscallionsAndRockhoppersPacketS2C;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersCapabilities;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLLoader;
@@ -42,6 +44,11 @@ public class NeoForgeRockhoppersPlatformHelper implements IRockhoppersPlatformHe
     @Override
     public IBoatData getBoatData(Boat boat) {
         return boat.getCapability(RockhoppersCapabilities.BOAT_DATA);
+    }
+
+    @Override
+    public IPlayerData getPlayerData(Player player) {
+        return player.getCapability(RockhoppersCapabilities.PLAYER_DATA);
     }
 
     @Override
