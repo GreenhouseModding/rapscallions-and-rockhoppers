@@ -778,12 +778,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         return BREED_ITEM.test(stack);
     }
 
-    private boolean isActivelySwimming() {
-        return (this.getDeltaMovement().horizontalDistanceSqr() > 0.02F || Mth.abs((float) this.getDeltaMovement().y()) > 0.02F);
-    }
-
     public void refreshDimensionsIfShould() {
-        if (this.isInWaterOrBubble() && this.previousWaterMovementValue ^ this.isActivelySwimming()) {
+        if (this.isInWaterOrBubble() && this.previousWaterMovementValue ^ this.getPose() == Pose.SWIMMING) {
             this.previousWaterMovementValue = !this.previousWaterMovementValue;
             this.refreshDimensions();
         } else if (this.isStumbling() && this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE && (this.getStumbleTicks() == STUMBLE_ANIMATION_LENGTH + 2 || this.getStumbleTicks() == this.getStumbleTicksBeforeGettingUp() + 5)) {
@@ -832,7 +828,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     public EntityDimensions getDimensions(Pose pose) {
         if (this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE && this.getStumbleTicks() >= STUMBLE_ANIMATION_LENGTH + 2 && this.getStumbleTicks() < this.getStumbleTicksBeforeGettingUp() + 5) {
             return super.getDimensions(pose).scale(1.33F, 0.5F);
-        } else if (this.getPose() == Pose.SWIMMING && this.isActivelySwimming()) {
+        } else if (this.getPose() == Pose.SWIMMING) {
             return super.getDimensions(pose).scale(1.28333F, 0.7F);
         }
         return super.getDimensions(pose);
