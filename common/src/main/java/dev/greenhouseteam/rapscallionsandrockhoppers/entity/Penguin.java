@@ -48,9 +48,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -95,7 +93,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     private static final EntityDataAccessor<Integer> DATA_SHOVE_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> DATA_STUMBLE_CHANCE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> DATA_SHOVE_CHANCE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.FLOAT);
-
+    private static final EntityDataAccessor<String> DATA_EGG = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.STRING);
     private boolean hasLoggedMissingError = false;
     private PenguinType cachedPenguinType = null;
 
@@ -150,6 +148,9 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         if (!this.getEntityData().get(DATA_PREVIOUS_TYPE).isEmpty()) {
             compoundTag.putString("type", this.getEntityData().get(DATA_PREVIOUS_TYPE));
         }
+        if (!this.getEntityData().get(DATA_EGG).isEmpty()) {
+            compoundTag.putString("egg", this.getEntityData().get(DATA_EGG));
+        }
     }
 
     @Override
@@ -173,6 +174,11 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         if (compoundTag.contains("type")) {
             ResourceLocation typeKey = new ResourceLocation(compoundTag.getString("type"));
             this.setPenguinType(typeKey);
+        }
+        if (compoundTag.contains("egg")) {
+            if (ResourceLocation.isValidResourceLocation(compoundTag.getString("egg"))) {
+                setEggPenguinType(compoundTag.getString("egg"));
+            }
         }
     }
 
@@ -323,6 +329,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         this.getEntityData().define(DATA_SHOVE_CHANCE, 0.0F);
         this.getEntityData().define(DATA_SHOVE_TICKS, Integer.MIN_VALUE);
         this.getEntityData().define(DATA_SHOCKED_TIME, 0);
+        this.getEntityData().define(DATA_EGG, "");
     }
 
     @Override
@@ -366,6 +373,16 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 } else {
                     int previousValue = this.getShoveTicks();
                     this.setShoveTicks(previousValue - 1);
+                }
+            }
+
+            if (this.hasEgg() && this.onGround() && !isStumbling() && this.getPose() == Pose.STANDING) {
+                if (level().getBlockState(this.blockPosition()).isAir() && getBlockStateOn().isFaceSturdy(level(), this.blockPosition(), this.getDirection())) {
+                    this.level().setBlockAndUpdate(this.blockPosition(), RockhoppersBlocks.PENGUIN_EGG.defaultBlockState());
+                    if (this.level().getBlockEntity(this.blockPosition()) instanceof PenguinEggBlockEntity penguinEggBlockEntity) {
+                        penguinEggBlockEntity.setPenguinType(this.getEggType());
+                    }
+                    this.setEggPenguinType("");
                 }
             }
         } else {
@@ -573,18 +590,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             this.resetLove();
             animal.resetLove();
         } else {
-            BlockPos blockPos = this.blockPosition();
-            BlockState blockstate = this.level().getBlockState(blockPos);
-
-            // TODO: Make Penguin spawn egg upon finding a loose block.
-            if (blockstate.isAir()) {
-                this.level().setBlockAndUpdate(blockPos, RockhoppersBlocks.PENGUIN_EGG.defaultBlockState());
-                if (this.level().getBlockEntity(blockPos) instanceof PenguinEggBlockEntity penguinEggBlockEntity) {
-                    penguinEggBlockEntity.setTypeFromParents(this, (Penguin) animal);
-                }
-                this.level().levelEvent(2001, blockPos, Block.getId(this.level().getBlockState(blockPos)));
-            }
-
+            var pickedEggType = this.random.nextBoolean() ? this.getTrueType() : ((Penguin) animal).getTrueType();
+            this.setEggPenguinType(pickedEggType.toString());;
             this.finalizeSpawnChildFromBreeding(level, animal, null);
         }
     }
@@ -911,6 +918,18 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
     public boolean isGettingUp() {
         return this.isStumbling() && this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE && this.getStumbleTicks() > STUMBLE_ANIMATION_LENGTH + this.getStumbleTicksBeforeGettingUp();
+    }
+
+
+    public void setEggPenguinType(String eggPenguinType) {
+        this.getEntityData().set(DATA_EGG, eggPenguinType);
+    }
+    public boolean hasEgg() {
+        return !this.getEntityData().get(DATA_EGG).isEmpty();
+    }
+
+    public ResourceLocation getEggType() {
+        return new ResourceLocation(this.getEntityData().get(DATA_EGG));
     }
 
     /**
