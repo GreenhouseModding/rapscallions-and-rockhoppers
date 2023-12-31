@@ -5,7 +5,6 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersBlocks;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSensorTypes;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.SensorType;
@@ -43,7 +42,6 @@ public class NearbyEggSensor extends ExtendedSensor<Penguin> {
             for (BlockPos eggBlockPos : BlockPos.betweenClosed(firstPos, lastPos)) {
                 if (level.getBlockState(eggBlockPos).is(RockhoppersBlocks.PENGUIN_EGG)) {
                     if (penguinsInArea.stream().noneMatch(otherPenguin -> otherPenguin.blockPosition().distSqr(eggBlockPos) < 1)) {
-                        level.getPlayers((player) -> true).get(0).sendSystemMessage(Component.literal("Found egg at " + eggBlockPos.getX() + ", " + eggBlockPos.getY() + ", " + eggBlockPos.getZ()));
                         penguin.getBrain().setMemory(RockhoppersMemoryModuleTypes.EGG_POS, eggBlockPos);
                         return;
                     }
