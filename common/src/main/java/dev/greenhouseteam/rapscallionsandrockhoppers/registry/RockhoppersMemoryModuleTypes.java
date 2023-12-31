@@ -7,8 +7,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.animal.Pufferfish;
+import net.minecraft.world.entity.projectile.FishingHook;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,6 +23,7 @@ public class RockhoppersMemoryModuleTypes {
     public static final MemoryModuleType<Integer> TIME_ALLOWED_TO_FOLLOW_BOAT = createEmpty();
     public static final MemoryModuleType<Integer> TIME_ALLOWED_TO_WATER_JUMP = createEmpty();
     public static final MemoryModuleType<BlockPos> EGG_POS = createEmpty();
+    public static final MemoryModuleType<List<FishingHook>> NEAREST_BOBBERS = createEmpty();
 
     public static void registerMemoryModuleTypes(RegisterFunction<MemoryModuleType<?>> function) {
         function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("boat_to_follow"), BOAT_TO_FOLLOW);
@@ -32,6 +34,8 @@ public class RockhoppersMemoryModuleTypes {
         function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("time_allowed_to_follow_boat"), TIME_ALLOWED_TO_FOLLOW_BOAT);
         function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("time_allowed_to_water_jump"), TIME_ALLOWED_TO_WATER_JUMP);
         function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("is_jumping"), IS_JUMPING);
+        function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("egg_pos"), EGG_POS);
+        function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("nearest_bobbers"), NEAREST_BOBBERS);
     }
 
     private static <T> MemoryModuleType<T> createEmpty() {
