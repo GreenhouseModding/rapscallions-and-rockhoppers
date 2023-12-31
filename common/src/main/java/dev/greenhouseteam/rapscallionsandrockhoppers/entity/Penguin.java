@@ -498,7 +498,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     }
 
     public static boolean checkPenguinSpawnRules(EntityType<? extends Penguin> entityType, net.minecraft.world.level.LevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {
-        return Animal.isBrightEnoughToSpawn(level, pos);
+        return getTotalSpawnWeight(level, pos) > 0 && Animal.isBrightEnoughToSpawn(level, pos);
     }
 
 
