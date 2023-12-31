@@ -37,7 +37,7 @@ dependencies {
 
     // TODO: Fabric API JAR does not allow compiling, fix that.
     // modCompileOnlyApi("dev.greenhouseteam.rdpr:rdpr-fabric:${rdpr_version}+${minecraft_version}:api")
-    modImplementation(include("dev.greenhouseteam.rdpr:rdpr-fabric:${rdpr_version}+${minecraft_version}"))
+    api(include("dev.greenhouseteam.rdpr:rdpr-fabric:${rdpr_version}+${minecraft_version}"))
 
     modImplementation(include("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${cca_version}"))
     modImplementation(include("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${cca_version}"))
@@ -99,7 +99,16 @@ publishing {
     }
     repositories {
         maven {
-            url "file://" + System.getenv("local_maven")
+            name = "merchantpug"
+            url = "https://maven.merchantpug.net/releases"
+            credentials {
+                username System.getenv('MAVEN_USERNAME')
+                password System.getenv('MAVEN_PASSWORD')
+            }
+            authentication {
+                create("basic", BasicAuthentication)
+            }
         }
+        mavenLocal()
     }
 }
