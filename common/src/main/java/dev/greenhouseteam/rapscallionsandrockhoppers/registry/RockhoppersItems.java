@@ -26,8 +26,12 @@ public class RockhoppersItems {
         function.register(BuiltInRegistries.ITEM, RapscallionsAndRockhoppers.asResource("fish_bones"), FISH_BONES);
     }
 
-    public static void addAfterToolsAndUtilitiesTab(BiConsumer<ItemStack, ItemStack> consumer) {
-        consumer.accept(new ItemStack(Items.LEAD), new ItemStack(BOAT_HOOK));
+    public static void addBeforeToolsAndUtilitiesTab(BiConsumer<ItemStack, ItemStack> consumer) {
+        consumer.accept(new ItemStack(Items.RAIL), new ItemStack(BOAT_HOOK));
+    }
+
+    public static void addAfterIngredientsTab(BiConsumer<ItemStack, ItemStack> consumer) {
+        consumer.accept(new ItemStack(Items.BONE_MEAL), new ItemStack(FISH_BONES));
     }
 
     public static void addAfterNaturalBlocksTab(BiConsumer<ItemStack, ItemStack> consumer) {

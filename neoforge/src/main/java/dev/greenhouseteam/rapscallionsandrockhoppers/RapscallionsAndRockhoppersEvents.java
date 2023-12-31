@@ -138,10 +138,12 @@ public class RapscallionsAndRockhoppersEvents {
 
         @SubscribeEvent
         public static void onCreativeModeTabBuild(BuildCreativeModeTabContentsEvent event) {
-            if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
-                RockhoppersItems.addAfterToolsAndUtilitiesTab((stack, itemLike) -> event.getEntries().putAfter(itemLike, stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
+            if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
+              RockhoppersItems.addAfterIngredientsTab((stack, stack2) -> event.getEntries().putAfter(stack2, stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
+            } else if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+                RockhoppersItems.addBeforeToolsAndUtilitiesTab((stack, stack2) -> event.getEntries().putBefore(stack2, stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
             } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
-                RockhoppersItems.addAfterNaturalBlocksTab((stack, itemLike) -> event.getEntries().putAfter(itemLike, stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
+                RockhoppersItems.addAfterNaturalBlocksTab((stack, stack2) -> event.getEntries().putAfter(stack2, stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
             } else if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
                 RockhoppersItems.addSpawnEggsTab(event::accept);
             }

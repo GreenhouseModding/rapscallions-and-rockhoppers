@@ -75,7 +75,8 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
 
         RockhoppersEntityTypes.createMobAttributes(FabricDefaultAttributeRegistry::register);
 
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> RockhoppersItems.addAfterToolsAndUtilitiesTab(entries::addAfter));
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS).register(entries -> RockhoppersItems.addAfterIngredientsTab(entries::addAfter));
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> RockhoppersItems.addBeforeToolsAndUtilitiesTab(entries::addBefore));
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.NATURAL_BLOCKS).register(entries -> RockhoppersItems.addAfterNaturalBlocksTab(entries::addAfter));
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.SPAWN_EGGS).register(entries -> RockhoppersItems.addSpawnEggsTab(entries::accept));
     }
