@@ -18,7 +18,7 @@
         "issues": "https://github.com/GreenhouseTeam/rapscallions-and-rockhoppers/issues"
     },
     "license": "${license}",
-    "icon": "assets/${mod_id}/${mod_id}.png",
+    "icon": "assets/${mod_id}/icon.png",
     "environment": "*",
     "entrypoints": {
         "main": [
