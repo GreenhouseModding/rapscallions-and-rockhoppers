@@ -20,6 +20,10 @@ import java.util.Optional;
 public class BreatheAir extends ExtendedBehaviour<Penguin> {
     private Vec3 targetPos;
 
+    public BreatheAir() {
+        this.runFor(penguin -> 140);
+    }
+
     @Override
     protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
         return List.of(Pair.of(SBLMemoryTypes.NEARBY_BLOCKS.get(), MemoryStatus.VALUE_PRESENT));

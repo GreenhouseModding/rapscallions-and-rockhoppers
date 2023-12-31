@@ -42,13 +42,13 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Pufferfish;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -62,10 +62,10 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.look.LookAtTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.BreedWithPartner;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Idle;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Panic;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.move.AvoidEntity;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowTemptation;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomWalkTarget;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToBlock;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetPlayerLookTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetRandomLookTarget;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
@@ -204,8 +204,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 new NearbyLivingEntitySensor<Penguin>().setRadius(16.0F),
                 new NearbyPlayersSensor<Penguin>().setRadius(16.0F),
                 new NearbyAdultSensor<>(),
-                new NearbyWaterSensor().setXZRadius(4).setYRadius(4),
-                new NearbyPufferfishSensor(),
+                new NearbyWaterSensor().setXZRadius(8).setYRadius(4),
                 new ItemTemptingSensor<Penguin>().temptedWith((entity, stack) -> TEMPTATION_ITEM.test(stack)),
                 new InWaterSensor<Penguin>().setPredicate((entity, entity2) -> entity.isInWater() || BrainUtils.hasMemory(entity, RockhoppersMemoryModuleTypes.IS_JUMPING)),
                 new HurtBySensor<>(),
@@ -253,6 +252,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                 new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
                                 new BreedWithPartner<>(),
                                 new StayWithinHome().setRadius(8),
+                                new AvoidEntity<>().avoiding(entity -> entity instanceof Pufferfish),
                                 new FirstApplicableBehaviour<>(
                                         new FollowTemptation<>(),
                                         new PenguinJump(),
@@ -263,14 +263,15 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 RockhoppersActivities.FOLLOW_BOAT, new BrainActivityGroup<Penguin>(RockhoppersActivities.FOLLOW_BOAT)
                         .priority(10)
                         .behaviours(
-                                new SetWalkTargetToBlock<>().closeEnoughWhen((mob, blockPosBlockStatePair) -> 0).predicate((mob, pair) -> (pair.getSecond().getFluidState().isEmpty() && pair.getSecond().isPathfindable(mob.level(), pair.getFirst(), PathComputationType.LAND)  || pair.getSecond().is(Blocks.BUBBLE_COLUMN)) || pair.getFirst() == mob.blockPosition().above(8)).startCondition(mob -> mob.getAirSupply() < 140),
+                                new BreatheAir(),
                                 new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
                                 new BreedWithPartner<>(),
+                                new AvoidEntity<>().avoiding(entity -> entity instanceof Pufferfish),
                                 new FollowBoat().untilDistance(2.0F),
                                 new FirstApplicableBehaviour<>(
                                         new FollowTemptation<>(),
                                         new PenguinJump(),
-                                        new SetRandomSwimTarget().setRadius(8.0F, 6.0F)
+                                        new SetRandomSwimTarget().setRadius(8.0F, 6.0F).startCondition(penguin -> penguin.getBoatToFollow().getDeltaMovement().horizontalDistanceSqr() < 0.05)
                                 )
                         ).onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT)
                         .onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW, MemoryStatus.VALUE_PRESENT)

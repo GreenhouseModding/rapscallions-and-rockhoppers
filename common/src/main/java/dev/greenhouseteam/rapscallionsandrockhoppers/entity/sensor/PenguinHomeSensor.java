@@ -76,6 +76,6 @@ public class PenguinHomeSensor extends ExtendedSensor<Penguin> {
 
     @Override
     public SensorType<? extends ExtendedSensor<?>> type() {
-        return RockhoppersSensorTypes.NEARBY_PUFFERFISH;
+        return RockhoppersSensorTypes.PENGUIN_HOME;
     }
 }
