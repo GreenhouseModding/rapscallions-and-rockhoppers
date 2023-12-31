@@ -147,10 +147,13 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             compoundTag.putUUID("boat_to_follow", BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW));
         }
         if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_FOLLOW_BOAT)) {
-            compoundTag.putInt("boat_follow_cooldown", BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_FOLLOW_BOAT));
+            compoundTag.putInt("time_allowed_to_follow_boat", BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_FOLLOW_BOAT));
         }
         if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_WATER_JUMP)) {
-            compoundTag.putInt("water_jump_cooldown", BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_WATER_JUMP));
+            compoundTag.putInt("time_allowed_to_water_jump", BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_WATER_JUMP));
+        }
+        if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT)) {
+            compoundTag.putInt("time_allowed_to_eat", BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT));
         }
         if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.HUNGRY_TIME)) {
             compoundTag.putInt("hungry_time", BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.HUNGRY_TIME));
@@ -174,10 +177,12 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         this.setBoatToFollow(null);
         if (compoundTag.contains("boat_to_follow", CompoundTag.TAG_INT_ARRAY))
             this.setBoatToFollow(compoundTag.getUUID("boat_to_follow"));
-        if (compoundTag.contains("boat_follow_cooldown", CompoundTag.TAG_INT))
-            this.setTimeAllowedToFollowBoat(integerOptional(compoundTag.getInt("boat_follow_cooldown")));
-        if (compoundTag.contains("water_jump_cooldown", CompoundTag.TAG_INT))
-            this.setTimeAllowedToWaterJump(integerOptional(compoundTag.getInt("water_jump_cooldown")));
+        if (compoundTag.contains("time_allowed_to_follow_boat", CompoundTag.TAG_INT))
+            this.setTimeAllowedToFollowBoat(integerOptional(compoundTag.getInt("time_allowed_to_follow_boat")));
+        if (compoundTag.contains("time_allowed_to_water_jump", CompoundTag.TAG_INT))
+            this.setTimeAllowedToWaterJump(integerOptional(compoundTag.getInt("time_allowed_to_water_jump")));
+        if (compoundTag.contains("time_allowed_to_eat", CompoundTag.TAG_INT))
+            this.setTimeAllowedToEat(integerOptional(compoundTag.getInt("time_allowed_to_eat")));
         if (compoundTag.contains("hungry_time", CompoundTag.TAG_INT))
             this.setHungryTime(integerOptional(compoundTag.getInt("hungry_time")));
 
@@ -290,14 +295,14 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                         return false;
                                     }
 
-                                    if (penguin.getBoatToFollow() != null && penguin.tickCount > BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) - 2260) {
+                                    if (penguin.getBoatToFollow() != null && !BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT) || penguin.tickCount > BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT)) {
                                         // As boats don't have velocity on the server, we must do this.
                                         boolean bl = penguin.previousBoatPos.subtract(penguin.getBoatToFollow().position()).horizontalDistance() > 0.075;
                                         penguin.previousBoatPos = penguin.getBoatToFollow().position();
                                         return bl;
                                     }
 
-                                    return penguin.tickCount > BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) - 140;
+                                    return penguin.tickCount > BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) - 280;
                                 }),
                                 new PenguinPeck(8),
                                 new BreedWithPartner<>(),
@@ -328,6 +333,17 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             return Integer.MIN_VALUE;
         }
         return BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_WATER_JUMP);
+    }
+
+    public void setTimeAllowedToEat(Optional<Integer> eatTicks) {
+        BrainUtils.setMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT, eatTicks.orElse(null));
+    }
+
+    public int getTimeAllowedToEat() {
+        if (!BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT)) {
+            return Integer.MIN_VALUE;
+        }
+        return BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT);
     }
 
     public void setHungryTime(Optional<Integer> leaveTime) {
