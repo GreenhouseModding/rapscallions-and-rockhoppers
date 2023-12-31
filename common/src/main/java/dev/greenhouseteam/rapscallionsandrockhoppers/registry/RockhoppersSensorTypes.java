@@ -14,7 +14,7 @@ public class RockhoppersSensorTypes {
     public static final SensorType<PenguinHomeSensor> PENGUIN_HOME = new SensorType<>(PenguinHomeSensor::new);
     public static final SensorType<NearbyEggSensor> NEARBY_EGG = new SensorType<>(NearbyEggSensor::new);
     public static final SensorType<NearbyEggSensor> PENGUIN_ATTACK_TARGET = new SensorType<>(NearbyEggSensor::new);
-    public static final SensorType<NearestBobbersSensor> NEAREST_BOBBERS_SENSOR = new SensorType<>(NearestBobbersSensor::new);
+    public static final SensorType<NearbyBobbersSensor> NEAREST_BOBBERS_SENSOR = new SensorType<>(NearbyBobbersSensor::new);
 
     public static void registerSensorTypes(RegisterFunction<SensorType<?>> function) {
         function.register(BuiltInRegistries.SENSOR_TYPE, RapscallionsAndRockhoppers.asResource("boat_to_follow"), BOAT_TO_FOLLOW);

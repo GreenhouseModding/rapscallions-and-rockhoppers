@@ -27,6 +27,7 @@ public class RockhoppersMemoryModuleTypes {
     public static final MemoryModuleType<Integer> TIME_ALLOWED_TO_WATER_JUMP = createEmpty();
     public static final MemoryModuleType<BlockPos> EGG_POS = createEmpty();
     public static final MemoryModuleType<List<FishingHook>> NEAREST_BOBBERS = createEmpty();
+    public static final MemoryModuleType<FishingHook> CAUGHT_BOBBER = createEmpty();
 
     public static void registerMemoryModuleTypes(RegisterFunction<MemoryModuleType<?>> function) {
         function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("boat_to_follow"), BOAT_TO_FOLLOW);

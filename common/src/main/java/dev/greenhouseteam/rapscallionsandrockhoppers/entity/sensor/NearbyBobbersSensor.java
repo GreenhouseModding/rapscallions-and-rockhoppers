@@ -8,20 +8,24 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.projectile.FishingHook;
+import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.PredicateSensor;
 import net.tslat.smartbrainlib.object.SquareRadius;
+import net.tslat.smartbrainlib.util.BrainUtils;
 import net.tslat.smartbrainlib.util.EntityRetrievalUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.List;
 
-public class NearestBobbersSensor extends PredicateSensor<FishingHook, Penguin> {
+public class NearbyBobbersSensor extends PredicateSensor<FishingHook, Penguin> {
+
+    private Vec3 previousBoatPos;
 
     @Nullable
     protected SquareRadius radius;
-    public NearestBobbersSensor() {
+    public NearbyBobbersSensor() {
         setScanRate((penguin -> 20)); // Once a second
     }
 
@@ -30,17 +34,24 @@ public class NearestBobbersSensor extends PredicateSensor<FishingHook, Penguin> 
         return List.of(RockhoppersMemoryModuleTypes.NEAREST_BOBBERS);
     }
 
-    public NearestBobbersSensor setRadius(double radius) {
+    public NearbyBobbersSensor setRadius(double radius) {
         return setRadius(radius, radius);
     }
 
-    public NearestBobbersSensor setRadius(double xz, double y) {
+    public NearbyBobbersSensor setRadius(double xz, double y) {
         this.radius = new SquareRadius(xz, y);
         return this;
     }
 
     @Override
     protected void doTick(ServerLevel level, Penguin penguin) {
+        if (BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW) && penguin.getBoatToFollow() != null) {
+            boolean bl = previousBoatPos.subtract(penguin.getBoatToFollow().position()).horizontalDistance() > 0.075;
+            previousBoatPos = penguin.getBoatToFollow().position();
+            if (bl)
+                BrainUtils.clearMemory(penguin, RockhoppersMemoryModuleTypes.NEAREST_BOBBERS);
+        }
+
         if (radius == null) {
             double dist = penguin.getAttributeValue(Attributes.FOLLOW_RANGE);
             radius = new SquareRadius(dist, dist);
@@ -50,8 +61,6 @@ public class NearestBobbersSensor extends PredicateSensor<FishingHook, Penguin> 
         bobbers.sort(Comparator.comparingDouble(penguin::distanceToSqr));
 
         penguin.getBrain().setMemory(RockhoppersMemoryModuleTypes.NEAREST_BOBBERS, bobbers);
-
-
     }
 
     @Override

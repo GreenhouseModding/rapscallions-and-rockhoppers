@@ -70,6 +70,7 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.BreedWithPartner;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Idle;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Panic;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.AvoidEntity;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FloatToSurfaceOfFluid;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowTemptation;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomWalkTarget;
@@ -254,7 +255,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 new InWaterSensor<Penguin>().setPredicate((entity, entity2) -> entity.isInWaterOrBubble() || BrainUtils.hasMemory(entity, RockhoppersMemoryModuleTypes.IS_JUMPING)),
                 new HurtBySensor<>(),
                 new NearbyEggSensor(),
-                new PlayerToCoughForSensor()
+                new PlayerToCoughForSensor(),
+                new NearbyBobbersSensor()
         );
     }
 
@@ -353,13 +355,22 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                 new CoughUpRewards(16),
                                 new FollowTemptation<>()
                         ).onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.FISH_EATEN, MemoryStatus.VALUE_PRESENT)
-                        .onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR, MemoryStatus.VALUE_PRESENT)
+                        .onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR, MemoryStatus.VALUE_PRESENT),
+                RockhoppersActivities.WAIT_AROUND_BOBBER, new BrainActivityGroup<Penguin>(RockhoppersActivities.WAIT_AROUND_BOBBER)
+                        .priority(10)
+                        .behaviours(
+                                new BreedWithPartner<>(),
+                                new SitAtSurfaceOfWater(),
+                                new SwimToFishingBobber().setRadius(3),
+                                new JumpTowardsCatch()
+                        ).onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.NEAREST_BOBBERS, MemoryStatus.VALUE_PRESENT)
+                        .onlyStartWithMemoryStatus(MemoryModuleType.IS_PANICKING, MemoryStatus.VALUE_ABSENT)
         );
     }
 
     @Override
     public List<Activity> getActivityPriorities() {
-        return ObjectArrayList.of(RockhoppersActivities.COUGH_UP, RockhoppersActivities.FOLLOW_BOAT, Activity.SWIM, Activity.IDLE);
+        return ObjectArrayList.of(RockhoppersActivities.COUGH_UP, RockhoppersActivities.WAIT_AROUND_BOBBER, RockhoppersActivities.FOLLOW_BOAT, Activity.SWIM, Activity.IDLE);
     }
 
     public int getFishEaten() {
