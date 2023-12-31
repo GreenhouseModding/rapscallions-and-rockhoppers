@@ -2,19 +2,12 @@ package dev.greenhouseteam.rapscallionsandrockhoppers;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersActivities;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersBlocks;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersItems;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSensorTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSoundEvents;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectionContext;
 import net.fabricmc.fabric.api.biome.v1.ModificationPhase;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -68,6 +61,7 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
         RockhoppersActivities.registerActivities(Registry::register);
         RockhoppersMemoryModuleTypes.registerMemoryModuleTypes(Registry::register);
         RockhoppersSensorTypes.registerSensorTypes(Registry::register);
+        RockhoppersBlockEntityTypes.registerBlockEntityTypes(Registry::register);
 
         RockhoppersEntityTypes.createMobAttributes(FabricDefaultAttributeRegistry::register);
 

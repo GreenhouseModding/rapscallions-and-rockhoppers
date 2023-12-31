@@ -1,5 +1,6 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.block;
 
+import dev.greenhouseteam.rapscallionsandrockhoppers.block.entity.PenguinEggBlockEntity;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
 import net.minecraft.core.BlockPos;
@@ -7,14 +8,17 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
 
-public class PenguinEggBlock extends Block {
+public class PenguinEggBlock extends Block implements EntityBlock {
     private static final VoxelShape SHAPE = Block.box(5.0, 0.0, 5.0, 11.0, 8.0, 11.0);
     public static final IntegerProperty HATCH = BlockStateProperties.HATCH;
 
@@ -44,6 +48,10 @@ public class PenguinEggBlock extends Block {
             }
             penguin.setAge(-24000);
             penguin.moveTo(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5, 0.0f, 0.0f);
+            if (serverLevel.getBlockEntity(blockPos) instanceof PenguinEggBlockEntity penguinEggBlockEntity) {
+                var penguinType = penguinEggBlockEntity.getPenguinType(serverLevel);
+                penguin.setPenguinType(penguinType);
+            }
             serverLevel.addFreshEntity(penguin);
             serverLevel.removeBlock(blockPos, false);
         }
@@ -57,5 +65,11 @@ public class PenguinEggBlock extends Block {
             // 1/1500 chance each random tick of cracking
             crackEgg(blockState, serverLevel, blockPos);
         }
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+        return new PenguinEggBlockEntity(blockPos, blockState);
     }
 }

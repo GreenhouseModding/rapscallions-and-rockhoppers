@@ -2,6 +2,7 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.entity;
 
 import com.mojang.datafixers.util.Pair;
 import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
+import dev.greenhouseteam.rapscallionsandrockhoppers.block.entity.PenguinEggBlockEntity;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.mixin.LevelAccessor;
@@ -578,6 +579,9 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             // TODO: Make Penguin spawn egg upon finding a loose block.
             if (blockstate.isAir()) {
                 this.level().setBlockAndUpdate(blockPos, RockhoppersBlocks.PENGUIN_EGG.defaultBlockState());
+                if (this.level().getBlockEntity(blockPos) instanceof PenguinEggBlockEntity penguinEggBlockEntity) {
+                    penguinEggBlockEntity.setTypeFromParents(this, (Penguin) animal);
+                }
                 this.level().levelEvent(2001, blockPos, Block.getId(this.level().getBlockState(blockPos)));
             }
 
@@ -907,6 +911,18 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
     public boolean isGettingUp() {
         return this.isStumbling() && this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE && this.getStumbleTicks() > STUMBLE_ANIMATION_LENGTH + this.getStumbleTicksBeforeGettingUp();
+    }
+
+    /**
+     * If the penguin has a previous type, it will return that. Otherwise, it will return the current type.
+     * @return The resource location of the penguin's type.
+     */
+    public ResourceLocation getTrueType() {
+        if (!this.getEntityData().get(DATA_PREVIOUS_TYPE).isEmpty()) {
+            return new ResourceLocation(this.getEntityData().get(DATA_PREVIOUS_TYPE));
+        } else {
+            return new ResourceLocation(this.getEntityData().get(DATA_TYPE));
+        }
     }
 
     public class PenguinMoveControl extends SmoothSwimmingMoveControl {

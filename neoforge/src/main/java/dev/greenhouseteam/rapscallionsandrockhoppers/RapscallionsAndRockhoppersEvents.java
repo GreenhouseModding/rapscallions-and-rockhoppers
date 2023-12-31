@@ -5,14 +5,7 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.componability.PlayerDataCap
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.RockhoppersPacketHandler;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersActivities;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersBlocks;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersCapabilities;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersItems;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSensorTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSoundEvents;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RegisterFunction;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
 import dev.greenhouseteam.rdpr.api.ReloadableRegistryEvent;
@@ -69,6 +62,8 @@ public class RapscallionsAndRockhoppersEvents {
                 register(event, RockhoppersMemoryModuleTypes::registerMemoryModuleTypes);
             else if (event.getRegistryKey() == Registries.SENSOR_TYPE)
                 register(event, RockhoppersSensorTypes::registerSensorTypes);
+            else if (event.getRegistryKey() == Registries.BLOCK_ENTITY_TYPE)
+                register(event, RockhoppersBlockEntityTypes::registerBlockEntityTypes);
         }
 
         @SubscribeEvent
