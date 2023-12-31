@@ -18,6 +18,8 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
@@ -33,6 +35,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.ConstantFloat;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
@@ -44,6 +48,7 @@ import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Pufferfish;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.ItemStack;
@@ -172,7 +177,6 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.FISH_EATEN)) {
             compoundTag.putInt("fish_eaten", BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.FISH_EATEN));
         }
-        compoundTag.putInt("previous_tick_count", this.tickCount);
         compoundTag.putString("type", this.getEntityData().get(DATA_TYPE));
         if (!this.getEntityData().get(DATA_PREVIOUS_TYPE).isEmpty()) {
             compoundTag.putString("type", this.getEntityData().get(DATA_PREVIOUS_TYPE));
@@ -197,16 +201,14 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         if (compoundTag.contains("player_to_cough_for", CompoundTag.TAG_INT_ARRAY))
             BrainUtils.setMemory(this, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR, compoundTag.getUUID("player_to_cough_for"));
 
-        int previousTickCount = compoundTag.contains("previous_tick_count", CompoundTag.TAG_INT) ? compoundTag.getInt("previous_tick_count") : 0;
-
         if (compoundTag.contains("time_allowed_to_follow_boat", CompoundTag.TAG_INT))
-            this.setTimeAllowedToFollowBoat(integerOptional(compoundTag.getInt("time_allowed_to_follow_boat") - previousTickCount));
+            this.setTimeAllowedToFollowBoat(integerOptional(compoundTag.getInt("time_allowed_to_follow_boat")));
         if (compoundTag.contains("time_allowed_to_water_jump", CompoundTag.TAG_INT))
-            this.setTimeAllowedToWaterJump(integerOptional(compoundTag.getInt("time_allowed_to_water_jump") - previousTickCount));
+            this.setTimeAllowedToWaterJump(integerOptional(compoundTag.getInt("time_allowed_to_water_jump")));
         if (compoundTag.contains("time_allowed_to_eat", CompoundTag.TAG_INT))
-            this.setTimeAllowedToEat(integerOptional(compoundTag.getInt("time_allowed_to_eat") - previousTickCount));
+            this.setTimeAllowedToEat(integerOptional(compoundTag.getInt("time_allowed_to_eat")));
         if (compoundTag.contains("hungry_time", CompoundTag.TAG_INT))
-            this.setHungryTime(integerOptional(compoundTag.getInt("hungry_time") - previousTickCount));
+            this.setHungryTime(integerOptional(compoundTag.getInt("hungry_time")));
         if (compoundTag.contains("fish_eaten", CompoundTag.TAG_INT))
             this.setFishEaten(compoundTag.getInt("fish_eaten"));
 
@@ -438,6 +440,30 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     protected void customServerAiStep() {
         tickBrain(this);
         super.customServerAiStep();
+    }
+
+    @Override
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+            if (stack.is(RockhoppersTags.ItemTags.PENGUIN_FOOD_ITEMS)) {
+                if (this.level().isClientSide()) {
+                    return InteractionResult.SUCCESS;
+                }
+                if (this.tickCount > this.getTimeAllowedToEat()) {
+                    this.setHungryTime(Optional.of(this.tickCount + 4800));
+                    this.setTimeAllowedToEat(Optional.of(this.tickCount + 400));
+                    if (this.getBoatToFollow() != null) {
+                        this.incrementFishEaten();
+                    }
+                    ((ServerLevel) this.level()).sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), 7, 0.1, 0.05, 0.1, 0);
+                    this.playSound(RockhoppersSoundEvents.PENGUIN_EAT);
+                    return InteractionResult.SUCCESS;
+                } else {
+                    ((ServerLevel) this.level()).sendParticles(ParticleTypes.SMOKE, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), 7, 0.1, 0.05, 0.1, 0);
+                    return InteractionResult.CONSUME;
+                }
+            }
+        return super.mobInteract(player, hand);
     }
 
     @Override

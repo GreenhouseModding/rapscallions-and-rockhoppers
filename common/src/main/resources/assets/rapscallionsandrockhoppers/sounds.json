@@ -7,6 +7,12 @@
       "rapscallionsandrockhoppers:mob/penguin/say3"
     ]
   },
+  "entity.penguin.cough": {
+    "sounds": [
+      "rapscallionsandrockhoppers:mob/penguin/cough"
+    ],
+    "subtitle": "subtitles.rapscallionsandrockhoppers.entity.penguin.cough"
+  },
   "entity.penguin.death": {
     "sounds": [
       "rapscallionsandrockhoppers:mob/penguin/death1",
@@ -14,18 +20,19 @@
     ],
     "subtitle": "subtitles.rapscallionsandrockhoppers.entity.penguin.death"
   },
+  "entity.penguin.eat": {
+    "sounds": [
+      "mob/cat/eat1",
+      "mob/cat/eat2"
+    ],
+    "subtitle": "subtitles.rapscallionsandrockhoppers.entity.penguin.eat"
+  },
   "entity.penguin.hurt": {
     "sounds": [
       "rapscallionsandrockhoppers:mob/penguin/hurt1",
       "rapscallionsandrockhoppers:mob/penguin/hurt2"
     ],
     "subtitle": "subtitles.rapscallionsandrockhoppers.entity.penguin.hurt"
-  },
-  "entity.penguin.cough": {
-    "sounds": [
-      "rapscallionsandrockhoppers:mob/penguin/cough"
-    ],
-    "subtitle": "subtitles.rapscallionsandrockhoppers.entity.penguin.cough"
   },
   "entity.penguin.jump": {
     "sounds": [
