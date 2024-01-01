@@ -29,6 +29,7 @@ publishMods {
     curseforge("curseforgeFabric") {
         file = project(":fabric").remapJar.archiveFile
         displayName = "v${rootProject.version} (Fabric ${minecraft_version})"
+        version = "${rootProject.version}-fabric"
 
         accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
         projectId = "956678"
@@ -46,6 +47,7 @@ publishMods {
     modrinth("modrinthFabric") {
         file = project(":fabric").remapJar.archiveFile
         displayName = "v${rootProject.version} (Fabric ${minecraft_version})"
+        version = "${rootProject.version}-fabric"
 
         accessToken = providers.environmentVariable("MODRINTH_TOKEN")
         projectId = "9pGITjpO"
@@ -63,6 +65,7 @@ publishMods {
     curseforge("curseforgeNeoforge") {
         file = project(":neoforge").jar.archiveFile
         displayName = "v${rootProject.version} (NeoForge ${minecraft_version})"
+        version = "${rootProject.version}-neoforge"
 
         accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
         projectId = "956678"
@@ -76,6 +79,7 @@ publishMods {
     modrinth("modrinthNeoforge") {
         file = project(":neoforge").jar.archiveFile
         displayName = "v${rootProject.version} (NeoForge ${minecraft_version})"
+        version = "${rootProject.version}-neoforge"
 
         accessToken = providers.environmentVariable("MODRINTH_TOKEN")
         projectId = "9pGITjpO"
