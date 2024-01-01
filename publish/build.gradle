@@ -38,6 +38,9 @@ publishMods {
         requires {
             slug = "fabric-api"
         }
+        embeds {
+            slug = "smartbrainlib"
+        }
     }
 
     modrinth("modrinthFabric") {
@@ -52,6 +55,9 @@ publishMods {
         requires {
             slug = "fabric-api"
         }
+        embeds {
+            slug = "smartbrainlib"
+        }
     }
 
     curseforge("curseforgeNeoforge") {
@@ -62,6 +68,9 @@ publishMods {
         projectId = "956678"
         modLoaders.addAll(forgeLoaders)
         minecraftVersions.addAll(mcVersions)
+        embeds {
+            slug = "smartbrainlib"
+        }
     }
 
     modrinth("modrinthNeoforge") {
@@ -72,6 +81,9 @@ publishMods {
         projectId = "9pGITjpO"
         modLoaders.addAll(forgeLoaders)
         minecraftVersions.addAll(mcVersions)
+        embeds {
+            slug = "smartbrainlib"
+        }
     }
 
     github {
