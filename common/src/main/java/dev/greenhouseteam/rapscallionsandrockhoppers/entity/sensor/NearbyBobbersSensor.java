@@ -21,6 +21,7 @@ import java.util.List;
 
 public class NearbyBobbersSensor extends PredicateSensor<FishingHook, Penguin> {
 
+    private boolean hasSetUpPreviousBoatPos;
     private Vec3 previousBoatPos;
 
     @Nullable
@@ -46,10 +47,16 @@ public class NearbyBobbersSensor extends PredicateSensor<FishingHook, Penguin> {
     @Override
     protected void doTick(ServerLevel level, Penguin penguin) {
         if (BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW) && penguin.getBoatToFollow() != null) {
+            if (!this.hasSetUpPreviousBoatPos) {
+                previousBoatPos = penguin.getBoatToFollow().position();
+                this.hasSetUpPreviousBoatPos = true;
+            }
             boolean bl = previousBoatPos.subtract(penguin.getBoatToFollow().position()).horizontalDistance() > 0.075;
             previousBoatPos = penguin.getBoatToFollow().position();
             if (bl)
                 BrainUtils.clearMemory(penguin, RockhoppersMemoryModuleTypes.NEAREST_BOBBERS);
+        } else if (this.hasSetUpPreviousBoatPos) {
+            this.hasSetUpPreviousBoatPos = false;
         }
 
         if (radius == null) {
