@@ -5,7 +5,6 @@ plugins {
 evaluationDependsOn(":common")
 evaluationDependsOn(":fabric")
 evaluationDependsOn(":neoforge")
-
 publishMods {
     changelog = rootProject.file("CHANGELOG.md").text
     type = STABLE
@@ -49,6 +48,7 @@ publishMods {
     }
 
     curseforge("curseforgeNeoforge") {
+        dependsOn(":neoforge:jarJar")
         file = project(":neoforge").jar.archiveFile
         displayName = "v${version} (NeoForge ${minecraft_version})"
 
@@ -59,6 +59,7 @@ publishMods {
     }
 
     modrinth("modrinthNeoforge") {
+        dependsOn(":neoforge:jarJar")
         file = project(":neoforge").jar.archiveFile
         displayName = "v${version} (NeoForge ${minecraft_version})"
 
@@ -69,6 +70,7 @@ publishMods {
     }
 
     github {
+        dependsOn(":neoforge:jarJar")
         additionalFiles.from(
                 project(":fabric").remapJar.archiveFile,
                 project(":neoforge").jar.archiveFile)
