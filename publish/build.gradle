@@ -5,6 +5,13 @@ plugins {
 evaluationDependsOn(":common")
 evaluationDependsOn(":fabric")
 evaluationDependsOn(":neoforge")
+
+Spec<Task> publishTask = { Task it -> it.name.startsWith("publish") } as Spec<Task>
+
+tasks.matching(publishTask).configureEach {
+    it.dependsOn(":neoforge:jarJar")
+}
+
 publishMods {
     changelog = rootProject.file("CHANGELOG.md").text
     type = STABLE
@@ -48,7 +55,6 @@ publishMods {
     }
 
     curseforge("curseforgeNeoforge") {
-        dependsOn(":neoforge:jarJar")
         file = project(":neoforge").jar.archiveFile
         displayName = "v${version} (NeoForge ${minecraft_version})"
 
@@ -59,7 +65,6 @@ publishMods {
     }
 
     modrinth("modrinthNeoforge") {
-        dependsOn(":neoforge:jarJar")
         file = project(":neoforge").jar.archiveFile
         displayName = "v${version} (NeoForge ${minecraft_version})"
 
@@ -70,7 +75,6 @@ publishMods {
     }
 
     github {
-        dependsOn(":neoforge:jarJar")
         additionalFiles.from(
                 project(":fabric").remapJar.archiveFile,
                 project(":neoforge").jar.archiveFile)
