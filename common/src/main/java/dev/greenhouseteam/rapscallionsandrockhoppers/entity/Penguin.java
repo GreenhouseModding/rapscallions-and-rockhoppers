@@ -559,7 +559,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 }
             } else {
                 if (this.areAnimationsWater) {
-                    this.stopAllLandAnimations();
+                    this.stopAllWaterAnimations();
                     this.areAnimationsWater = false;
                 }
                 if (this.easeOutAnimTime > this.stopEaseOutAnimAt) {
