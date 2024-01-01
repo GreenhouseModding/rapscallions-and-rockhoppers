@@ -9,7 +9,7 @@ evaluationDependsOn(":neoforge")
 Spec<Task> publishTask = { Task it -> it.name.startsWith("publish") } as Spec<Task>
 
 tasks.matching(publishTask).configureEach {
-    it.dependsOn(":neoforge:jarJar")
+    it.dependsOn(project("neoforge").tasks.named("jarJar"))
 }
 
 publishMods {
@@ -75,8 +75,8 @@ publishMods {
     }
 
     github {
+        file = project(":fabric").remapJar.archiveFile
         additionalFiles.from(
-                project(":fabric").remapJar.archiveFile,
                 project(":neoforge").jar.archiveFile)
 
         accessToken = providers.environmentVariable("GITHUB_TOKEN")
