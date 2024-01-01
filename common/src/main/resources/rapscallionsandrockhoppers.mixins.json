@@ -13,6 +13,7 @@
     "LevelAccessor",
     "LivingEntityMixin",
     "RegistryDataLoaderRegistryDataMixin",
+    "VehicleEntityMixin",
     "client.ClientLevelAccessor"
   ],
   "client": [

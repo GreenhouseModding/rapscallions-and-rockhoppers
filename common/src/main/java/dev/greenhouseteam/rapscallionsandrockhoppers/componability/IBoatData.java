@@ -72,7 +72,7 @@ public interface IBoatData {
             }
             return InteractionResult.SUCCESS;
         }
-        if (player.getItemInHand(interactionHand).is(RockhoppersItems.BOAT_HOOK) && (playerData.getLinkedBoats().isEmpty() || player.isShiftKeyDown())) {
+        if (player.getItemInHand(interactionHand).is(RockhoppersItems.BOAT_HOOK) && (playerData.getLinkedBoats().isEmpty() && this.getPreviousLinkedBoats().isEmpty() && this.getNextLinkedBoats().isEmpty() || player.isShiftKeyDown())) {
             this.setLinkedPlayer(player.getUUID());
             playerData.addLinkedBoat(this.getProvider().getUUID());
             this.sync();
@@ -192,10 +192,12 @@ public interface IBoatData {
         }
 
         if (this.getProvider().level().isClientSide()) return;
-        var distanceBetween = other.distanceTo(this.getProvider());
+        var distanceBetween = other.position().multiply(1.0, 0.0, 1.0).distanceTo(this.getProvider().position().multiply(1.0, 0.0, 1.0));
         if (distanceBetween > 3) {
             var distanceFactor = (distanceBetween - 3) / 7;
             Vec3 delta = this.getProvider().position().vectorTo(other.position()).normalize().scale(distanceBetween).scale(distanceFactor);
+            if (((BoatAccessor)this.getProvider()).rapscallionsandrockhoppers$getStatus() != null && ((BoatAccessor)this.getProvider()).rapscallionsandrockhoppers$getStatus().equals(Boat.Status.IN_WATER) && delta.y() < 0.0)
+                delta = new Vec3(delta.x(), this.getProvider().getDeltaMovement().y(), delta.z());
             this.getProvider().setDeltaMovement(delta);
         }
     }
