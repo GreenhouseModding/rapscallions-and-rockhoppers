@@ -1,12 +1,2 @@
-### Minor Changes
-- Already hooked boats now require a player to sneak to link more boats.
-
 ### Bugfixes
-- Fixed water animations not being stopped upon exiting water.
-- Fixed crash that happens when a penguin has a boat to follow.
-- Fixed boats being able to be sunk underwater with a boat hook.
-- Fixed an infinite height exploit involving a boat hook.
-- Fixed boat hook item not dropping upon breaking a boat when attached to a player.
-- Fixed penguins barely moving on ice.
-- Fixed cough.ogg being stereo.
-- Replaced say1.ogg with a non corrupt file.
+- Fixed crash when penguins decide to leave a boat.

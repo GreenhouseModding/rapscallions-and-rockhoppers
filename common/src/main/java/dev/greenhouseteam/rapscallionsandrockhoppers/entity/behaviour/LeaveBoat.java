@@ -53,7 +53,7 @@ public class LeaveBoat extends ExtendedBehaviour<Penguin> {
     @Override
     protected void stop(Penguin penguin) {
         this.leavingBoatPos = null;
-        if (penguin.distanceTo(penguin.getBoatToFollow()) >= 64.0) {
+        if (penguin.position().distanceTo(this.leavingBoatPos) >= 64.0) {
             penguin.returnToHome();
         }
     }
