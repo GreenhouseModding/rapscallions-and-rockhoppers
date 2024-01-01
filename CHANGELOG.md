@@ -8,3 +8,5 @@
 - Fixed an infinite height exploit involving a boat hook.
 - Fixed boat hook item not dropping upon breaking a boat when attached to a player.
 - Fixed penguins barely moving on ice.
+- Fixed cough.ogg being stereo.
+- Replaced say1.ogg with a non corrupt file.
