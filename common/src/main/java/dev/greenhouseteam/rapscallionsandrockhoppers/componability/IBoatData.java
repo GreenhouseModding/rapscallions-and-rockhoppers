@@ -111,8 +111,8 @@ public interface IBoatData {
                 rapscallionsandrockhoppers$moveTowardsNonBoat(this.getLinkedPlayer());
             }
             if (distanceBetween > 10 || !this.getLinkedPlayer().isAlive()) {
-                this.setLinkedPlayer(null);
                 this.getProvider().spawnAtLocation(RockhoppersItems.BOAT_HOOK);
+                this.setLinkedPlayer(null);
             }
         }
         moveTowardsBoats(this.getNextLinkedBoatUuids(), this.getPreviousLinkedBoatUuids());
@@ -131,8 +131,8 @@ public interface IBoatData {
                         IBoatData nextBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(next.getSecond());
                         nextBoatData.removePreviousLinkedBoat(this.getProvider().getUUID());
                     }
-                    this.removeNextLinkedBoat(next.getFirst());
                     this.getProvider().spawnAtLocation(RockhoppersItems.BOAT_HOOK);
+                    this.removeNextLinkedBoat(next.getFirst());
                     return;
                 }
                 doBoatLinkedMovementTo(next.getSecond());
@@ -150,8 +150,8 @@ public interface IBoatData {
                         IBoatData nextBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(previous.getSecond());
                         nextBoatData.removePreviousLinkedBoat(this.getProvider().getUUID());
                     }
-                    this.removeNextLinkedBoat(previous.getFirst());
                     this.getProvider().spawnAtLocation(RockhoppersItems.BOAT_HOOK);
+                    this.removePreviousLinkedBoat(previous.getFirst());
                     return;
                 }
                 doBoatLinkedMovementTo(previous.getSecond());
