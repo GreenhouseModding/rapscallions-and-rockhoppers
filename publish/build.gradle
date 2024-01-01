@@ -87,6 +87,7 @@ publishMods {
     }
 
     github {
+        displayName = "Rapscallions and Rockhoppers ${rootProject.version} (${minecraft_version})"
         file = project(":fabric").remapJar.archiveFile
         additionalFiles.from(
                 project(":neoforge").jar.archiveFile)
