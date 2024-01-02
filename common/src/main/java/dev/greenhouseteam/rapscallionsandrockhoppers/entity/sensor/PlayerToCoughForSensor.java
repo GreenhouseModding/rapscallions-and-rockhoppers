@@ -8,6 +8,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.PredicateSensor;
 import net.tslat.smartbrainlib.util.BrainUtils;
@@ -27,14 +28,14 @@ public class PlayerToCoughForSensor extends PredicateSensor<Boat, Penguin> {
             UUID uuid = BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER);
             if (uuid == null) return;
             Entity entity = level.getEntity(uuid);
-            if (entity != null && entity.onGround() && !entity.isInWaterOrBubble() && penguin.distanceTo(entity) < 16.0F) {
+            if (entity != null && entity.onGround() && !entity.isInWaterOrBubble() && entity.level().getBlockState(entity.getOnPos()).isPathfindable(entity.level(), entity.getOnPos(), PathComputationType.LAND) && penguin.distanceTo(entity) < 16.0F) {
                 BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR, uuid);
             }
         } else {
             UUID uuid = BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR);
             if (uuid == null) return;
             Entity entity = level.getEntity(uuid);
-            if (entity == null || penguin.distanceTo(entity) > 16.0F) {
+            if (entity == null || !entity.level().getBlockState(entity.getOnPos()).isPathfindable(entity.level(), entity.getOnPos(), PathComputationType.LAND) || penguin.distanceTo(entity) > 16.0F) {
                 BrainUtils.clearMemory(penguin, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR);
             }
         }
