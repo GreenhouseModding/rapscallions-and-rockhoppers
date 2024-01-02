@@ -9,3 +9,4 @@
 - Fixed penguins being set to missing type on the client when modifying nbt.
 - Fixed penguins not prioritising breathing when low on air.
 - Fixed penguins attempting to cough up rewards whilst the player is not on land.
+- Fixed peck and cough up animations not playing.

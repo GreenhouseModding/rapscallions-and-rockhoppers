@@ -136,6 +136,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     private boolean previousStumbleValue = false;
     private boolean previousWaterValue = false;
     private boolean previousWaterMovementValue = false;
+    private boolean previousCoughValue;
+    private boolean previousPeckValue;
     public Vec3 previousBoatPos = Vec3.ZERO;
 
     public Penguin(EntityType<? extends Animal> entityType, Level level) {
@@ -504,9 +506,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             }
 
             if (this.isPecking()) {
-                this.peckAnimationState.startIfStopped(this.tickCount);
                 if (this.getPeckTicks() > PECK_ANIMATION_LENGTH) {
-                    this.peckAnimationState.stop();
                     this.setPeckTicks(Integer.MIN_VALUE);
                 } else {
                     this.setPeckTicks(this.getPeckTicks() + 1);
@@ -515,10 +515,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
             if (this.isCoughingUpItems()) {
                 if (this.getCoughTicks() > COUGH_ANIMATION_LENGTH) {
-                    this.coughUpAnimationState.stop();
                     this.setCoughTicks(Integer.MIN_VALUE);
                 } else {
-                    this.coughUpAnimationState.startIfStopped(this.tickCount);
                     this.setCoughTicks(this.getCoughTicks() + 1);
                 }
             }
@@ -542,6 +540,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 }
             }
         } else {
+            this.peckAnimationState.animateWhen(this.isPecking(), this.tickCount);
+
             if (this.getPose() == Pose.SWIMMING) {
                 if (!this.areAnimationsWater) {
                     this.stopAllLandAnimations();
@@ -564,6 +564,9 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                     this.stopAllWaterAnimations();
                     this.areAnimationsWater = false;
                 }
+
+                this.coughUpAnimationState.animateWhen(this.isCoughingUpItems(), this.tickCount);
+
                 if (this.easeOutAnimTime > this.stopEaseOutAnimAt) {
                     this.swimEaseOutAnimationState.stop();
                     this.easeOutAnimTime = Integer.MIN_VALUE;
