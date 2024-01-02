@@ -9,7 +9,7 @@ evaluationDependsOn(":neoforge")
 Spec<Task> publishTask = { Task it -> it.name.startsWith("publish") } as Spec<Task>
 
 tasks.matching(publishTask).configureEach {
-    it.dependsOn(project("neoforge").tasks.named("jarJar"))
+    it.dependsOn(project(":neoforge").tasks.named("jarJar"))
 }
 
 publishMods {
