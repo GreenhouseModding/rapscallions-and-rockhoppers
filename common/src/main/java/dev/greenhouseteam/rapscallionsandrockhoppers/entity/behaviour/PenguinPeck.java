@@ -40,6 +40,7 @@ public class PenguinPeck extends AnimatableMeleeAttack<Penguin> {
                     penguin.setTimeAllowedToEat(Optional.of(penguin.tickCount + 400));
                     penguin.incrementFishEaten();
                     BrainUtils.clearMemory(penguin, MemoryModuleType.ATTACK_TARGET);
+                    BrainUtils.clearMemory(penguin, MemoryModuleType.WALK_TARGET);
                 }
             }
         }
