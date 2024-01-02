@@ -307,12 +307,12 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                 new PenguinPeck(8),
                                 new AvoidEntity<>().avoiding(entity -> entity instanceof Pufferfish),
                                 new FirstApplicableBehaviour<>(
+                                        new BreatheAir(),
                                         new FollowTemptation<>(),
                                         new SetWalkTargetToAttackTarget<>(),
                                         new PenguinJump(),
                                         new SetRandomSwimTarget().avoidLandWhen(penguin -> penguin.getRandom().nextFloat() < 0.98F).setRadius(5, 4).walkTargetPredicate((mob, vec3) -> vec3 == null || mob.level().getEntities(EntityTypeTest.forClass(Boat.class), mob.getBoundingBox().move(vec3.subtract(mob.position())).inflate(3.0F, 2.0F, 3.0F), boat -> true).isEmpty())
-                                ),
-                                new BreatheAir()
+                                )
                         ).onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT),
                 RockhoppersActivities.FOLLOW_BOAT, new BrainActivityGroup<Penguin>(RockhoppersActivities.FOLLOW_BOAT)
                         .priority(10)
@@ -339,12 +339,12 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                 new FollowBoat().untilDistance(2.0F).runFor(penguin -> 200),
                                 new StayWithinBoat().setRadius(8),
                                 new FirstApplicableBehaviour<>(
+                                        new BreatheAir(),
                                         new FollowTemptation<>(),
                                         new SetWalkTargetToAttackTarget<>(),
                                         new PenguinJump(),
                                         new SetRandomSwimTarget().setRadius(6.0F, 4.0F).startCondition(penguin -> penguin.getBoatToFollow() != null && penguin.getBoatToFollow().getDeltaMovement().horizontalDistanceSqr() < 0.05)
-                                ),
-                                new BreatheAir()
+                                )
                         ).onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT)
                         .onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW, MemoryStatus.VALUE_PRESENT),
                 RockhoppersActivities.COUGH_UP, new BrainActivityGroup<Penguin>(RockhoppersActivities.COUGH_UP)

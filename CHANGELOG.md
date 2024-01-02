@@ -7,3 +7,4 @@
 - Fixed penguins being able to move whilst coughing up items.
 - Fixed penguins wandering off from boats when on land.
 - Fixed penguins being set to missing type on the client when modifying nbt.
+- Fixed penguins not prioritising breathing when low on air.
