@@ -512,12 +512,12 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             }
 
             if (this.isCoughingUpItems()) {
-                this.coughUpAnimationState.startIfStopped(this.tickCount);
                 if (this.getCoughTicks() > COUGH_ANIMATION_LENGTH) {
                     this.coughUpAnimationState.stop();
                     this.setCoughTicks(Integer.MIN_VALUE);
                 } else {
-                    this.setCoughTicks(this.getPeckTicks() + 1);
+                    this.coughUpAnimationState.startIfStopped(this.tickCount);
+                    this.setCoughTicks(this.getCoughTicks() + 1);
                 }
             }
 
