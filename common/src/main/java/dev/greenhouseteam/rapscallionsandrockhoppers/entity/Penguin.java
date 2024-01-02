@@ -1150,7 +1150,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         }
 
         private boolean canMove() {
-            return !Penguin.this.isStumbling() && Penguin.this.getShoveTicks() == Integer.MIN_VALUE;
+            return !Penguin.this.isStumbling() && Penguin.this.getShoveTicks() == Integer.MIN_VALUE && !Penguin.this.isCoughingUpItems();
         }
 
     }
@@ -1168,7 +1168,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         }
 
         private boolean canMove() {
-            return !Penguin.this.isStumbling() && Penguin.this.getShoveTicks() == Integer.MIN_VALUE;
+            return !Penguin.this.isStumbling() && Penguin.this.getShoveTicks() == Integer.MIN_VALUE && !Penguin.this.isCoughingUpItems();
         }
 
     }
