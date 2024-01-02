@@ -3,4 +3,5 @@
 
 ### Bugfixes
 - Fixed a warning message from penguin egg model.
-- Penguins can no longer move whilst coughing up items.
+- Fixed penguins being able to move whilst coughing up items.
+- Fixed penguins wandering off from boats when on land.

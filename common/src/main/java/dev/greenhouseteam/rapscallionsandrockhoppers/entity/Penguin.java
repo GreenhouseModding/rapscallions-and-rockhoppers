@@ -282,6 +282,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 new PenguinShove(),
                 new PenguinStumble(),
                 new FollowBoat().untilDistance(1.5F),
+                new StayWithinBoat().setRadius(4),
                 new FirstApplicableBehaviour<>(
                         new FollowTemptation<>(),
                         new SetWalkTargetToAttackTarget<>(),
@@ -335,8 +336,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                 new PenguinPeck(8),
                                 new BreedWithPartner<>(),
                                 new AvoidEntity<>().avoiding(entity -> entity instanceof Pufferfish),
-                                new StayWithinBoat().setRadius(8),
                                 new FollowBoat().untilDistance(2.0F).runFor(penguin -> 200),
+                                new StayWithinBoat().setRadius(8),
                                 new FirstApplicableBehaviour<>(
                                         new FollowTemptation<>(),
                                         new SetWalkTargetToAttackTarget<>(),
@@ -353,6 +354,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                 new BreedWithPartner<>(),
                                 new WalkToRewardedPlayer(),
                                 new CoughUpRewards(16),
+                                new StayWithinBoat().setRadius(3),
                                 new FollowTemptation<>()
                         ).onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.FISH_EATEN, MemoryStatus.VALUE_PRESENT)
                         .onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR, MemoryStatus.VALUE_PRESENT),
