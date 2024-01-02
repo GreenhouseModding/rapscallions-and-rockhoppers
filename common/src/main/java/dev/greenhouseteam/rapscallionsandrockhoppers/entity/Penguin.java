@@ -468,11 +468,11 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                     if (this.getBoatToFollow() != null) {
                         this.incrementFishEaten();
                     }
-                    ((ServerLevel) this.level()).sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), 7, 0.1, 0.05, 0.1, 0);
+                    ((ServerLevel) this.level()).sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(0.5), this.getRandomY() + 0.5, this.getRandomZ(0.5), 7, 0.25, 0.1, 0.25, 0);
                     this.playSound(RockhoppersSoundEvents.PENGUIN_EAT);
                     return InteractionResult.SUCCESS;
                 } else {
-                    ((ServerLevel) this.level()).sendParticles(ParticleTypes.SMOKE, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), 7, 0.1, 0.05, 0.1, 0);
+                    ((ServerLevel) this.level()).sendParticles(ParticleTypes.SMOKE, this.getRandomX(0.5), this.getRandomY() + 0.5, this.getRandomZ(0.5), 7, 0.25, 0.1, 0.25, 0);
                     return InteractionResult.CONSUME;
                 }
             }

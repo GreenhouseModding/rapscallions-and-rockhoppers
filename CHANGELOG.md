@@ -1,5 +1,6 @@
 ### Changes
 - Increase the amount of time until the penguin can eat again after coughing up items from 20 seconds to 1 minute and 30 seconds.
+- Tweaked penguin feed particles.
 
 ### Bugfixes
 - Fixed a warning message from penguin egg model.
