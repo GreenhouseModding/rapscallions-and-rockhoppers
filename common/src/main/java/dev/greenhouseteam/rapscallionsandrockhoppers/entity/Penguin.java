@@ -876,6 +876,10 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 this.hasLoggedMissingError = true;
             }
         }
+        if (!this.hasLoggedMissingError) {
+            RapscallionsAndRockhoppers.LOG.error("Could not load PenguinType for penguin with UUID '{}'.", this.getStringUUID());
+            this.hasLoggedMissingError = true;
+        }
         return PenguinType.MISSING;
     }
 
@@ -892,10 +896,10 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     }
 
     public void invalidateCachedPenguinType() {
-        this.cachedPenguinType = null;
         if (!this.level().isClientSide()) {
             IRockhoppersPlatformHelper.INSTANCE.sendS2CTracking(new InvalidateCachedPenguinTypePacket(this.getId(), this.getPenguinTypeKey()), this);
         }
+        this.cachedPenguinType = null;
         this.getPenguinType();
     }
 
