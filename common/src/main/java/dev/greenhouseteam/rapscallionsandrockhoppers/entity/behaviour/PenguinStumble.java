@@ -21,7 +21,7 @@ public class PenguinStumble extends ExtendedBehaviour<Penguin> {
 
     @Override
     public boolean checkExtraStartConditions(ServerLevel level, Penguin penguin) {
-        boolean bl = penguin.isStumbling() || BrainUtils.hasMemory(penguin, MemoryModuleType.WALK_TARGET) && penguin.getRandom().nextFloat() < Mth.clamp(penguin.getStumbleChance(), 0.0F, 1.0F);
+        boolean bl = penguin.getVehicle() == null && (penguin.isStumbling() || BrainUtils.hasMemory(penguin, MemoryModuleType.WALK_TARGET) && penguin.getRandom().nextFloat() < Mth.clamp(penguin.getStumbleChance(), 0.0F, 1.0F));
         // This has to be done here rather than the start method.
         if (bl && !penguin.isStumbling()) {
             penguin.setStumbleTicks(0);
