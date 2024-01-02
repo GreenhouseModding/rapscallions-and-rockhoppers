@@ -28,7 +28,7 @@ public class PlayerToCoughForSensor extends PredicateSensor<Boat, Penguin> {
             UUID uuid = BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER);
             if (uuid == null) return;
             Entity entity = level.getEntity(uuid);
-            if (entity != null && entity.onGround() && !entity.isInWaterOrBubble() && entity.level().getBlockState(entity.getOnPos()).isPathfindable(entity.level(), entity.getOnPos(), PathComputationType.LAND) && penguin.distanceTo(entity) < 16.0F) {
+            if (entity != null && entity.onGround() && !entity.isInWaterOrBubble() && entity.level().getBlockState(entity.getOnPos()).isCollisionShapeFullBlock(entity.level(), entity.getOnPos()) && penguin.distanceTo(entity) < 16.0F) {
                 BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR, uuid);
             }
         } else {
