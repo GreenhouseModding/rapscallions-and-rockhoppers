@@ -299,7 +299,6 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 Activity.SWIM, new BrainActivityGroup<Penguin>(Activity.SWIM)
                         .priority(10)
                         .behaviours(
-                                new BreatheAir(),
                                 new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
                                 new BreedWithPartner<>(),
                                 new StayWithinHome().setRadius(8),
@@ -311,12 +310,12 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                         new SetWalkTargetToAttackTarget<>(),
                                         new PenguinJump(),
                                         new SetRandomSwimTarget().avoidLandWhen(penguin -> penguin.getRandom().nextFloat() < 0.98F).setRadius(5, 4).walkTargetPredicate((mob, vec3) -> vec3 == null || mob.level().getEntities(EntityTypeTest.forClass(Boat.class), mob.getBoundingBox().move(vec3.subtract(mob.position())).inflate(3.0F, 2.0F, 3.0F), boat -> true).isEmpty())
-                                )
+                                ),
+                                new BreatheAir()
                         ).onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT),
                 RockhoppersActivities.FOLLOW_BOAT, new BrainActivityGroup<Penguin>(RockhoppersActivities.FOLLOW_BOAT)
                         .priority(10)
                         .behaviours(
-                                new BreatheAir(),
                                 new LeaveBoat(),
                                 new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
                                 new SetAttackTarget<Penguin>().attackPredicate(penguin -> {
@@ -343,7 +342,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                         new SetWalkTargetToAttackTarget<>(),
                                         new PenguinJump(),
                                         new SetRandomSwimTarget().setRadius(6.0F, 4.0F).startCondition(penguin -> penguin.getBoatToFollow() != null && penguin.getBoatToFollow().getDeltaMovement().horizontalDistanceSqr() < 0.05)
-                                )
+                                ),
+                                new BreatheAir()
                         ).onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT)
                         .onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW, MemoryStatus.VALUE_PRESENT),
                 RockhoppersActivities.COUGH_UP, new BrainActivityGroup<Penguin>(RockhoppersActivities.COUGH_UP)
