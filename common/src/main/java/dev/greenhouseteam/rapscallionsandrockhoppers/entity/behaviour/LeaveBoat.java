@@ -28,7 +28,7 @@ public class LeaveBoat extends ExtendedBehaviour<Penguin> {
 
     @Override
     public boolean checkExtraStartConditions(ServerLevel level, Penguin penguin) {
-        if (penguin.tickCount < BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) && penguin.getBoatToFollow().distanceTo(penguin) < 32.0) {
+        if (penguin.tickCount < BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) && penguin.getBoatToFollow() != null && penguin.getBoatToFollow().distanceTo(penguin) < 32.0) {
             return false;
         }
 

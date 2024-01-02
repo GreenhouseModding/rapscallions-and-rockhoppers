@@ -1,3 +1,2 @@
 ### Bugfixes
-- Fixed crash when penguins decide to leave a boat.
-- Fixed penguins noticing fishing bobbers whilst their boat is moving.
+- Fixed a crash when penguins decide to leave a boat and the boat doesn't exist anymore.
