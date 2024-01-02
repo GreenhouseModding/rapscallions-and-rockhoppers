@@ -20,11 +20,11 @@ public class PlayerToCoughForSensor extends PredicateSensor<Boat, Penguin> {
 
     @Override
     public List<MemoryModuleType<?>> memoriesUsed() {
-        return List.of(RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR);
+        return List.of(RockhoppersMemoryModuleTypes.FISH_EATEN, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR);
     }
 
     protected void doTick(ServerLevel level, Penguin penguin) {
-        if (!BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR)) {
+        if (BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.FISH_EATEN) && !BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR)) {
             UUID uuid = BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER);
             if (uuid == null) return;
             Entity entity = level.getEntity(uuid);
