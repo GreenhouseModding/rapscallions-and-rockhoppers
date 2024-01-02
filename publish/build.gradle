@@ -99,6 +99,6 @@ publishMods {
         accessToken = providers.environmentVariable("GITHUB_TOKEN")
         repository = "GreenhouseTeam/rapscallions-and-rockhoppers"
         commitish = github_committish // This is the branch the release tag will be created from
-        tagName = "${version}"
+        tagName = "${rootProject.version}"
     }
 }
