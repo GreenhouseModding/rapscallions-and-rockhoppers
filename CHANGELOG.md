@@ -10,3 +10,4 @@
 - Fixed penguins not prioritising breathing when low on air.
 - Fixed penguins attempting to cough up rewards whilst the player is not on land.
 - Fixed peck and cough up animations not playing.
+- Fixed crash when penguin decides to leave a boat.
