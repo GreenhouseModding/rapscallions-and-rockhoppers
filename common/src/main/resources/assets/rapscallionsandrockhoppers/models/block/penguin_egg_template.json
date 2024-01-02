@@ -1,5 +1,5 @@
 {
-	"parent": "minecraft:cube_all",
+	"parent": "minecraft:block/cube_all",
 	"texture_size": [32, 32],
 	"textures": {
 		"particle": "#egg_texture"
