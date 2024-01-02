@@ -320,7 +320,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                 new LeaveBoat(),
                                 new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
                                 new SetAttackTarget<Penguin>().attackPredicate(penguin -> {
-                                    if  (!BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME)) {
+                                    if  (!BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) || penguin.getAirSupply() < 140) {
                                         return false;
                                     }
 
