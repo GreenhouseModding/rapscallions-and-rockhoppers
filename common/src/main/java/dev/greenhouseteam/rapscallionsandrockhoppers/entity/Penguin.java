@@ -136,8 +136,6 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     private boolean previousStumbleValue = false;
     private boolean previousWaterValue = false;
     private boolean previousWaterMovementValue = false;
-    private boolean previousCoughValue;
-    private boolean previousPeckValue;
     public Vec3 previousBoatPos = Vec3.ZERO;
 
     public Penguin(EntityType<? extends Animal> entityType, Level level) {
@@ -355,10 +353,11 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                 new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
                                 new BreedWithPartner<>(),
                                 new WalkToRewardedPlayer(),
-                                new CoughUpRewards(16),
-                                new StayWithinBoat().setRadius(3),
+                                new CoughUpRewards(4),
                                 new FollowTemptation<>()
-                        ).onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.FISH_EATEN, MemoryStatus.VALUE_PRESENT)
+                        )
+                        .onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_ABSENT)
+                        .onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.FISH_EATEN, MemoryStatus.VALUE_PRESENT)
                         .onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR, MemoryStatus.VALUE_PRESENT),
                 RockhoppersActivities.WAIT_AROUND_BOBBER, new BrainActivityGroup<Penguin>(RockhoppersActivities.WAIT_AROUND_BOBBER)
                         .priority(10)
