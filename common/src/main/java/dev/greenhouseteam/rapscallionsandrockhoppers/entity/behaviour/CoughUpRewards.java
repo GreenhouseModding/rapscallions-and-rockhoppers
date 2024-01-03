@@ -1,12 +1,10 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour;
 
 import com.mojang.datafixers.util.Pair;
-import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersLootTables;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSoundEvents;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
@@ -46,6 +44,7 @@ public class CoughUpRewards extends DelayedBehaviour<Penguin> {
 
     @Override
     protected void doDelayedAction(Penguin penguin) {
+        BrainUtils.setMemory(penguin, MemoryModuleType.LOOK_TARGET, new EntityTracker(this.playerToCoughFor, true));
         LootTable lootTable = penguin.level().getServer().getLootData().getLootTable(RockhoppersLootTables.PENGUIN_COUGH_UP);
         LootParams.Builder builder = (new LootParams.Builder((ServerLevel)penguin.level())).withParameter(LootContextParams.THIS_ENTITY, penguin).withParameter(LootContextParams.ORIGIN, penguin.position());
         LootParams params = builder.create(LootContextParamSets.GIFT);
@@ -59,7 +58,6 @@ public class CoughUpRewards extends DelayedBehaviour<Penguin> {
     protected void start(Penguin penguin) {
         BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME, penguin.tickCount + 4800);
         BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT, penguin.tickCount + 1800);
-        BrainUtils.setMemory(penguin, MemoryModuleType.LOOK_TARGET, new EntityTracker(this.playerToCoughFor, true));
         penguin.setCoughTicks(0);
     }
 

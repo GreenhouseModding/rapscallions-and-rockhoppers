@@ -4,8 +4,6 @@ import com.mojang.datafixers.util.Pair;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.EntityGetUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -51,7 +49,7 @@ public class WalkToRewardedPlayer extends ExtendedBehaviour<Penguin> {
 
     @Override
     protected void start(Penguin penguin) {
-        BrainUtils.setMemory(penguin, MemoryModuleType.WALK_TARGET, new WalkTarget(this.runPos, 1.0F, 3));
+        BrainUtils.setMemory(penguin, MemoryModuleType.WALK_TARGET, new WalkTarget(this.runPos, 1.0F, 0));
     }
 
     @Override
