@@ -309,7 +309,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                 new FirstApplicableBehaviour<>(
                                         new BreatheAir(),
                                         new FollowTemptation<>(),
-                                        new SetWalkTargetToAttackTarget<>(),
+                                        new SetWalkTargetToAttackTarget<>().startCondition(penguin -> penguin.getAirSupply() >= 260),
                                         new PenguinJump(),
                                         new SetRandomSwimTarget().avoidLandWhen(penguin -> penguin.getRandom().nextFloat() < 0.98F).setRadius(5, 4).walkTargetPredicate((mob, vec3) -> vec3 == null || mob.level().getEntities(EntityTypeTest.forClass(Boat.class), mob.getBoundingBox().move(vec3.subtract(mob.position())).inflate(3.0F, 2.0F, 3.0F), boat -> true).isEmpty())
                                 )
@@ -320,7 +320,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                 new LeaveBoat(),
                                 new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
                                 new SetAttackTarget<Penguin>().attackPredicate(penguin -> {
-                                    if  (!BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) || penguin.getAirSupply() < 140) {
+                                    if  (!BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) || penguin.getAirSupply() < 260) {
                                         return false;
                                     }
 
@@ -341,7 +341,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                 new FirstApplicableBehaviour<>(
                                         new BreatheAir(),
                                         new FollowTemptation<>(),
-                                        new SetWalkTargetToAttackTarget<>(),
+                                        new SetWalkTargetToAttackTarget<>().startCondition(penguin -> penguin.getAirSupply() >= 260),
                                         new PenguinJump(),
                                         new SetRandomSwimTarget().setRadius(6.0F, 4.0F).startCondition(penguin -> penguin.getBoatToFollow() != null && penguin.getBoatToFollow().getDeltaMovement().horizontalDistanceSqr() < 0.05)
                                 )
@@ -784,7 +784,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
     @Override
     public int getMaxAirSupply() {
-        return 900;
+        return 4800;
     }
 
     @Override

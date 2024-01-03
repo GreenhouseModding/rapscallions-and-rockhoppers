@@ -1,5 +1,6 @@
 ### Changes
 - Increase the amount of time until the penguin can eat again after coughing up items from 20 seconds to 1 minute and 30 seconds.
+- Penguins can now hold their breath for up to 4 minutes when in water. (previously 45 seconds)
 - Tweaked penguin feed particles.
 
 ### Bugfixes

@@ -24,7 +24,7 @@ public class BreatheAir extends ExtendedBehaviour<Penguin> {
     private BlockPosTracker targetPos;
 
     public BreatheAir() {
-        this.runFor(penguin -> 140);
+        this.runFor(penguin -> 260);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class BreatheAir extends ExtendedBehaviour<Penguin> {
     }
 
     protected boolean checkExtraStartConditions(ServerLevel level, Penguin penguin) {
-        if (penguin.getAirSupply() > 140) {
+        if (penguin.getAirSupply() > 260) {
             return false;
         }
         Optional<BlockPos> optional = BrainUtils.memoryOrDefault(penguin, SBLMemoryTypes.NEARBY_BLOCKS.get(), List::of).stream().filter(blockPosBlockStatePair -> blockPosBlockStatePair.getSecond().isAir()).map(Pair::getFirst).min(Comparator.comparing(pos -> penguin.blockPosition().distSqr(pos)));
@@ -52,7 +52,7 @@ public class BreatheAir extends ExtendedBehaviour<Penguin> {
 
     @Override
     protected boolean shouldKeepRunning(Penguin penguin) {
-        return penguin.getAirSupply() <= 140;
+        return penguin.getAirSupply() <= 260;
     }
 
     protected void tick(Penguin penguin) {
