@@ -13,3 +13,4 @@
 - Fixed peck and cough up animations not playing.
 - Fixed crash when penguin decides to leave a boat.
 - Fixed penguin not rotating whilst water jumping.
+- Fixed penguin not using boat related nbt.
