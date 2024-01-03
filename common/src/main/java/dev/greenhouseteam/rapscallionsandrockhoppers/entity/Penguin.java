@@ -194,13 +194,18 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         this.setShoveChance(compoundTag.getFloat("shove_chance"));
         if (compoundTag.contains("home", CompoundTag.TAG_COMPOUND))
             BrainUtils.setMemory(this, MemoryModuleType.HOME, GlobalPos.CODEC.decode(NbtOps.INSTANCE, compoundTag.getCompound("home")).getOrThrow(false, RapscallionsAndRockhoppers.LOG::error).getFirst());
-        this.setBoatToFollow(null);
-        if (compoundTag.contains("boat_to_follow", CompoundTag.TAG_INT_ARRAY))
+        if (compoundTag.contains("boat_to_follow"))
             this.setBoatToFollow(compoundTag.getUUID("boat_to_follow"));
-        if (compoundTag.contains("last_following_boat_controller", CompoundTag.TAG_INT_ARRAY))
+        else
+            this.setBoatToFollow(null);
+        if (compoundTag.contains("last_following_boat_controller"))
             BrainUtils.setMemory(this, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER, compoundTag.getUUID("last_following_boat_controller"));
-        if (compoundTag.contains("player_to_cough_for", CompoundTag.TAG_INT_ARRAY))
+        else
+            BrainUtils.clearMemory(this, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER);
+        if (compoundTag.contains("player_to_cough_for"))
             BrainUtils.setMemory(this, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR, compoundTag.getUUID("player_to_cough_for"));
+        else
+            BrainUtils.clearMemory(this, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR);
 
         if (compoundTag.contains("time_allowed_to_follow_boat", CompoundTag.TAG_INT))
             this.setTimeAllowedToFollowBoat(integerOptional(compoundTag.getInt("time_allowed_to_follow_boat")));
@@ -350,13 +355,13 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 RockhoppersActivities.COUGH_UP, new BrainActivityGroup<Penguin>(RockhoppersActivities.COUGH_UP)
                         .priority(10)
                         .behaviours(
+                                new BreatheAir(),
                                 new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
                                 new BreedWithPartner<>(),
                                 new WalkToRewardedPlayer(),
                                 new CoughUpRewards(4),
                                 new FollowTemptation<>()
                         )
-                        .onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_ABSENT)
                         .onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.FISH_EATEN, MemoryStatus.VALUE_PRESENT)
                         .onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR, MemoryStatus.VALUE_PRESENT),
                 RockhoppersActivities.WAIT_AROUND_BOBBER, new BrainActivityGroup<Penguin>(RockhoppersActivities.WAIT_AROUND_BOBBER)
@@ -1176,7 +1181,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         }
 
         private boolean canMove() {
-            return !Penguin.this.isStumbling() && Penguin.this.getShoveTicks() == Integer.MIN_VALUE && !Penguin.this.isCoughingUpItems();
+            return !Penguin.this.isStumbling() && Penguin.this.getShoveTicks() == Integer.MIN_VALUE;
         }
 
     }
