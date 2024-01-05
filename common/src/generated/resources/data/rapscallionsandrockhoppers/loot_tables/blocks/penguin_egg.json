@@ -21,6 +21,19 @@
       "entries": [
         {
           "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:copy_nbt",
+              "ops": [
+                {
+                  "op": "replace",
+                  "source": "penguin_type",
+                  "target": "BlockEntityTag.penguin_type"
+                }
+              ],
+              "source": "block_entity"
+            }
+          ],
           "name": "rapscallionsandrockhoppers:penguin_egg"
         }
       ],

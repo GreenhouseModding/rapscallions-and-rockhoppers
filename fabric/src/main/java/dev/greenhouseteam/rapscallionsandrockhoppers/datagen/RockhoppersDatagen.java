@@ -47,9 +47,11 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootTableReference;
+import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
 import net.minecraft.world.level.storage.loot.functions.EnchantRandomlyFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
@@ -147,7 +149,13 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
 
         @Override
         public void generate() {
-            dropWhenSilkTouch(RockhoppersBlocks.PENGUIN_EGG);
+            this.add(RockhoppersBlocks.PENGUIN_EGG, LootTable.lootTable().withPool(LootPool.lootPool()
+                    .when(HAS_SILK_TOUCH)
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(LootItem.lootTableItem(RockhoppersBlocks.PENGUIN_EGG)
+                            .apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+                                    .copy("penguin_type", "BlockEntityTag.penguin_type")
+                            ))));
         }
     }
 
