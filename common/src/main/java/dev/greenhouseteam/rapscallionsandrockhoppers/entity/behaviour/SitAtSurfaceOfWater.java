@@ -27,7 +27,7 @@ public class SitAtSurfaceOfWater extends ExtendedBehaviour<Penguin> {
     }
 
     protected boolean shouldSit(ServerLevel level, Penguin entity) {
-        return entity.getFluidHeight(FluidTags.WATER) < 0.4;
+        return entity.getFluidHeight(FluidTags.WATER) < 0.6;
     }
 
     protected void tick(Penguin entity) {
