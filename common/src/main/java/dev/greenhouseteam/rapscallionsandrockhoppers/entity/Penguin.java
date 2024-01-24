@@ -332,7 +332,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                         return false;
                                     }
 
-                                    if (penguin.getBoatToFollow() != null && !BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT) || penguin.tickCount > BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT)) {
+                                    if (penguin.getBoatToFollow() != null && (!BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT) || penguin.tickCount > BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT))) {
                                         // As boats don't have velocity on the server, we must do this.
                                         boolean bl = penguin.previousBoatPos.subtract(penguin.getBoatToFollow().position()).horizontalDistance() > 0.075;
                                         penguin.previousBoatPos = penguin.getBoatToFollow().position();
