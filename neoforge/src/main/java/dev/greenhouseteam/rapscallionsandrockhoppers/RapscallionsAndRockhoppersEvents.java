@@ -156,8 +156,6 @@ public class RapscallionsAndRockhoppersEvents {
 
         @SubscribeEvent
         public static void onStartTracking(PlayerEvent.StartTracking event) {
-            if (event.getEntity().level().isClientSide())
-                return;
             event.getTarget().getExistingData(RockhoppersAttachments.BOAT_LINKS).ifPresent(attachment -> PacketDistributor.PLAYER.with((ServerPlayer) event.getEntity()).send());
             event.getTarget().getExistingData(RockhoppersAttachments.PLAYER_LINKS).ifPresent(attachment -> PacketDistributor.PLAYER.with((ServerPlayer) event.getEntity()).send());
         }
