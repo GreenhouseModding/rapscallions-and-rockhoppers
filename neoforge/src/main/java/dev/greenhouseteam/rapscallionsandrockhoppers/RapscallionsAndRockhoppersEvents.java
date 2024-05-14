@@ -97,14 +97,6 @@ public class RapscallionsAndRockhoppersEvents {
         }
 
         @SubscribeEvent
-        public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-            Optional<PlayerLinksAttachment> attachment = event.player.getExistingData(RockhoppersAttachments.PLAYER_LINKS);
-            if (attachment.isPresent() && event.player.tickCount % 20 == 0) {
-                attachment.get().invalidateNonExistentBoats();
-            }
-        }
-
-        @SubscribeEvent
         public static void createEntityAttributes(EntityAttributeCreationEvent event) {
             RockhoppersEntityTypes.createMobAttributes(event::put);
         }
@@ -151,6 +143,14 @@ public class RapscallionsAndRockhoppersEvents {
                     event.setCancellationResult(result);
                     event.setCanceled(true);
                 }
+            }
+        }
+
+        @SubscribeEvent
+        public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+            Optional<PlayerLinksAttachment> attachment = event.player.getExistingData(RockhoppersAttachments.PLAYER_LINKS);
+            if (attachment.isPresent() && event.player.tickCount % 20 == 0) {
+                attachment.get().invalidateNonExistentBoats();
             }
         }
 
