@@ -2,6 +2,8 @@ package dev.greenhouseteam.rapscallionsandrockhoppers;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacket;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacket;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
@@ -14,6 +16,8 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
@@ -43,6 +47,17 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
                 return InteractionResult.PASS;
             }
             return IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat).handleInteractionWithBoatHook(player, hand);
+        });
+
+        EntityTrackingEvents.START_TRACKING.register((entity, player) -> {
+            if (entity.hasAttached(RockhoppersAttachments.BOAT_LINKS)) {
+                var packet = new SyncBoatLinksAttachmentPacket(entity.getId(), entity.getAttached(RockhoppersAttachments.BOAT_LINKS));
+                ServerPlayNetworking.send(player, packet.id(), packet.toBuf());
+            }
+            if (entity.hasAttached(RockhoppersAttachments.PLAYER_LINKS)) {
+                var packet = new SyncPlayerLinksAttachmentPacket(entity.getId(), entity.getAttached(RockhoppersAttachments.PLAYER_LINKS));
+                ServerPlayNetworking.send(player, packet.id(), packet.toBuf());
+            }
         });
     }
 
