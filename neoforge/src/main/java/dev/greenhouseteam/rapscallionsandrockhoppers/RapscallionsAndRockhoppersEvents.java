@@ -81,45 +81,37 @@ public class RapscallionsAndRockhoppersEvents {
         public static void registerSpawnPlacements(SpawnPlacementRegisterEvent event) {
             event.register(RockhoppersEntityTypes.PENGUIN, SpawnPlacements.Type.IN_WATER, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Penguin::checkPenguinSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
         }
-    }
 
-    @SubscribeEvent
-    public static void register(RegisterPayloadHandlerEvent event) {
-        event.registrar(RapscallionsAndRockhoppers.MOD_ID)
-                .versioned("1.0.0")
-                .play(InvalidateCachedPenguinTypePacket.ID, InvalidateCachedPenguinTypePacket::read, createCommonS2CHandler(InvalidateCachedPenguinTypePacket::handle))
-                .play(SyncBlockPosLookPacketS2C.ID, SyncBlockPosLookPacketS2C::read, createCommonS2CHandler(SyncBlockPosLookPacketS2C::handle))
-                .play(SyncBoatLinksAttachmentPacket.ID, SyncBoatLinksAttachmentPacket::read, createCommonS2CHandler(SyncBoatLinksAttachmentPacket::handle))
-                .play(SyncPlayerLinksAttachmentPacket.ID, SyncPlayerLinksAttachmentPacket::read, createCommonS2CHandler(SyncPlayerLinksAttachmentPacket::handle));
-    }
-
-    private static <MSG extends CustomPacketPayload> Consumer<IDirectionAwarePayloadHandlerBuilder<MSG, IPlayPayloadHandler<MSG>>> createCommonS2CHandler(Consumer<MSG> handler) {
-        return builder -> builder.client((payload, context) -> handler.accept(payload));
-    }
-
-    @SubscribeEvent
-    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        Optional<PlayerLinksAttachment> attachment = event.player.getExistingData(RockhoppersAttachments.PLAYER_LINKS);
-        if (attachment.isPresent() && event.player.tickCount % 20 == 0) {
-            attachment.get().invalidateNonExistentBoats();
+        @SubscribeEvent
+        public static void register(RegisterPayloadHandlerEvent event) {
+            event.registrar(RapscallionsAndRockhoppers.MOD_ID)
+                    .versioned("1.0.0")
+                    .play(InvalidateCachedPenguinTypePacket.ID, InvalidateCachedPenguinTypePacket::read, createCommonS2CHandler(InvalidateCachedPenguinTypePacket::handle))
+                    .play(SyncBlockPosLookPacketS2C.ID, SyncBlockPosLookPacketS2C::read, createCommonS2CHandler(SyncBlockPosLookPacketS2C::handle))
+                    .play(SyncBoatLinksAttachmentPacket.ID, SyncBoatLinksAttachmentPacket::read, createCommonS2CHandler(SyncBoatLinksAttachmentPacket::handle))
+                    .play(SyncPlayerLinksAttachmentPacket.ID, SyncPlayerLinksAttachmentPacket::read, createCommonS2CHandler(SyncPlayerLinksAttachmentPacket::handle));
         }
-    }
 
-    @SubscribeEvent
-    public static void createEntityAttributes(EntityAttributeCreationEvent event) {
-        RockhoppersEntityTypes.createMobAttributes(event::put);
-    }
+        private static <MSG extends CustomPacketPayload> Consumer<IDirectionAwarePayloadHandlerBuilder<MSG, IPlayPayloadHandler<MSG>>> createCommonS2CHandler(Consumer<MSG> handler) {
+            return builder -> builder.client((payload, context) -> handler.accept(payload));
+        }
 
-    @SubscribeEvent
-    public static void onCreativeModeTabBuild(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
-            RockhoppersItems.addAfterIngredientsTab((stack, stack2) -> event.getEntries().putAfter(stack2, stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
-        } else if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
-            RockhoppersItems.addBeforeToolsAndUtilitiesTab((stack, stack2) -> event.getEntries().putBefore(stack2, stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
-        } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
-            RockhoppersItems.addAfterNaturalBlocksTab((stack, stack2) -> event.getEntries().putAfter(stack2, stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
-        } else if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
-            RockhoppersItems.addSpawnEggsTab(event::accept);
+        @SubscribeEvent
+        public static void createEntityAttributes(EntityAttributeCreationEvent event) {
+            RockhoppersEntityTypes.createMobAttributes(event::put);
+        }
+
+        @SubscribeEvent
+        public static void onCreativeModeTabBuild(BuildCreativeModeTabContentsEvent event) {
+            if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
+                RockhoppersItems.addAfterIngredientsTab((stack, stack2) -> event.getEntries().putAfter(stack2, stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
+            } else if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+                RockhoppersItems.addBeforeToolsAndUtilitiesTab((stack, stack2) -> event.getEntries().putBefore(stack2, stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
+            } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
+                RockhoppersItems.addAfterNaturalBlocksTab((stack, stack2) -> event.getEntries().putAfter(stack2, stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
+            } else if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
+                RockhoppersItems.addSpawnEggsTab(event::accept);
+            }
         }
     }
 
@@ -139,6 +131,14 @@ public class RapscallionsAndRockhoppersEvents {
         public static void onDataPackSync(OnDatapackSyncEvent event) {
             if (event.getPlayer() == null) {
                 event.getPlayerList().getServer().getAllLevels().forEach(Penguin::invalidateCachedPenguinTypes);
+            }
+        }
+
+        @SubscribeEvent
+        public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+            Optional<PlayerLinksAttachment> attachment = event.player.getExistingData(RockhoppersAttachments.PLAYER_LINKS);
+            if (attachment.isPresent() && event.player.tickCount % 20 == 0) {
+                attachment.get().invalidateNonExistentBoats();
             }
         }
 
