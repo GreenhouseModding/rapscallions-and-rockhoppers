@@ -2,7 +2,7 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.greenhouseteam.rapscallionsandrockhoppers.componability.IBoatData;
+import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.BoatLinksAttachment;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -32,7 +32,7 @@ public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
 
     @Inject(method = "render(Lnet/minecraft/world/entity/vehicle/Boat;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"))
     public void addBoatHookRenderering(Boat boat, float yaw, float tickDelta, PoseStack poseStack, MultiBufferSource multiBufferSource, int light, CallbackInfo ci) {
-        IBoatData boatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat);
+        BoatLinksAttachment boatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat);
         boatData.getPreviousLinkedBoats().forEach(previous -> rapscallionsandrockhoppers$renderLeash(boat, yaw, tickDelta, poseStack, multiBufferSource, previous));
         if (boatData.getLinkedPlayer() != null) {
             rapscallionsandrockhoppers$renderLeash(boat, yaw, tickDelta, poseStack, multiBufferSource, boatData.getLinkedPlayer());

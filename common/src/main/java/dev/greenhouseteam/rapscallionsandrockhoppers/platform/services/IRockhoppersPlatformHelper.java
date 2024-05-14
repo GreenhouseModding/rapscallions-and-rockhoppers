@@ -1,9 +1,10 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.platform.services;
 
-import dev.greenhouseteam.rapscallionsandrockhoppers.componability.IBoatData;
-import dev.greenhouseteam.rapscallionsandrockhoppers.componability.IPlayerData;
+import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.BoatLinksAttachment;
+import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.PlayerLinksAttachment;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.RapscallionsAndRockhoppersPacketS2C;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.ServiceUtil;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
@@ -46,8 +47,12 @@ public interface IRockhoppersPlatformHelper {
 
     void sendS2CTracking(RapscallionsAndRockhoppersPacketS2C packet, Entity entity);
 
-    IBoatData getBoatData(Boat boat);
-    IPlayerData getPlayerData(Player player);
+    BoatLinksAttachment getBoatData(Boat boat);
+    void syncBoatData(Boat boat);
+    PlayerLinksAttachment getPlayerData(Player player);
+    void syncPlayerData(Player player);
 
     boolean runAndIsBreedEventCancelled(Animal parent, Animal otherParent);
+
+    CompoundTag getLegacyTagStart(CompoundTag entityTag);
 }

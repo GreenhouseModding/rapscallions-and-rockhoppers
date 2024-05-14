@@ -13,18 +13,18 @@ public record SyncBlockPosLookPacketS2C(int entityId, int otherEntityId, Vec3 lo
     public static final ResourceLocation ID = RapscallionsAndRockhoppers.asResource("sync_x_rotation");
 
     @Override
-    public void encode(FriendlyByteBuf buf) {
+    public void write(FriendlyByteBuf buf) {
         buf.writeInt(this.entityId());
         buf.writeInt(this.otherEntityId());
         buf.writeVec3(this.lookPos());
     }
 
-    public static SyncBlockPosLookPacketS2C decode(FriendlyByteBuf buf) {
+    public static SyncBlockPosLookPacketS2C read(FriendlyByteBuf buf) {
         return new SyncBlockPosLookPacketS2C(buf.readInt(), buf.readInt(), buf.readVec3());
     }
 
     @Override
-    public ResourceLocation getFabricId() {
+    public ResourceLocation id() {
         return ID;
     }
 

@@ -29,9 +29,6 @@
         ],
         "fabric-datagen": [
             "dev.greenhouseteam.rapscallionsandrockhoppers.datagen.RockhoppersDatagen"
-        ],
-        "cardinal-components": [
-            "dev.greenhouseteam.rapscallionsandrockhoppers.RockhoppersEntityComponents"
         ]
     },
     "custom": {

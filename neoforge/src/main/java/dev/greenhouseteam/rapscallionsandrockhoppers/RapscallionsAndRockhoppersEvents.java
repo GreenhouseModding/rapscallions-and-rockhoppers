@@ -1,22 +1,21 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers;
 
-import dev.greenhouseteam.rapscallionsandrockhoppers.componability.BoatDataCapability;
-import dev.greenhouseteam.rapscallionsandrockhoppers.componability.PlayerDataCapability;
+import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.BoatLinksAttachment;
+import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.PlayerLinksAttachment;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
-import dev.greenhouseteam.rapscallionsandrockhoppers.network.RockhoppersPacketHandler;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.InvalidateCachedPenguinTypePacket;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBlockPosLookPacketS2C;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacket;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacket;
+import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RegisterFunction;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
-import dev.greenhouseteam.rdpr.api.ReloadableRegistryEvent;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SpawnPlacements;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -24,32 +23,27 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
-import net.neoforged.neoforge.event.entity.EntityEvent;
 import net.neoforged.neoforge.event.entity.SpawnPlacementRegisterEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
+import net.neoforged.neoforge.network.handling.IPlayPayloadHandler;
+import net.neoforged.neoforge.network.registration.IDirectionAwarePayloadHandlerBuilder;
+import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class RapscallionsAndRockhoppersEvents {
     @Mod.EventBusSubscriber(modid = RapscallionsAndRockhoppers.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class ModBusEvents {
-
-        @SubscribeEvent
-        public static void commonSetup(FMLCommonSetupEvent event) {
-            RockhoppersPacketHandler.register();
-        }
 
         @SubscribeEvent
         public static void registerContent(RegisterEvent event) {
@@ -76,18 +70,9 @@ public class RapscallionsAndRockhoppersEvents {
             event.dataPackRegistry(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY, PenguinType.CODEC, PenguinType.CODEC);
         }
 
-        @SubscribeEvent
-        public static void makeDataPackRegistriesReloadable(ReloadableRegistryEvent event) {
-            RapscallionsAndRockhoppers.createRDPRContents(event);
-        }
-
         private static <T> void register(RegisterEvent event, Consumer<RegisterFunction<T>> consumer) {
             consumer.accept((registry, id, value) -> event.register(registry.key(), id, () -> value));
         }
-
-        private static final Map<Player, PlayerDataCapability> PLAYER_DATA_CAPABILITY_CACHE = new WeakHashMap<>(512);
-        private static final Map<Boat, BoatDataCapability> BOAT_DATA_CAPABILITY_CACHE = new WeakHashMap<>(512);
-
 
         @SubscribeEvent(priority = EventPriority.HIGHEST)
         public static void registerSpawnPlacements(SpawnPlacementRegisterEvent event) {
@@ -95,25 +80,9 @@ public class RapscallionsAndRockhoppersEvents {
         }
 
         @SubscribeEvent
-        public static void attachCapabilities(RegisterCapabilitiesEvent event) {
-            for (Map.Entry<ResourceKey<EntityType<?>>, EntityType<?>> entityType : BuiltInRegistries.ENTITY_TYPE.entrySet()) {
-                if (entityType.getValue().getBaseClass().isAssignableFrom(Boat.class)) {
-                    event.registerEntity(RockhoppersCapabilities.BOAT_DATA, entityType.getValue(), (entity, ctx) -> {
-                        if (entity instanceof Boat boat) {
-                            return BOAT_DATA_CAPABILITY_CACHE.computeIfAbsent(boat, BoatDataCapability::new);
-                        }
-                        return null;
-                    });
-                }
-            }
-            event.registerEntity(RockhoppersCapabilities.PLAYER_DATA, EntityType.PLAYER, (player, context) -> PLAYER_DATA_CAPABILITY_CACHE.computeIfAbsent(player, PlayerDataCapability::new));
-        }
-
-        @SubscribeEvent
         public static void onBoatInteraction(PlayerInteractEvent.EntityInteract event) {
             if (event.getTarget() instanceof Boat boat) {
-                BoatDataCapability capability = boat.getCapability(RockhoppersCapabilities.BOAT_DATA);
-                if (capability != null) {
+                BoatLinksAttachment capability = IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat);
                     InteractionResult result = capability.handleInteractionWithBoatHook(event.getEntity(), event.getHand());
                     if (result != InteractionResult.PASS) {
                         event.setCancellationResult(result);
@@ -124,10 +93,24 @@ public class RapscallionsAndRockhoppersEvents {
         }
 
         @SubscribeEvent
+        public static void register(RegisterPayloadHandlerEvent event) {
+            event.registrar(RapscallionsAndRockhoppers.MOD_ID)
+                    .versioned("1.0.0")
+                    .play(InvalidateCachedPenguinTypePacket.ID, InvalidateCachedPenguinTypePacket::read, createCommonS2CHandler(InvalidateCachedPenguinTypePacket::handle))
+                    .play(SyncBlockPosLookPacketS2C.ID, SyncBlockPosLookPacketS2C::read, createCommonS2CHandler(SyncBlockPosLookPacketS2C::handle))
+                    .play(SyncBoatLinksAttachmentPacket.ID, SyncBoatLinksAttachmentPacket::read, createCommonS2CHandler(SyncBoatLinksAttachmentPacket::handle))
+                    .play(SyncPlayerLinksAttachmentPacket.ID, SyncPlayerLinksAttachmentPacket::read, createCommonS2CHandler(SyncPlayerLinksAttachmentPacket::handle));
+        }
+
+        private static <MSG extends CustomPacketPayload> Consumer<IDirectionAwarePayloadHandlerBuilder<MSG, IPlayPayloadHandler<MSG>>> createCommonS2CHandler(Consumer<MSG> handler) {
+            return builder -> builder.client((payload, context) -> handler.accept(payload));
+        }
+
+        @SubscribeEvent
         public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-            PlayerDataCapability capability = event.player.getCapability(RockhoppersCapabilities.PLAYER_DATA);
-            if (capability != null && event.player.tickCount % 20 == 0) {
-                capability.invalidateNonExistentBoats();
+            Optional<PlayerLinksAttachment> attachment = event.player.getExistingData(RockhoppersAttachments.PLAYER_LINKS);
+            if (attachment.isPresent() && event.player.tickCount % 20 == 0) {
+                attachment.get().invalidateNonExistentBoats();
             }
         }
 

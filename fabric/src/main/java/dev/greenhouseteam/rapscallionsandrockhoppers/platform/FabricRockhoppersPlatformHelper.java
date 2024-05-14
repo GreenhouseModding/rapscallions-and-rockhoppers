@@ -1,14 +1,16 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.platform;
 
 import com.google.auto.service.AutoService;
-import dev.greenhouseteam.rapscallionsandrockhoppers.RockhoppersEntityComponents;
-import dev.greenhouseteam.rapscallionsandrockhoppers.componability.IBoatData;
-import dev.greenhouseteam.rapscallionsandrockhoppers.componability.IPlayerData;
+import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.BoatLinksAttachment;
+import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.PlayerLinksAttachment;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.RockhoppersPackets;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.RapscallionsAndRockhoppersPacketS2C;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacket;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacket;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
-import dev.onyxstudios.cca.internal.entity.CardinalComponentsEntity;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersAttachments;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
@@ -40,17 +42,38 @@ public class FabricRockhoppersPlatformHelper implements IRockhoppersPlatformHelp
     }
 
     @Override
-    public IBoatData getBoatData(Boat boat) {
-        return boat.getComponent(RockhoppersEntityComponents.BOAT_DATA_COMPONENT);
+    public BoatLinksAttachment getBoatData(Boat boat) {
+        BoatLinksAttachment attachment = boat.getAttachedOrCreate(RockhoppersAttachments.BOAT_LINKS);
+        if (attachment.getProvider() == null)
+            attachment.setProvider(boat);
+        return attachment;
     }
 
     @Override
-    public IPlayerData getPlayerData(Player player) {
-        return player.getComponent(RockhoppersEntityComponents.PLAYER_DATA_COMPONENT);
+    public void syncBoatData(Boat boat) {
+        sendS2CTracking(new SyncBoatLinksAttachmentPacket(boat.getId(), getBoatData(boat)), boat);
+    }
+
+    @Override
+    public PlayerLinksAttachment getPlayerData(Player player) {
+        PlayerLinksAttachment attachment = player.getAttachedOrCreate(RockhoppersAttachments.PLAYER_LINKS);
+        if (attachment.getProvider() == null)
+            attachment.setProvider(player);
+        return attachment;
+    }
+
+    @Override
+    public void syncPlayerData(Player player) {
+        sendS2CTracking(new SyncPlayerLinksAttachmentPacket(player.getId(), getPlayerData(player)), player);
     }
 
     @Override
     public boolean runAndIsBreedEventCancelled(Animal parent, Animal otherParent) {
         return false;
+    }
+
+    @Override
+    public CompoundTag getLegacyTagStart(CompoundTag entityTag) {
+        return entityTag.getCompound("cardinal_components");
     }
 }

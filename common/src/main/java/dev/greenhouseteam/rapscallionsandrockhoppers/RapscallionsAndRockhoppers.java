@@ -2,8 +2,6 @@ package dev.greenhouseteam.rapscallionsandrockhoppers;
 
 import com.mojang.datafixers.util.Pair;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
-import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
-import dev.greenhouseteam.rdpr.api.IReloadableRegistryCreationHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
@@ -28,10 +26,6 @@ public class RapscallionsAndRockhoppers {
 
     public static void init() {
 
-    }
-
-    public static void createRDPRContents(IReloadableRegistryCreationHelper helper) {
-        helper.fromExistingRegistry(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY);
     }
 
     /**

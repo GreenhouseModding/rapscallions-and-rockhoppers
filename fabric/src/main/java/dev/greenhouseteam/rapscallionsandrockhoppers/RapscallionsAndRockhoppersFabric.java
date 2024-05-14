@@ -2,12 +2,14 @@ package dev.greenhouseteam.rapscallionsandrockhoppers;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
+import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectionContext;
 import net.fabricmc.fabric.api.biome.v1.ModificationPhase;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
@@ -19,6 +21,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.biome.MobSpawnSettings;
@@ -30,6 +33,7 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         RapscallionsAndRockhoppers.init();
+        RockhoppersAttachments.init();
         handleRegistration();
         handleBiomeModifications();
         handlePenguinTypeRegistryEvents();
@@ -38,7 +42,7 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
             if (player.isSpectator() || !(entity instanceof Boat boat)) {
                 return InteractionResult.PASS;
             }
-            return boat.getComponent(RockhoppersEntityComponents.BOAT_DATA_COMPONENT).handleInteractionWithBoatHook(player, hand);
+            return IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat).handleInteractionWithBoatHook(player, hand);
         });
     }
 

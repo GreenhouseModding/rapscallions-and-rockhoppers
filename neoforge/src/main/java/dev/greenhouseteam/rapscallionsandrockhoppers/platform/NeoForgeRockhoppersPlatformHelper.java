@@ -1,12 +1,14 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.platform;
 
 import com.google.auto.service.AutoService;
-import dev.greenhouseteam.rapscallionsandrockhoppers.componability.IBoatData;
-import dev.greenhouseteam.rapscallionsandrockhoppers.componability.IPlayerData;
-import dev.greenhouseteam.rapscallionsandrockhoppers.network.RockhoppersPacketHandler;
+import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.BoatLinksAttachment;
+import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.PlayerLinksAttachment;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.RapscallionsAndRockhoppersPacketS2C;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacket;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacket;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersCapabilities;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersAttachments;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
@@ -15,6 +17,8 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.event.entity.living.BabyEntitySpawnEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import java.util.Optional;
 
 @AutoService(IRockhoppersPlatformHelper.class)
 public class NeoForgeRockhoppersPlatformHelper implements IRockhoppersPlatformHelper {
@@ -38,22 +42,43 @@ public class NeoForgeRockhoppersPlatformHelper implements IRockhoppersPlatformHe
 
     @Override
     public void sendS2CTracking(RapscallionsAndRockhoppersPacketS2C packet, Entity entity) {
-        RockhoppersPacketHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), packet);
+        PacketDistributor.TRACKING_ENTITY.with(entity).send(packet);
     }
 
     @Override
-    public IBoatData getBoatData(Boat boat) {
-        return boat.getCapability(RockhoppersCapabilities.BOAT_DATA);
+    public BoatLinksAttachment getBoatData(Boat boat) {
+        BoatLinksAttachment attachment = boat.getData(RockhoppersAttachments.BOAT_LINKS);
+        if (attachment.getProvider() == null)
+            attachment.setProvider(boat);
+        return attachment;
     }
 
     @Override
-    public IPlayerData getPlayerData(Player player) {
-        return player.getCapability(RockhoppersCapabilities.PLAYER_DATA);
+    public void syncBoatData(Boat boat) {
+        sendS2CTracking(new SyncBoatLinksAttachmentPacket(boat.getId(), getBoatData(boat)), boat);
+    }
+
+    @Override
+    public PlayerLinksAttachment getPlayerData(Player player) {
+        PlayerLinksAttachment attachment = player.getData(RockhoppersAttachments.PLAYER_LINKS);
+        if (attachment.getProvider() == null)
+            attachment.setProvider(player);
+        return attachment;
+    }
+
+    @Override
+    public void syncPlayerData(Player player) {
+        sendS2CTracking(new SyncPlayerLinksAttachmentPacket(player.getId(), getPlayerData(player)), player);
     }
 
     @Override
     public boolean runAndIsBreedEventCancelled(Animal parent, Animal otherParent) {
         BabyEntitySpawnEvent event = new BabyEntitySpawnEvent(parent, otherParent, null);
         return event.isCanceled();
+    }
+
+    @Override
+    public CompoundTag getLegacyTagStart(CompoundTag entityTag) {
+        return entityTag.getCompound("neoforge:attachments");
     }
 }

@@ -1,10 +1,14 @@
-package dev.greenhouseteam.rapscallionsandrockhoppers.componability;
+package dev.greenhouseteam.rapscallionsandrockhoppers.attachment;
 
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import dev.greenhouseteam.rapscallionsandrockhoppers.mixin.BoatAccessor;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersItems;
+import dev.greenhouseteam.rapscallionsandrockhoppers.util.EntityGetUtil;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
@@ -20,48 +24,164 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Unique;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-public interface IBoatData {
-    ResourceLocation ID = RapscallionsAndRockhoppers.asResource("boat_data");
+public class BoatLinksAttachment {
+    public static final ResourceLocation ID = RapscallionsAndRockhoppers.asResource("boat_links");
 
-    double HOOK_DAMPENING_FACTOR = 0.2d;
+    private static final double HOOK_DAMPENING_FACTOR = 0.2D;
+    private Set<UUID> penguins;
+    private Set<UUID> nextLinkedBoats;
+    private Set<UUID> previousLinkedBoats;
 
-    default @Nullable Boat getProvider() {
+    private @Nullable UUID linkedPlayer;
+    private @Nullable Boat instance;
+
+    public static final Codec<BoatLinksAttachment> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            UUIDUtil.CODEC_SET.fieldOf("penguins").forGetter(BoatLinksAttachment::getFollowingPenguins),
+            UUIDUtil.CODEC_SET.fieldOf("linked_boats_after").forGetter(BoatLinksAttachment::getNextLinkedBoatUuids),
+            UUIDUtil.CODEC_SET.fieldOf("linked_boats_before").forGetter(BoatLinksAttachment::getPreviousLinkedBoatUuids)
+    ).apply(inst, BoatLinksAttachment::new));
+
+    public BoatLinksAttachment() {
+        this.penguins = new HashSet<>();
+        this.nextLinkedBoats = new HashSet<>();
+        this.previousLinkedBoats = new HashSet<>();
+    }
+
+    public BoatLinksAttachment(Set<UUID> penguins, Set<UUID> nextLinkedBoats, Set<UUID> previousLinkedBoats) {
+        this.penguins = penguins;
+        this.nextLinkedBoats = nextLinkedBoats;
+        this.previousLinkedBoats = previousLinkedBoats;
+    }
+
+    public void setFrom(BoatLinksAttachment other) {
+        this.penguins = other.penguins;
+        this.nextLinkedBoats = other.nextLinkedBoats;
+        this.previousLinkedBoats = other.previousLinkedBoats;
+    }
+
+    public Set<UUID> getNextLinkedBoatUuids() {
+        return this.nextLinkedBoats;
+    }
+
+    public Set<UUID> getPreviousLinkedBoatUuids() {
+        return this.previousLinkedBoats;
+    }
+
+    public void clearNextLinkedBoatUuids() {
+        this.nextLinkedBoats.clear();
+    }
+
+    public void clearPreviousLinkedBoatUuids() {
+        this.previousLinkedBoats.clear();
+    }
+
+    public @Nullable UUID getLinkedPlayerUuid() {
+        return linkedPlayer;
+    }
+
+    public void setLinkedPlayer(@Nullable UUID player) {
+        this.linkedPlayer = player;
+    }
+
+    public void addNextLinkedBoat(@Nullable UUID boat) {
+        this.nextLinkedBoats.add(boat);
+    }
+
+    public void removeNextLinkedBoat(@Nullable UUID boat) {
+        this.nextLinkedBoats.remove(boat);
+    }
+
+    public void addPreviousLinkedBoat(@Nullable UUID boat) {
+        this.previousLinkedBoats.add(boat);
+    }
+
+    public void removePreviousLinkedBoat(@Nullable UUID boat) {
+        this.previousLinkedBoats.remove(boat);
+    }
+
+    public Set<UUID> getFollowingPenguins() {
+        return Set.copyOf(this.penguins);
+    }
+
+    public int penguinCount() {
+        return this.penguins.size();
+    }
+
+    public void addFollowingPenguin(UUID penguinUUID) {
+        this.penguins.add(penguinUUID);
+    }
+
+    public void removeFollowingPenguin(UUID penguinUUID) {
+        this.penguins.remove(penguinUUID);
+    }
+
+    public void clearFollowingPenguins() {
+        this.penguins.clear();
+    }
+
+    public @Nullable Boat getProvider() {
+        return instance;
+    }
+
+    public void setProvider(Boat boat) {
+        if (instance != null)
+            return;
+        instance = boat;
+    }
+
+    public Set<Boat> getNextLinkedBoats() {
+        if (getProvider() != null) {
+            return this.getNextLinkedBoatUuids().stream().map(uuid -> {
+                Entity entity = EntityGetUtil.getEntityFromUuid(this.getProvider().level(), uuid);
+                if (entity instanceof Boat boat) {
+                    return boat;
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toSet());
+        }
+        return Set.of();
+    }
+
+    public Set<Boat> getPreviousLinkedBoats() {
+        if (getProvider() != null) {
+            return this.getPreviousLinkedBoatUuids().stream().map(uuid -> {
+                Entity entity = EntityGetUtil.getEntityFromUuid(this.getProvider().level(), uuid);
+                if (entity instanceof Boat boat) {
+                    return boat;
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toSet());
+        }
+        return Set.of();
+    }
+
+    public @Nullable Player getLinkedPlayer() {
+        if (getProvider() != null) {
+            Entity entity = EntityGetUtil.getEntityFromUuid(this.getProvider().level(), linkedPlayer);
+            if (entity instanceof Player player) {
+                return player;
+            }
+        }
         return null;
     }
 
-    Set<UUID> getNextLinkedBoatUuids();
-    void clearNextLinkedBoatUuids();
-    Set<UUID> getPreviousLinkedBoatUuids();
-    void clearPreviousLinkedBoatUuids();
-    @Nullable UUID getLinkedPlayerUuid();
-    default Set<Boat> getNextLinkedBoats() {
-        return null;
-    }
-    default Set<Boat> getPreviousLinkedBoats() {
-        return null;
-    }
-    default @Nullable Player getLinkedPlayer() {
-        return null;
-    }
-    void setLinkedPlayer(@Nullable UUID player);
-    void addNextLinkedBoat(UUID boat);
-    void removeNextLinkedBoat(UUID boat);
-    void addPreviousLinkedBoat(UUID boat);
-    void removePreviousLinkedBoat(UUID boat);
-    default boolean canLinkTo(Boat otherBoat) {
-        IBoatData otherBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(otherBoat);
+    public boolean canLinkTo(Boat otherBoat) {
+        BoatLinksAttachment otherBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(otherBoat);
         return !this.getPreviousLinkedBoats().contains(otherBoat) && !this.getNextLinkedBoats().contains(otherBoat) && !otherBoatData.getPreviousLinkedBoats().contains(this.getProvider()) && !otherBoatData.getNextLinkedBoats().contains(this.getProvider());
     }
 
-    default InteractionResult handleInteractionWithBoatHook(Player player, InteractionHand interactionHand) {
+    public InteractionResult handleInteractionWithBoatHook(Player player, InteractionHand interactionHand) {
         if (this.getProvider() == null) {
             return InteractionResult.PASS;
         }
-        IPlayerData playerData = IRockhoppersPlatformHelper.INSTANCE.getPlayerData(player);
+        PlayerLinksAttachment playerData = IRockhoppersPlatformHelper.INSTANCE.getPlayerData(player);
         if (this.getLinkedPlayer() == player) {
             this.setLinkedPlayer(null);
             playerData.removeLinkedBoat(this.getProvider().getUUID());
@@ -85,7 +205,7 @@ public interface IBoatData {
         if (this.getLinkedPlayer() == null && !playerData.getLinkedBoats().isEmpty()) {
             var otherBoats = playerData.getLinkedBoats();
             for (var otherBoat : otherBoats) {
-                IBoatData otherBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(otherBoat);
+                BoatLinksAttachment otherBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(otherBoat);
                 if (!otherBoat.is(this.getProvider()) && otherBoatData.canLinkTo(this.getProvider())) {
                     if (otherBoatData.getLinkedPlayer() == player) {
                         otherBoatData.addPreviousLinkedBoat(this.getProvider().getUUID());
@@ -103,7 +223,7 @@ public interface IBoatData {
         return InteractionResult.PASS;
     }
 
-    default void addBoatMovementCode() {
+    public void addBoatMovementCode() {
         if (this.getProvider() == null || this.getProvider().level().isClientSide()) return;
         if (this.getLinkedPlayer() != null) {
             var distanceBetween = this.getLinkedPlayer().distanceTo(this.getProvider());
@@ -128,7 +248,7 @@ public interface IBoatData {
             }).toList()) {
                 if (next.getSecond() == null || next.getSecond().isRemoved() || next.getSecond().distanceTo(this.getProvider()) > 16) {
                     if (next.getSecond() != null) {
-                        IBoatData nextBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(next.getSecond());
+                        BoatLinksAttachment nextBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(next.getSecond());
                         nextBoatData.removePreviousLinkedBoat(this.getProvider().getUUID());
                     }
                     this.getProvider().spawnAtLocation(RockhoppersItems.BOAT_HOOK);
@@ -147,7 +267,7 @@ public interface IBoatData {
             }).toList()) {
                 if (previous.getSecond() == null || previous.getSecond().isRemoved() || previous.getSecond().distanceTo(this.getProvider()) > 16) {
                     if (previous.getSecond() != null) {
-                        IBoatData nextBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(previous.getSecond());
+                        BoatLinksAttachment nextBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(previous.getSecond());
                         nextBoatData.removePreviousLinkedBoat(this.getProvider().getUUID());
                     }
                     this.getProvider().spawnAtLocation(RockhoppersItems.BOAT_HOOK);
@@ -170,7 +290,7 @@ public interface IBoatData {
         var distanceFactor = (distanceBetween - 3) / 7;
 
         // This controls the velocity of the boat, making it quicker the further away it is
-        var betweenVec = thisPos.vectorTo(otherPos).scale(IBoatData.HOOK_DAMPENING_FACTOR);
+        var betweenVec = thisPos.vectorTo(otherPos).scale(BoatLinksAttachment.HOOK_DAMPENING_FACTOR);
         var thisDelta = betweenVec.normalize().scale(distanceBetween).scale(distanceFactor);
         // If the delta is forcing this backwards, don't do it
         // if (thisDelta.dot(this.getDeltaMovement()) < 0) return;
@@ -183,7 +303,7 @@ public interface IBoatData {
             this.getProvider().setYRot(this.getProvider().getYRot() + cross);
         }
     }
-    default void rapscallionsandrockhoppers$moveTowardsNonBoat(Entity other) {
+    public void rapscallionsandrockhoppers$moveTowardsNonBoat(Entity other) {
         var thisPos = this.getProvider().position();
         var otherPos = other.position();
         if (other.getDeltaMovement().horizontalDistance() > 0.05) {
@@ -202,40 +322,7 @@ public interface IBoatData {
         }
     }
 
-    List<UUID> getFollowingPenguins();
-    int penguinCount();
-    void addFollowingPenguin(UUID penguinUUID);
-    void removeFollowingPenguin(UUID penguinUUID);
-    void clearFollowingPenguins();
-
-    default void serialize(CompoundTag tag) {
-        if (!this.getNextLinkedBoatUuids().isEmpty()) {
-            ListTag boats = new ListTag();
-            for (UUID uuid : this.getNextLinkedBoatUuids()) {
-                boats.add(NbtUtils.createUUID(uuid));
-            }
-            tag.put("next_linked_boats", boats);
-        }
-        if (!this.getPreviousLinkedBoatUuids().isEmpty()) {
-            ListTag boats = new ListTag();
-            for (UUID uuid : this.getPreviousLinkedBoatUuids()) {
-                boats.add(NbtUtils.createUUID(uuid));
-            }
-            tag.put("previous_linked_boats", boats);
-        }
-        if (this.getLinkedPlayerUuid() != null) {
-            tag.putUUID("linked_player", this.getLinkedPlayerUuid());
-        }
-        if (this.penguinCount() > 0) {
-            ListTag penguins = new ListTag();
-            for (UUID uuid : this.getFollowingPenguins()) {
-                penguins.add(NbtUtils.createUUID(uuid));
-            }
-            tag.put("following_penguins", penguins);
-        }
-    }
-
-    default void deserialize(CompoundTag tag) {
+    public void deserializeLegacyData(CompoundTag tag) {
         this.clearNextLinkedBoatUuids();
         if (tag.contains("next_linked_boats", Tag.TAG_LIST)) {
             ListTag boats = tag.getList("next_linked_boats", Tag.TAG_INT_ARRAY);
@@ -259,7 +346,9 @@ public interface IBoatData {
         }
     }
 
-    default void sync() {
-
+    public void sync() {
+        if (getProvider() == null || getProvider().level().isClientSide())
+            return;
+        IRockhoppersPlatformHelper.INSTANCE.syncBoatData(getProvider());
     }
 }

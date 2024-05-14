@@ -11,17 +11,17 @@ public record InvalidateCachedPenguinTypePacket(int penguinEntityId, ResourceLoc
     public static final ResourceLocation ID = RapscallionsAndRockhoppers.asResource("invalidate_cached_penguin_type");
 
     @Override
-    public void encode(FriendlyByteBuf buf) {
+    public void write(FriendlyByteBuf buf) {
         buf.writeInt(this.penguinEntityId());
         buf.writeResourceLocation(this.penguinTypeId());
     }
 
-    public static InvalidateCachedPenguinTypePacket decode(FriendlyByteBuf buf) {
+    public static InvalidateCachedPenguinTypePacket read(FriendlyByteBuf buf) {
         return new InvalidateCachedPenguinTypePacket(buf.readInt(), buf.readResourceLocation());
     }
 
     @Override
-    public ResourceLocation getFabricId() {
+    public ResourceLocation id() {
         return ID;
     }
 
