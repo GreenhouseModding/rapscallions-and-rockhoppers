@@ -1,2 +1,3 @@
-### Bugfixes
-- Fixed NPE logic error with penguin's following null boats.
+### Changes
+- Update to utilise Fabric Attachments instead of Cardinal Components API.
+- Update to NeoForge 1.20.4 full release.

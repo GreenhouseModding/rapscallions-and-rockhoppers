@@ -48,12 +48,6 @@ dependencies {
     compileOnly group:'com.google.auto.service', name:'auto-service', version:'1.0.1'
     annotationProcessor group:'com.google.auto.service', name:'auto-service', version:'1.0.1'
 
-    compileOnly "dev.greenhouseteam.rdpr:rdpr-neoforge:${rdpr_version}+${minecraft_version}:api"
-    testCompileOnly "dev.greenhouseteam.rdpr:rdpr-neoforge:${rdpr_version}+${minecraft_version}:api"
-    runtimeOnly(jarJar("dev.greenhouseteam.rdpr:rdpr-neoforge:${rdpr_version}+${minecraft_version}")) {
-        jarJar.ranged(it, "[${rdpr_version},)")
-    }
-
     jarJar(implementation("net.tslat.smartbrainlib:SmartBrainLib-neoforge-${minecraft_version}:${sbl_version}")) {
         jarJar.ranged(it, "[${sbl_version},)")
     }

@@ -67,7 +67,6 @@ subprojects {
                 "version"                      : version,
                 "group"                        : project.group, //Else we target the task's group.
                 "minecraft_version"            : minecraft_version,
-                "pack_format"                  : pack_format,
                 "neoforge_version"             : neoforge_version,
                 "neoforge_loader_version_range": neoforge_loader_version_range,
                 "minecraft_version_range"      : minecraft_version_range,
