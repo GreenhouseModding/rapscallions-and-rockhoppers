@@ -1,13 +1,14 @@
 {
-    "required": true,
-    "minVersion": "0.8",
-    "package": "dev.greenhouseteam.rapscallionsandrockhoppers.mixin",
-    "compatibilityLevel": "JAVA_17",
-    "mixins": [
-    ],
-    "client": [
-    ],
-    "injectors": {
-        "defaultRequire": 1
-    }
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.greenhouseteam.rapscallionsandrockhoppers.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "FishingHookMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

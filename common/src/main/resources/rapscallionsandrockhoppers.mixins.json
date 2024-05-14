@@ -9,7 +9,6 @@
     "BoatMixin",
     "EntityAccessor",
     "EntityMixin",
-    "FishingHookMixin",
     "LevelAccessor",
     "LivingEntityMixin",
     "RegistryDataLoaderRegistryDataMixin",
