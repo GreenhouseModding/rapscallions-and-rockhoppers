@@ -1,24 +1,22 @@
 {
     "schemaVersion": 1,
     "id": "${mod_id}",
-    "version": "${version}",
+    "version": "${mod_version}+${minecraft_version}",
     "name": "${mod_name}",
-    "description": "${description}",
+    "description": "${mod_description}",
     "authors": [
         "${mod_author}"
     ],
     "contributors": [
-        "MerchantPug",
-        "Omniv",
-        "UltrusBot"
+        "${fabric_mod_contributors}"
     ],
     "contact": {
-        "homepage": "https://modrinth.com/mod/rapscallions-and-rockhoppers",
-        "sources": "https://github.com/GreenhouseTeam/rapscallions-and-rockhoppers",
-        "issues": "https://github.com/GreenhouseTeam/rapscallions-and-rockhoppers/issues"
+        "homepage": "${modrinth_page}",
+        "issues": "https://github.com/${sources}/issues",
+        "sources": "https://github.com/${sources}"
     },
-    "license": "${license}",
-    "icon": "assets/${mod_id}/icon.png",
+    "license": "${mod_license}",
+    "icon": "${mod_id}.png",
     "environment": "*",
     "entrypoints": {
         "main": [
@@ -35,7 +33,14 @@
         "cardinal-components": [
             "rapscallionsandrockhoppers:boat_data",
             "rapscallionsandrockhoppers:player_data"
-        ]
+        ],
+        "modmenu": {
+            "links": {
+                "modmenu.curseforge": "${curseforge_page}",
+                "modmenu.modrinth": "${modrinth_page}",
+                "modmenu.github_releases": "https://github.com/${sources}/releases"
+            }
+        }
     },
     "accessWidener" : "rapscallionsandrockhoppers.accesswidener",
     "mixins": [
@@ -43,10 +48,10 @@
         "${mod_id}.fabric.mixins.json"
     ],
     "depends": {
-        "fabricloader": ">=0.15",
+        "fabricloader": "${fabric_loader_range}",
         "fabric-api": "*",
-        "minecraft": "1.20.4",
-        "java": ">=17",
+        "minecraft": "${fabric_minecraft_version_range}",
+        "java": ">=${java_version}",
         "smartbrainlib": ">=1.13"
     }
 }
