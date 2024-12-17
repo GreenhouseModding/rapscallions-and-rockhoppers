@@ -53,11 +53,14 @@ neoForge {
     }
 }
 dependencies {
-    implementation("net.tslat.smartbrainlib:SmartBrainLib-forge-${Versions.MINECRAFT}:${Versions.SMART_BRAIN_LIB}")
+    implementation("net.tslat.smartbrainlib:SmartBrainLib-neoforge-${Versions.MINECRAFT}:${Versions.SMART_BRAIN_LIB}")
 
     jarJar(group = "net.tslat.smartbrainlib",
         name = "SmartBrainLib-neoforge-${Versions.MINECRAFT}",
         version = Versions.SMART_BRAIN_LIB)
+    compileOnly("com.google.auto.service:auto-service:1.0.1")
+    annotationProcessor("com.google.auto.service:auto-service:1.0.1")
+
 }
 tasks {
     named<ProcessResources>("processResources").configure {

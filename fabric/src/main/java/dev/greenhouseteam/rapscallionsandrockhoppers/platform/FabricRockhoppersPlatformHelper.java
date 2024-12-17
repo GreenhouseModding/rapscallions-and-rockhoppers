@@ -4,13 +4,13 @@ import com.google.auto.service.AutoService;
 import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.BoatLinksAttachment;
 import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.PlayerLinksAttachment;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.RockhoppersPackets;
-import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.RapscallionsAndRockhoppersPacketS2C;
-import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacket;
-import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacket;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacketS2C;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacketS2C;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersAttachments;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
@@ -37,7 +37,7 @@ public class FabricRockhoppersPlatformHelper implements IRockhoppersPlatformHelp
     }
 
     @Override
-    public void sendS2CTracking(RapscallionsAndRockhoppersPacketS2C packet, Entity entity) {
+    public void sendS2CTracking(CustomPacketPayload packet, Entity entity) {
         RockhoppersPackets.sendS2CTracking(packet, entity);
     }
 
@@ -51,7 +51,7 @@ public class FabricRockhoppersPlatformHelper implements IRockhoppersPlatformHelp
 
     @Override
     public void syncBoatData(Boat boat) {
-        sendS2CTracking(new SyncBoatLinksAttachmentPacket(boat.getId(), getBoatData(boat)), boat);
+        sendS2CTracking(new SyncBoatLinksAttachmentPacketS2C(boat.getId(), getBoatData(boat)), boat);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class FabricRockhoppersPlatformHelper implements IRockhoppersPlatformHelp
 
     @Override
     public void syncPlayerData(Player player) {
-        sendS2CTracking(new SyncPlayerLinksAttachmentPacket(player.getId(), getPlayerData(player)), player);
+        sendS2CTracking(new SyncPlayerLinksAttachmentPacketS2C(player.getId(), getPlayerData(player)), player);
     }
 
     @Override

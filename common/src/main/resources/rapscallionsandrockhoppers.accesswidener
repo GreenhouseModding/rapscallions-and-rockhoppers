@@ -3,4 +3,4 @@ accessible class net/minecraft/resources/RegistryDataLoader$Loader
 accessible class net/minecraft/world/entity/ai/sensing/SensorType
 accessible method net/minecraft/world/entity/ai/sensing/SensorType <init> (Ljava/util/function/Supplier;)V
 accessible method net/minecraft/world/entity/schedule/Activity <init> (Ljava/lang/String;)V
-accessible class net/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier
+

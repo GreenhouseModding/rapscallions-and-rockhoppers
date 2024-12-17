@@ -5,9 +5,10 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.WritableRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +42,7 @@ public class RapscallionsAndRockhoppers {
         return biomePopulationPenguinTypeRegistry;
     }
 
-    public static void setBiomePopulationPenguinTypeRegistry(Registry<PenguinType> value) {
+    public static void setBiomePopulationPenguinTypeRegistry(WritableRegistry<PenguinType> value) {
         if (hasBiomePopulationBeenHandled) {
             return;
         } else {
@@ -80,6 +81,6 @@ public class RapscallionsAndRockhoppers {
     }
 
     public static ResourceLocation asResource(String path) {
-        return new ResourceLocation(MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
 }

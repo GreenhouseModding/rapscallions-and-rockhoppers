@@ -116,8 +116,8 @@ public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
         float n = xDisplacement * f;
         float o = yDisplacement > 0.0F ? yDisplacement * f * f : yDisplacement - yDisplacement * (1.0F - f) * (1.0F - f);
         float p = zDisplacement * f;
-        vertexConsumer.vertex(matrix4f, n - crossXDirection, o + crossYDirection, p + crossZDirection).color(r, g, b, 1.0F).uv2(packedLight).endVertex();
-        vertexConsumer.vertex(matrix4f, n + crossXDirection, o + leashYOffset - crossYDirection, p - crossZDirection).color(r, g, b, 1.0F).uv2(packedLight).endVertex();
+        vertexConsumer.addVertex(matrix4f, n - crossXDirection, o + crossYDirection, p + crossZDirection).setColor(r, g, b, 1.0F).setLight(packedLight);
+        vertexConsumer.addVertex(matrix4f, n + crossXDirection, o + leashYOffset - crossYDirection, p - crossZDirection).setColor(r, g, b, 1.0F).setLight(packedLight);
     }
 
 }

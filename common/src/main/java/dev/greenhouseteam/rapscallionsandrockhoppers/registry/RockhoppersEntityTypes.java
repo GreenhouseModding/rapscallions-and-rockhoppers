@@ -21,6 +21,11 @@ public class RockhoppersEntityTypes {
     }
 
     public static void createMobAttributes(BiConsumer<EntityType<? extends LivingEntity>, AttributeSupplier> consumer) {
-        consumer.accept(PENGUIN, Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 8.0).add(Attributes.MOVEMENT_SPEED, 0.12F).add(Attributes.ATTACK_DAMAGE, 10.0).build());
+        consumer.accept(PENGUIN, Mob.createMobAttributes()
+                .add(Attributes.MAX_HEALTH, 8.0)
+                .add(Attributes.MOVEMENT_SPEED, 0.12F)
+                .add(Attributes.ATTACK_DAMAGE, 10.0)
+                .add(Attributes.STEP_HEIGHT, 1.0F)
+                .build());
     }
 }

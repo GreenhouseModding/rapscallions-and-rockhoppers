@@ -2,8 +2,8 @@ package dev.greenhouseteam.rapscallionsandrockhoppers;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
-import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacket;
-import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacket;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacketS2C;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacketS2C;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
@@ -11,7 +11,6 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectionContext;
 import net.fabricmc.fabric.api.biome.v1.ModificationPhase;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
@@ -25,7 +24,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacements;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.biome.MobSpawnSettings;
@@ -51,11 +49,11 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
 
         EntityTrackingEvents.START_TRACKING.register((entity, player) -> {
             if (entity.hasAttached(RockhoppersAttachments.BOAT_LINKS)) {
-                var packet = new SyncBoatLinksAttachmentPacket(entity.getId(), entity.getAttached(RockhoppersAttachments.BOAT_LINKS));
+                var packet = new SyncBoatLinksAttachmentPacketS2C(entity.getId(), entity.getAttached(RockhoppersAttachments.BOAT_LINKS));
                 ServerPlayNetworking.send(player, packet.id(), packet.toBuf());
             }
             if (entity.hasAttached(RockhoppersAttachments.PLAYER_LINKS)) {
-                var packet = new SyncPlayerLinksAttachmentPacket(entity.getId(), entity.getAttached(RockhoppersAttachments.PLAYER_LINKS));
+                var packet = new SyncPlayerLinksAttachmentPacketS2C(entity.getId(), entity.getAttached(RockhoppersAttachments.PLAYER_LINKS));
                 ServerPlayNetworking.send(player, packet.id(), packet.toBuf());
             }
         });

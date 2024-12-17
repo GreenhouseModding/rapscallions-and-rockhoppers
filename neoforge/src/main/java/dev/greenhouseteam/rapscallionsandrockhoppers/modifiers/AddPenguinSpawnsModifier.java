@@ -1,10 +1,9 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.modifiers;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersBiomeModifiers;
 import net.minecraft.core.Holder;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings;
@@ -28,7 +27,7 @@ public record AddPenguinSpawnsModifier(List<MobSpawnSettings.SpawnerData> spawne
     }
 
     @Override
-    public Codec<? extends BiomeModifier> codec() {
+    public MapCodec<? extends BiomeModifier> codec() {
         return RockhoppersBiomeModifiers.ADD_PENGUIN_SPAWNS_MODIFIER.get();
     }
 }

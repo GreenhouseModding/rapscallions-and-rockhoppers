@@ -25,8 +25,6 @@ public abstract class BoatMixin extends VehicleEntity {
 
     @Shadow protected abstract Component getTypeName();
 
-    @Shadow protected abstract void defineSynchedData();
-
     public BoatMixin(EntityType<?> $$0, Level $$1) {
         super($$0, $$1);
     }

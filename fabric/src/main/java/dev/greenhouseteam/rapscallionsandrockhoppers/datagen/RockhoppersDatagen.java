@@ -33,7 +33,7 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Items;
@@ -184,7 +184,7 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
         }
 
         @Override
-        public void generate(BiConsumer<ResourceLocation, LootTable.Builder> biConsumer) {
+        public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> biConsumer) {
             biConsumer.accept(RockhoppersLootTables.PENGUIN_COUGH_UP_INK_SAC, LootTable.lootTable()
                     .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(3.0F))
                             .with(LootItem.lootTableItem(Items.INK_SAC).setWeight(3).build())

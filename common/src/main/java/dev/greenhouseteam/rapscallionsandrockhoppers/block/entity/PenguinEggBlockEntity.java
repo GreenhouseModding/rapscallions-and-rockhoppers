@@ -6,6 +6,7 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersBlockEntityTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -14,7 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class PenguinEggBlockEntity extends BlockEntity {
-    public ResourceLocation penguinType = new ResourceLocation("rapscallionsandrockhoppers:rockhopper");
+    public ResourceLocation penguinType = RapscallionsAndRockhoppers.asResource("rockhopper");
     public PenguinEggBlockEntity(BlockPos blockPos, BlockState blockState) {
         super(RockhoppersBlockEntityTypes.PENGUIN_EGG, blockPos, blockState);
     }
@@ -37,18 +38,18 @@ public class PenguinEggBlockEntity extends BlockEntity {
         }
     }
 
-
     @Override
-    protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
         tag.putString("penguin_type", penguinType.toString());
     }
 
+
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
         if (tag.contains("penguin_type")) {
-            penguinType = new ResourceLocation(tag.getString("penguin_type"));
+            penguinType = ResourceLocation.tryParse(tag.getString("penguin_type"));
         }
     }
 }

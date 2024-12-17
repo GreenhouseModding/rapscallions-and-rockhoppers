@@ -3,12 +3,12 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.platform;
 import com.google.auto.service.AutoService;
 import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.BoatLinksAttachment;
 import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.PlayerLinksAttachment;
-import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.RapscallionsAndRockhoppersPacketS2C;
-import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacket;
-import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacket;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacketS2C;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacketS2C;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersAttachments;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
@@ -17,8 +17,6 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.event.entity.living.BabyEntitySpawnEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-
-import java.util.Optional;
 
 @AutoService(IRockhoppersPlatformHelper.class)
 public class NeoForgeRockhoppersPlatformHelper implements IRockhoppersPlatformHelper {
@@ -41,8 +39,8 @@ public class NeoForgeRockhoppersPlatformHelper implements IRockhoppersPlatformHe
     }
 
     @Override
-    public void sendS2CTracking(RapscallionsAndRockhoppersPacketS2C packet, Entity entity) {
-        PacketDistributor.TRACKING_ENTITY.with(entity).send(packet);
+    public void sendS2CTracking(CustomPacketPayload packet, Entity entity) {
+        PacketDistributor.sendToPlayersTrackingEntity(entity, packet);
     }
 
     @Override
@@ -55,7 +53,7 @@ public class NeoForgeRockhoppersPlatformHelper implements IRockhoppersPlatformHe
 
     @Override
     public void syncBoatData(Boat boat) {
-        sendS2CTracking(new SyncBoatLinksAttachmentPacket(boat.getId(), getBoatData(boat)), boat);
+        sendS2CTracking(new SyncBoatLinksAttachmentPacketS2C(boat.getId(), getBoatData(boat)), boat);
     }
 
     @Override
@@ -68,7 +66,7 @@ public class NeoForgeRockhoppersPlatformHelper implements IRockhoppersPlatformHe
 
     @Override
     public void syncPlayerData(Player player) {
-        sendS2CTracking(new SyncPlayerLinksAttachmentPacket(player.getId(), getPlayerData(player)), player);
+        sendS2CTracking(new SyncPlayerLinksAttachmentPacketS2C(player.getId(), getPlayerData(player)), player);
     }
 
     @Override

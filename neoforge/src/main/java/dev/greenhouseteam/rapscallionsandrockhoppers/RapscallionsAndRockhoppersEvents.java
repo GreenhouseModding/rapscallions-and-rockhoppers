@@ -4,40 +4,36 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.BoatLinksAttachm
 import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.PlayerLinksAttachment;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
-import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.InvalidateCachedPenguinTypePacket;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.InvalidateCachedPenguinTypePacketS2C;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBlockPosLookPacketS2C;
-import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacket;
-import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacket;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacketS2C;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacketS2C;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RegisterFunction;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
-import net.neoforged.neoforge.event.entity.SpawnPlacementRegisterEvent;
+import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
-import net.neoforged.neoforge.network.handling.IPlayPayloadHandler;
-import net.neoforged.neoforge.network.registration.IDirectionAwarePayloadHandlerBuilder;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
@@ -45,7 +41,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class RapscallionsAndRockhoppersEvents {
-    @Mod.EventBusSubscriber(modid = RapscallionsAndRockhoppers.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber(modid = RapscallionsAndRockhoppers.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
     public static class ModBusEvents {
 
         @SubscribeEvent
@@ -78,23 +74,21 @@ public class RapscallionsAndRockhoppersEvents {
         }
 
         @SubscribeEvent(priority = EventPriority.HIGHEST)
-        public static void registerSpawnPlacements(SpawnPlacementRegisterEvent event) {
-            event.register(RockhoppersEntityTypes.PENGUIN, SpawnPlacements.Type.IN_WATER, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Penguin::checkPenguinSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+        public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
+            event.register(RockhoppersEntityTypes.PENGUIN, SpawnPlacementTypes.IN_WATER, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Penguin::checkPenguinSpawnRules, RegisterSpawnPlacementsEvent.Operation.AND);
         }
 
         @SubscribeEvent
-        public static void register(RegisterPayloadHandlerEvent event) {
+        public static void register(RegisterPayloadHandlersEvent event) {
             event.registrar(RapscallionsAndRockhoppers.MOD_ID)
                     .versioned("1.0.0")
-                    .play(InvalidateCachedPenguinTypePacket.ID, InvalidateCachedPenguinTypePacket::read, createCommonS2CHandler(InvalidateCachedPenguinTypePacket::handle))
-                    .play(SyncBlockPosLookPacketS2C.ID, SyncBlockPosLookPacketS2C::read, createCommonS2CHandler(SyncBlockPosLookPacketS2C::handle))
-                    .play(SyncBoatLinksAttachmentPacket.ID, SyncBoatLinksAttachmentPacket::read, createCommonS2CHandler(SyncBoatLinksAttachmentPacket::handle))
-                    .play(SyncPlayerLinksAttachmentPacket.ID, SyncPlayerLinksAttachmentPacket::read, createCommonS2CHandler(SyncPlayerLinksAttachmentPacket::handle));
+                    .playToClient(InvalidateCachedPenguinTypePacketS2C.TYPE, InvalidateCachedPenguinTypePacketS2C.STREAM_CODEC, (payload, context) -> payload.handle())
+                    .playToClient(SyncBlockPosLookPacketS2C.TYPE, SyncBlockPosLookPacketS2C.STREAM_CODEC, (payload, context) -> payload.handle())
+                    .playToClient(SyncBoatLinksAttachmentPacketS2C.TYPE, SyncBoatLinksAttachmentPacketS2C.STREAM_CODEC, (payload, context) -> payload.handle())
+                    .playToClient(SyncPlayerLinksAttachmentPacketS2C.TYPE, SyncPlayerLinksAttachmentPacketS2C.STREAM_CODEC, (payload, context) -> payload.handle());
         }
 
-        private static <MSG extends CustomPacketPayload> Consumer<IDirectionAwarePayloadHandlerBuilder<MSG, IPlayPayloadHandler<MSG>>> createCommonS2CHandler(Consumer<MSG> handler) {
-            return builder -> builder.client((payload, context) -> handler.accept(payload));
-        }
+
 
         @SubscribeEvent
         public static void createEntityAttributes(EntityAttributeCreationEvent event) {
@@ -104,18 +98,22 @@ public class RapscallionsAndRockhoppersEvents {
         @SubscribeEvent
         public static void onCreativeModeTabBuild(BuildCreativeModeTabContentsEvent event) {
             if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
-                RockhoppersItems.addAfterIngredientsTab((stack, stack2) -> event.getEntries().putAfter(stack2, stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
+                RockhoppersItems.addAfterIngredientsTab((stack, stack2) -> event.insertAfter(stack, stack2, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
             } else if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
-                RockhoppersItems.addBeforeToolsAndUtilitiesTab((stack, stack2) -> event.getEntries().putBefore(stack2, stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
+                RockhoppersItems.addBeforeToolsAndUtilitiesTab((stack, stack2) -> event.insertAfter(stack, stack2, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
             } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
-                RockhoppersItems.addAfterNaturalBlocksTab((stack, stack2) -> event.getEntries().putAfter(stack2, stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
+                RockhoppersItems.addAfterNaturalBlocksTab((stack, stack2) -> event.insertAfter(stack, stack2, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
             } else if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
                 RockhoppersItems.addSpawnEggsTab(event::accept);
             }
+
         }
+
     }
 
-    @Mod.EventBusSubscriber(modid = RapscallionsAndRockhoppers.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+
+
+    @EventBusSubscriber(modid = RapscallionsAndRockhoppers.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
     public static class ForgeBusEvents {
         @SubscribeEvent
         public static void onServerStarted(ServerStartedEvent event) {
@@ -147,17 +145,17 @@ public class RapscallionsAndRockhoppersEvents {
         }
 
         @SubscribeEvent
-        public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-            Optional<PlayerLinksAttachment> attachment = event.player.getExistingData(RockhoppersAttachments.PLAYER_LINKS);
-            if (attachment.isPresent() && event.player.tickCount % 20 == 0) {
+        public static void onPlayerTick(PlayerTickEvent.Post event) {
+            Optional<PlayerLinksAttachment> attachment = event.getEntity().getExistingData(RockhoppersAttachments.PLAYER_LINKS);
+            if (attachment.isPresent() && event.getEntity().tickCount % 20 == 0) {
                 attachment.get().invalidateNonExistentBoats();
             }
         }
 
         @SubscribeEvent
         public static void onStartTracking(PlayerEvent.StartTracking event) {
-            event.getTarget().getExistingData(RockhoppersAttachments.BOAT_LINKS).ifPresent(attachment -> PacketDistributor.PLAYER.with((ServerPlayer) event.getEntity()).send());
-            event.getTarget().getExistingData(RockhoppersAttachments.PLAYER_LINKS).ifPresent(attachment -> PacketDistributor.PLAYER.with((ServerPlayer) event.getEntity()).send());
+            event.getTarget().getExistingData(RockhoppersAttachments.BOAT_LINKS).ifPresent(attachment -> PacketDistributor.sendToPlayer((ServerPlayer) event.getEntity(), new SyncBoatLinksAttachmentPacketS2C(attachment.getProvider().getId(), attachment)));
+            event.getTarget().getExistingData(RockhoppersAttachments.PLAYER_LINKS).ifPresent(attachment -> PacketDistributor.sendToPlayer((ServerPlayer) event.getEntity(), new SyncPlayerLinksAttachmentPacketS2C(attachment.getProvider().getId(), attachment)));
         }
     }
 }

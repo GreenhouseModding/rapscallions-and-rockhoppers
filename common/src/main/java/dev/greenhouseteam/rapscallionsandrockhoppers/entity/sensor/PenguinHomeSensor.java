@@ -56,12 +56,12 @@ public class PenguinHomeSensor extends ExtendedSensor<Penguin> {
                 mutableBlockPos.move(Direction.UP);
             }
             BlockPos immutableBlockPos = mutableBlockPos.immutable();
-            if (penguin.level().getBlockState(immutableBlockPos).isPathfindable(penguin.level(), immutableBlockPos, PathComputationType.LAND)) {
+            if (penguin.level().getBlockState(immutableBlockPos).isPathfindable(PathComputationType.LAND)) {
                 return GlobalPos.of(levelResourceKey, immutableBlockPos);
             }
         } else if (!penguin.isInWaterOrBubble() && penguin.onGround() && this.wasInWater) {
             this.wasInWater = false;
-            Optional<BlockPos> pos = BlockPos.findClosestMatch(penguin.blockPosition(), 16, 6, p -> penguin.level().getFluidState(p).is(FluidTags.WATER) && penguin.level().getBlockState(p.above()).isPathfindable(penguin.level(), p.above(), PathComputationType.LAND));
+            Optional<BlockPos> pos = BlockPos.findClosestMatch(penguin.blockPosition(), 16, 6, p -> penguin.level().getFluidState(p).is(FluidTags.WATER) && penguin.level().getBlockState(p.above()).isPathfindable(PathComputationType.LAND));
             return pos.map(blockPos -> GlobalPos.of(levelResourceKey, blockPos)).orElse(null);
         }
         return null;

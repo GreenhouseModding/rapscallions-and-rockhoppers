@@ -2,9 +2,9 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.platform.services;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.BoatLinksAttachment;
 import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.PlayerLinksAttachment;
-import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.RapscallionsAndRockhoppersPacketS2C;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.ServiceUtil;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
@@ -45,7 +45,7 @@ public interface IRockhoppersPlatformHelper {
         return isDevelopmentEnvironment() ? "development" : "production";
     }
 
-    void sendS2CTracking(RapscallionsAndRockhoppersPacketS2C packet, Entity entity);
+    void sendS2CTracking(CustomPacketPayload packet, Entity entity);
 
     BoatLinksAttachment getBoatData(Boat boat);
     void syncBoatData(Boat boat);

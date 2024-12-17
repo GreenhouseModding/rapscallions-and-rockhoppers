@@ -45,7 +45,7 @@ public class CoughUpRewards extends DelayedBehaviour<Penguin> {
     @Override
     protected void doDelayedAction(Penguin penguin) {
         BrainUtils.setMemory(penguin, MemoryModuleType.LOOK_TARGET, new EntityTracker(this.playerToCoughFor, true));
-        LootTable lootTable = penguin.level().getServer().getLootData().getLootTable(RockhoppersLootTables.PENGUIN_COUGH_UP);
+        LootTable lootTable = penguin.level().getServer().reloadableRegistries().getLootTable(RockhoppersLootTables.PENGUIN_COUGH_UP);
         LootParams.Builder builder = (new LootParams.Builder((ServerLevel)penguin.level())).withParameter(LootContextParams.THIS_ENTITY, penguin).withParameter(LootContextParams.ORIGIN, penguin.position());
         LootParams params = builder.create(LootContextParamSets.GIFT);
         for (int i = 0; i < Math.min(penguin.getFishEaten(), 12); ++i) {

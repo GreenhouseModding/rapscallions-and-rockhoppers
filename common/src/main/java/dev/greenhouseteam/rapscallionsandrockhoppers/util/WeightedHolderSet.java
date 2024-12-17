@@ -11,7 +11,7 @@ import java.util.List;
 public record WeightedHolderSet<T>(HolderSet<T> holders, int weight) {
 
     public static <T> Codec<WeightedHolderSet<T>> codec(Codec<HolderSet<T>> codec, String fieldName) {
-        return ExtraCodecs.either(codec, RecordCodecBuilder.<WeightedHolderSet<T>>create(inst -> inst.group(
+        return Codec.either(codec, RecordCodecBuilder.<WeightedHolderSet<T>>create(inst -> inst.group(
                         codec.fieldOf(fieldName).forGetter(WeightedHolderSet::holders),
                         Codec.INT.fieldOf("weight").forGetter(WeightedHolderSet::weight)
                 ).apply(inst, WeightedHolderSet::new)))
@@ -19,7 +19,7 @@ public record WeightedHolderSet<T>(HolderSet<T> holders, int weight) {
     }
 
     public static <T> Codec<List<WeightedHolderSet<T>>> listCodec(Codec<HolderSet<T>> codec, String fieldName) {
-        return ExtraCodecs.either(codec(codec, fieldName), codec(codec, fieldName).listOf())
+        return Codec.either(codec(codec, fieldName), codec(codec, fieldName).listOf())
                 .xmap(either -> either.map(List::of, holderSets -> holderSets), Either::right);
     }
 }
