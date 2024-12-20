@@ -13,7 +13,7 @@ public class RockhoppersModelTemplates {
             RockhoppersTextureMappings.EGG_TEXTURE
     );
     public static final ModelTemplate SPAWN_EGG = new ModelTemplate(
-            Optional.of(new ResourceLocation("minecraft", "item/template_spawn_egg")),
+            Optional.of(ResourceLocation.fromNamespaceAndPath("minecraft", "item/template_spawn_egg")),
             Optional.empty()
     );
 }

@@ -94,7 +94,6 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     public static final int COUGH_ANIMATION_LENGTH = 40;
 
     protected static final Ingredient TEMPTATION_ITEM = Ingredient.of(RockhoppersTags.ItemTags.PENGUIN_TEMPT_ITEMS);
-    protected static final Ingredient BREED_ITEM = Ingredient.of(RockhoppersTags.ItemTags.PENGUIN_BREED_ITEMS);
     private static final EntityDataAccessor<String> DATA_TYPE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<String> DATA_PREVIOUS_TYPE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Integer> DATA_SHOCKED_TIME = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
@@ -478,24 +477,25 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-            if (stack.is(RockhoppersTags.ItemTags.PENGUIN_FOOD_ITEMS)) {
-                if (this.level().isClientSide()) {
-                    return InteractionResult.SUCCESS;
-                }
-                if (this.tickCount > this.getTimeAllowedToEat()) {
-                    this.setHungryTime(Optional.of(this.tickCount + 4800));
-                    this.setTimeAllowedToEat(Optional.of(this.tickCount + 400));
-                    if (this.getBoatToFollow() != null) {
-                        this.incrementFishEaten();
-                    }
-                    ((ServerLevel) this.level()).sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(0.5), this.getRandomY() + 0.5, this.getRandomZ(0.5), 7, 0.25, 0.1, 0.25, 0);
-                    this.playSound(RockhoppersSoundEvents.PENGUIN_EAT);
-                    return InteractionResult.SUCCESS;
-                } else {
-                    ((ServerLevel) this.level()).sendParticles(ParticleTypes.SMOKE, this.getRandomX(0.5), this.getRandomY() + 0.5, this.getRandomZ(0.5), 7, 0.25, 0.1, 0.25, 0);
-                    return InteractionResult.CONSUME;
-                }
+        if (stack.is(RockhoppersTags.ItemTags.PENGUIN_FOOD_ITEMS)) {
+            if (this.level().isClientSide()) {
+                return InteractionResult.SUCCESS;
             }
+            if (this.tickCount > this.getTimeAllowedToEat()) {
+                this.setHungryTime(Optional.of(this.tickCount + 4800));
+                this.setTimeAllowedToEat(Optional.of(this.tickCount + 400));
+                if (this.getBoatToFollow() != null) {
+                    this.incrementFishEaten();
+                }
+                stack.consume(1, player);
+                ((ServerLevel) this.level()).sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(0.5), this.getRandomY() + 0.5, this.getRandomZ(0.5), 7, 0.25, 0.1, 0.25, 0);
+                this.playSound(RockhoppersSoundEvents.PENGUIN_EAT);
+                return InteractionResult.SUCCESS;
+            } else {
+                ((ServerLevel) this.level()).sendParticles(ParticleTypes.SMOKE, this.getRandomX(0.5), this.getRandomY() + 0.5, this.getRandomZ(0.5), 7, 0.25, 0.1, 0.25, 0);
+                return InteractionResult.CONSUME;
+            }
+        }
         return super.mobInteract(player, hand);
     }
 
@@ -968,8 +968,9 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
     @Override
     public boolean isFood(ItemStack stack) {
-        return BREED_ITEM.test(stack);
+        return stack.is(RockhoppersTags.ItemTags.PENGUIN_BREED_ITEMS);
     }
+
 
     public void refreshDimensionsIfShould() {
         if (this.isInWater() && this.previousWaterMovementValue ^ this.getPose() == Pose.SWIMMING) {

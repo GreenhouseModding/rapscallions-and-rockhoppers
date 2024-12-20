@@ -2,10 +2,7 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.datagen;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersBlocks;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersItems;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersLootTables;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersTags;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.WeightedHolderSet;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
@@ -37,6 +34,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
@@ -46,18 +44,18 @@ import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.entries.LootTableReference;
-import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
+import net.minecraft.world.level.storage.loot.entries.NestedLootTable;
+import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.EnchantRandomlyFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 
 public class RockhoppersDatagen implements DataGeneratorEntrypoint {
@@ -143,25 +141,26 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
         }
     }
     public static class RockhoppersBlockLootProvider extends FabricBlockLootTableProvider {
-        protected RockhoppersBlockLootProvider(FabricDataOutput dataOutput) {
-            super(dataOutput);
+        protected RockhoppersBlockLootProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+            super(dataOutput, registryLookup);
         }
 
         @Override
         public void generate() {
             this.add(RockhoppersBlocks.PENGUIN_EGG, LootTable.lootTable().withPool(LootPool.lootPool()
-                    .when(HAS_SILK_TOUCH)
+                    .when(hasSilkTouch())
                     .setRolls(ConstantValue.exactly(1.0F))
                     .add(LootItem.lootTableItem(RockhoppersBlocks.PENGUIN_EGG)
-                            .apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
-                                    .copy("penguin_type", "BlockEntityTag.penguin_type")
+                            .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                                    .include(RockhoppersDataComponents.PENGUIN_TYPE)
                             ))));
         }
     }
 
     public static class RockhoppersRecipeProvider extends FabricRecipeProvider {
-        public RockhoppersRecipeProvider(FabricDataOutput output) {
-            super(output);
+
+        public RockhoppersRecipeProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
+            super(output, registriesFuture);
         }
 
         @Override
@@ -179,12 +178,23 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
 
     public static class RockhoppersLootTableProvider extends SimpleFabricLootTableProvider {
 
-        public RockhoppersLootTableProvider(FabricDataOutput output) {
-            super(output, LootContextParamSets.GIFT);
+        private final CompletableFuture<HolderLookup.Provider> registryLookup;
+
+        public RockhoppersLootTableProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registryLookup) {
+            super(output, registryLookup, LootContextParamSets.GIFT);
+            this.registryLookup = registryLookup;
         }
+
 
         @Override
         public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> biConsumer) {
+            HolderLookup.RegistryLookup<Enchantment> registrylookup;
+            try {
+                registrylookup = this.registryLookup.get().lookupOrThrow(Registries.ENCHANTMENT);
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+
             biConsumer.accept(RockhoppersLootTables.PENGUIN_COUGH_UP_INK_SAC, LootTable.lootTable()
                     .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(3.0F))
                             .with(LootItem.lootTableItem(Items.INK_SAC).setWeight(3).build())
@@ -200,10 +210,10 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
                     .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
                             .with(LootItem.lootTableItem(RockhoppersItems.FISH_BONES).build()))
                     .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
-                            .with(LootTableReference.lootTableReference(BuiltInLootTables.FISHING_JUNK).setWeight(20).build())
-                            .with(LootTableReference.lootTableReference(RockhoppersLootTables.PENGUIN_COUGH_UP_INK_SAC).setWeight(15).build())
-                            .with(LootTableReference.lootTableReference(RockhoppersLootTables.PENGUIN_COUGH_UP_ROCKS).setWeight(10).build())
-                            .with(LootItem.lootTableItem(Items.BOOK).setWeight(2).apply(EnchantRandomlyFunction.randomEnchantment().withEnchantment(Enchantments.DEPTH_STRIDER)).build())
+                            .with(NestedLootTable.lootTableReference(BuiltInLootTables.FISHING_JUNK).setWeight(20).build())
+                            .with(NestedLootTable.lootTableReference(RockhoppersLootTables.PENGUIN_COUGH_UP_INK_SAC).setWeight(15).build())
+                            .with(NestedLootTable.lootTableReference(RockhoppersLootTables.PENGUIN_COUGH_UP_ROCKS).setWeight(10).build())
+                            .with(LootItem.lootTableItem(Items.BOOK).setWeight(2).apply(EnchantRandomlyFunction.randomEnchantment().withEnchantment(registrylookup.getOrThrow(Enchantments.DEPTH_STRIDER))).build())
                             .with(LootItem.lootTableItem(Items.NAUTILUS_SHELL).setWeight(2).build())
                             .with(LootItem.lootTableItem(Items.NAME_TAG).setWeight(1).build())));
         }

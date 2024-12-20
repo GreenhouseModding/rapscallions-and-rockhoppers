@@ -1,4 +1,4 @@
-// 1.20.4	2024-01-04T20:02:14.306630817	Rapscallions and Rockhoppers/minecraft:gift Loot Table
-262eda2c6bfeac290fad6c398f8270a0aa73165e data/rapscallionsandrockhoppers/loot_tables/gameplay/penguin_cough_up.json
-013446e85173abcf634fc25695ad360d8fe3336a data/rapscallionsandrockhoppers/loot_tables/gameplay/penguin_cough_up_rocks.json
-3eaa786e61268f582f80bc229742ab58d619ea85 data/rapscallionsandrockhoppers/loot_tables/gameplay/penguin_cough_up_ink_sac.json
+// 1.21.1	2024-12-20T00:13:44.1626215	Rapscallions and Rockhoppers/minecraft:gift Loot Table
+3eaa786e61268f582f80bc229742ab58d619ea85 data\rapscallionsandrockhoppers\loot_table\gameplay\penguin_cough_up_ink_sac.json
+a4637a108f907b4bc5955f9c68e197db3dc4839f data\rapscallionsandrockhoppers\loot_table\gameplay\penguin_cough_up.json
+013446e85173abcf634fc25695ad360d8fe3336a data\rapscallionsandrockhoppers\loot_table\gameplay\penguin_cough_up_rocks.json

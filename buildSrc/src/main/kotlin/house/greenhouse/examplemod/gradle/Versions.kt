@@ -9,7 +9,7 @@ object Versions {
     const val PARCHMENT = "2024.07.28"
 
     const val FABRIC_API = "0.106.0+1.21.1"
-    const val FABRIC_LOADER = "0.15.11"
+    const val FABRIC_LOADER = "0.16.9"
     const val MOD_MENU = "11.0.3"
     const val FABRIC_LOADER_RANGE = ">=0.15"
     const val FABRIC_MINECRAFT_RANGE = ">=1.21"

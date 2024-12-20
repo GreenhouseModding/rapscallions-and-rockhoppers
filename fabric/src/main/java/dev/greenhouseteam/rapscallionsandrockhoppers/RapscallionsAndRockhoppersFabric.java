@@ -2,6 +2,7 @@ package dev.greenhouseteam.rapscallionsandrockhoppers;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
+import dev.greenhouseteam.rapscallionsandrockhoppers.network.RockhoppersPackets;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacketS2C;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacketS2C;
 import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
@@ -23,6 +24,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -50,13 +52,14 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
         EntityTrackingEvents.START_TRACKING.register((entity, player) -> {
             if (entity.hasAttached(RockhoppersAttachments.BOAT_LINKS)) {
                 var packet = new SyncBoatLinksAttachmentPacketS2C(entity.getId(), entity.getAttached(RockhoppersAttachments.BOAT_LINKS));
-                ServerPlayNetworking.send(player, packet.id(), packet.toBuf());
+                ServerPlayNetworking.send(player, packet);
             }
             if (entity.hasAttached(RockhoppersAttachments.PLAYER_LINKS)) {
                 var packet = new SyncPlayerLinksAttachmentPacketS2C(entity.getId(), entity.getAttached(RockhoppersAttachments.PLAYER_LINKS));
-                ServerPlayNetworking.send(player, packet.id(), packet.toBuf());
+                ServerPlayNetworking.send(player, packet);
             }
         });
+        RockhoppersPackets.registerPayloadTypes();
     }
 
     private static Predicate<BiomeSelectionContext> createPenguinSpawnPredicate() {
@@ -69,7 +72,7 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
     }
 
     public static void handleBiomeModifications() {
-        SpawnPlacements.register(RockhoppersEntityTypes.PENGUIN, SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Penguin::checkPenguinSpawnRules);
+        SpawnPlacements.register(RockhoppersEntityTypes.PENGUIN, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Penguin::checkPenguinSpawnRules);
         createBiomeModifications(RapscallionsAndRockhoppers.asResource("penguin"),
                 createPenguinSpawnPredicate(), RockhoppersEntityTypes.PENGUIN, 15, 3, 5);
     }
@@ -83,6 +86,7 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
 
         RockhoppersBlocks.registerBlocks(Registry::register);
         RockhoppersItems.registerItems(Registry::register);
+        RockhoppersDataComponents.registerDataComponents(Registry::register);
         RockhoppersEntityTypes.registerEntityTypes(Registry::register);
         RockhoppersSoundEvents.registerSoundEvents(Registry::register);
         RockhoppersActivities.registerActivities(Registry::register);

@@ -1,13 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_bone_block": {
+    "has_fish_bones": {
       "conditions": {
         "items": [
           {
-            "items": [
-              "rapscallionsandrockhoppers:fish_bones"
-            ]
+            "items": "rapscallionsandrockhoppers:fish_bones"
           }
         ]
       },
@@ -15,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "minecraft:bone_meal_from_fish_bones"
+        "recipe": "minecraft:boat_hook"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -23,12 +21,12 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_bone_block"
+      "has_fish_bones"
     ]
   ],
   "rewards": {
     "recipes": [
-      "minecraft:bone_meal_from_fish_bones"
+      "minecraft:boat_hook"
     ]
   }
 }

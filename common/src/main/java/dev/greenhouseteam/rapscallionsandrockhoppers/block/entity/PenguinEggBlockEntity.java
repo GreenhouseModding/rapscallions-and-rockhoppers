@@ -4,9 +4,11 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersBlockEntityTypes;
+import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersDataComponents;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -51,5 +53,17 @@ public class PenguinEggBlockEntity extends BlockEntity {
         if (tag.contains("penguin_type")) {
             penguinType = ResourceLocation.tryParse(tag.getString("penguin_type"));
         }
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder components) {
+        super.collectImplicitComponents(components);
+        components.set(RockhoppersDataComponents.PENGUIN_TYPE, this.penguinType);
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentInput componentInput) {
+        super.applyImplicitComponents(componentInput);
+        this.penguinType = componentInput.getOrDefault(RockhoppersDataComponents.PENGUIN_TYPE, this.penguinType);
     }
 }

@@ -4,19 +4,14 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.WeightedHolderSet;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.RegistryCodecs;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Block;
 
 import java.util.List;
 import java.util.Optional;
 
+// NOTE / TODO: Maybe the textures (and sounds) shouldn't be optional*. The sounds could be defaulted to SoundEvents.EMPTY, and textures could just be outright required.
 public record PenguinType(Optional<ResourceLocation> textureLocation, Optional<ResourceLocation> surprisedTextureLocation,
                           List<WeightedHolderSet<Biome>> spawnBiomes, PenguinSounds sounds, Optional<String> whenNamed) {
     public static final PenguinType MISSING = new PenguinType(Optional.empty(), Optional.empty(), List.of(), PenguinSounds.NO_SOUNDS, Optional.empty());

@@ -62,6 +62,8 @@ public class RapscallionsAndRockhoppersEvents {
                 register(event, RockhoppersSensorTypes::registerSensorTypes);
             else if (event.getRegistryKey() == Registries.BLOCK_ENTITY_TYPE)
                 register(event, RockhoppersBlockEntityTypes::registerBlockEntityTypes);
+            else if (event.getRegistryKey() == Registries.DATA_COMPONENT_TYPE)
+                register(event, RockhoppersDataComponents::registerDataComponents);
         }
 
         @SubscribeEvent
