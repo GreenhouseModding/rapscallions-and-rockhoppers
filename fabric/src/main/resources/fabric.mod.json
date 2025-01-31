@@ -20,13 +20,13 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppersFabric"
+          "house.greenhouse.rapscallionsandrockhoppers.RapscallionsAndRockhoppersFabric"
         ],
         "client": [
-            "dev.greenhouseteam.rapscallionsandrockhoppers.client.RapscallionsAndRockhoppersFabricClient"
+          "house.greenhouse.rapscallionsandrockhoppers.client.RapscallionsAndRockhoppersFabricClient"
         ],
         "fabric-datagen": [
-            "dev.greenhouseteam.rapscallionsandrockhoppers.datagen.RockhoppersDatagen"
+          "house.greenhouse.rapscallionsandrockhoppers.datagen.RockhoppersDatagen"
         ]
     },
     "custom": {

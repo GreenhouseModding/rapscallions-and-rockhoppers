@@ -1,9 +1,9 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "dev.greenhouseteam.rapscallionsandrockhoppers.mixin",
+  "package": "house.greenhouse.rapscallionsandrockhoppers.mixin",
   "refmap": "${mod_id}.refmap.json",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "mixins": [
     "BoatAccessor",
     "BoatMixin",
@@ -12,13 +12,11 @@
     "LevelAccessor",
     "LivingEntityMixin",
     "RegistryDataLoaderRegistryDataMixin",
-    "VehicleEntityMixin",
-    "client.ClientLevelAccessor"
+    "VehicleEntityMixin"
   ],
   "client": [
-    "client.BoatRendererMixin"
-  ],
-  "server": [
+    "client.BoatRendererMixin",
+    "client.ClientLevelAccessor"
   ],
   "injectors": {
     "defaultRequire": 1,

@@ -1,20 +1,14 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "dev.greenhouseteam.rapscallionsandrockhoppers.mixin",
+  "package": "house.greenhouse.rapscallionsandrockhoppers.mixin.fabric",
   "refmap": "${mod_id}.refmap.json",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "BoatMixin",
     "FishingHookMixin",
     "PlayerMixin"
-  ],
-  "client": [
-  ],
-  "server": [
   ],
   "injectors": {
     "defaultRequire": 1
   }
 }
-  
