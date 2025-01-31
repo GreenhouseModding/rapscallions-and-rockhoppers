@@ -7,7 +7,6 @@
   "mixins": [
     "BoatAccessor",
     "BoatMixin",
-    "EntityAccessor",
     "EntityMixin",
     "LevelAccessor",
     "LivingEntityMixin",

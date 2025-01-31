@@ -48,9 +48,9 @@ public abstract class BoatMixin extends VehicleEntity {
             return entity != null && entity.isInWater();
         })) {
             if (this.getDeltaMovement().horizontalDistance() > 0.05) {
-                double gaussianX = ((EntityAccessor)this).rapscallionsandrockhoppers$getRandom().nextGaussian() * 0.02;
-                double gaussianY = ((EntityAccessor)this).rapscallionsandrockhoppers$getRandom().nextGaussian() * 0.02;
-                double gaussianZ = ((EntityAccessor)this).rapscallionsandrockhoppers$getRandom().nextGaussian() * 0.02;
+                double gaussianX = getRandom().nextGaussian() * 0.02;
+                double gaussianY = getRandom().nextGaussian() * 0.02;
+                double gaussianZ = getRandom().nextGaussian() * 0.02;
                 this.level().addParticle(ParticleTypes.GLOW, this.getRandomX(1.0), this.getY(0.5), this.getRandomZ(1.0), this.getMotionDirection().getOpposite().getStepX() * gaussianX, gaussianY, this.getMotionDirection().getOpposite().getStepZ() * gaussianZ);
             }
             this.setDeltaMovement(this.getDeltaMovement().multiply(1.025, 1.0, 1.025));
