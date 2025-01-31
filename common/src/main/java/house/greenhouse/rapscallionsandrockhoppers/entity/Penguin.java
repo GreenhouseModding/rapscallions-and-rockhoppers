@@ -575,7 +575,9 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             }
 
             if (this.hasEgg() && this.onGround() && !isStumbling() && this.getPose() == Pose.STANDING) {
-                if (level().getBlockState(this.blockPosition()).isAir() && getBlockStateOn().isFaceSturdy(level(), this.blockPosition(), this.getDirection())) {
+                if (level().getBlockState(this.blockPosition()).isAir() 
+                        && getBlockStateOn().isFaceSturdy(level(), this.blockPosition(), this.getDirection())
+                        && !level().getBlockState(this.blockPosition().below()).isAir()) {
                     this.level().setBlockAndUpdate(this.blockPosition(), RockhoppersBlocks.PENGUIN_EGG.defaultBlockState());
                     if (this.level().getBlockEntity(this.blockPosition()) instanceof PenguinEggBlockEntity penguinEggBlockEntity) {
                         penguinEggBlockEntity.setPenguinType(this.getEggType());
