@@ -35,7 +35,6 @@ dependencies {
     annotationProcessor("io.github.llamalad7:mixinextras-common:${Versions.MIXIN_EXTRAS}")
     compileOnly("net.fabricmc:sponge-mixin:${Versions.FABRIC_MIXIN}")
     compileOnly("net.tslat.smartbrainlib:SmartBrainLib-common-${Versions.MINECRAFT}:${Versions.SMART_BRAIN_LIB}")
-
 }
 
 configurations {

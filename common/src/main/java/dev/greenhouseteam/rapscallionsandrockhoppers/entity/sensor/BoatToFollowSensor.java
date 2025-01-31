@@ -1,8 +1,9 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor;
 
+import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.mixin.BoatAccessor;
-import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
+import dev.greenhouseteam.rapscallionsandrockhoppers.platform.RockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSensorTypes;
 import net.minecraft.core.particles.ParticleTypes;
@@ -63,14 +64,14 @@ public class BoatToFollowSensor extends PredicateSensor<Boat, Penguin> {
         }
 
         if (penguin.getBoatToFollow() == null && penguin.getTimeAllowedToFollowBoat() < penguin.tickCount && !penguin.isBaby()) {
-            Optional<Boat> boat = EntityRetrievalUtil.<Boat>getEntities(level, radius.inflateAABB(penguin.getBoundingBox()), obj -> obj instanceof Boat b && ((BoatAccessor)b).rapscallionsandrockhoppers$getStatus() != null && ((BoatAccessor)b).rapscallionsandrockhoppers$getStatus().equals(Boat.Status.IN_WATER) && b.hasControllingPassenger() && IRockhoppersPlatformHelper.INSTANCE.getBoatData(b).penguinCount() < 3).stream().min(Comparator.comparingInt(b -> IRockhoppersPlatformHelper.INSTANCE.getBoatData(b).penguinCount()));
+            Optional<Boat> boat = EntityRetrievalUtil.<Boat>getEntities(level, radius.inflateAABB(penguin.getBoundingBox()), obj -> obj instanceof Boat b && ((BoatAccessor)b).rapscallionsandrockhoppers$getStatus() != null && ((BoatAccessor)b).rapscallionsandrockhoppers$getStatus().equals(Boat.Status.IN_WATER) && b.hasControllingPassenger() && RapscallionsAndRockhoppers.getHelper().getBoatData(b).penguinCount() < 3).stream().min(Comparator.comparingInt(b -> RapscallionsAndRockhoppers.getHelper().getBoatData(b).penguinCount()));
             if (boat.isPresent()) {
                 penguin.setBoatToFollow(boat.get().getUUID());
                 if (this.updatePenguinRadius != null) {
                     EntityRetrievalUtil.<Penguin>getEntities(level, this.updatePenguinRadius.inflateAABB(penguin.getBoundingBox()), obj -> obj instanceof Penguin && obj.isAlive()).forEach(p -> p.setTimeAllowedToFollowBoat(Optional.of(p.tickCount + 20)));
                 }
-                IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat.get()).addFollowingPenguin(penguin.getUUID());
-                IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat.get()).sync();
+                RapscallionsAndRockhoppers.getHelper().getBoatData(boat.get()).addFollowingPenguin(penguin.getUUID());
+                RapscallionsAndRockhoppers.getHelper().getBoatData(boat.get()).sync();
                 penguin.setHungryTime(Optional.of(penguin.tickCount + 4800));
                 penguin.setTimeAllowedToEat(Optional.of(penguin.tickCount));
                 ((ServerLevel)penguin.level()).sendParticles(ParticleTypes.GLOW, boat.get().getX(), boat.get().getY(), boat.get().getZ(), 8, 0.5, 0.25, 0.5, 0.02);

@@ -5,7 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import dev.greenhouseteam.rapscallionsandrockhoppers.mixin.BoatAccessor;
-import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
+import dev.greenhouseteam.rapscallionsandrockhoppers.platform.RockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersItems;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.EntityGetUtil;
 import net.minecraft.core.UUIDUtil;
@@ -25,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Unique;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -173,7 +172,7 @@ public class BoatLinksAttachment {
     }
 
     public boolean canLinkTo(Boat otherBoat) {
-        BoatLinksAttachment otherBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(otherBoat);
+            BoatLinksAttachment otherBoatData = RapscallionsAndRockhoppers.getHelper().getBoatData(otherBoat);
         return !this.getPreviousLinkedBoats().contains(otherBoat) && !this.getNextLinkedBoats().contains(otherBoat) && !otherBoatData.getPreviousLinkedBoats().contains(this.getProvider()) && !otherBoatData.getNextLinkedBoats().contains(this.getProvider());
     }
 
@@ -181,7 +180,7 @@ public class BoatLinksAttachment {
         if (this.getProvider() == null) {
             return InteractionResult.PASS;
         }
-        PlayerLinksAttachment playerData = IRockhoppersPlatformHelper.INSTANCE.getPlayerData(player);
+        PlayerLinksAttachment playerData = RapscallionsAndRockhoppers.getHelper().getPlayerData(player);
         if (this.getLinkedPlayer() == player) {
             this.setLinkedPlayer(null);
             playerData.removeLinkedBoat(this.getProvider().getUUID());
@@ -205,7 +204,7 @@ public class BoatLinksAttachment {
         if (this.getLinkedPlayer() == null && !playerData.getLinkedBoats().isEmpty()) {
             var otherBoats = playerData.getLinkedBoats();
             for (var otherBoat : otherBoats) {
-                BoatLinksAttachment otherBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(otherBoat);
+                BoatLinksAttachment otherBoatData = RapscallionsAndRockhoppers.getHelper().getBoatData(otherBoat);
                 if (!otherBoat.is(this.getProvider()) && otherBoatData.canLinkTo(this.getProvider())) {
                     if (otherBoatData.getLinkedPlayer() == player) {
                         otherBoatData.addPreviousLinkedBoat(this.getProvider().getUUID());
@@ -248,7 +247,7 @@ public class BoatLinksAttachment {
             }).toList()) {
                 if (next.getSecond() == null || next.getSecond().isRemoved() || next.getSecond().distanceTo(this.getProvider()) > 16) {
                     if (next.getSecond() != null) {
-                        BoatLinksAttachment nextBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(next.getSecond());
+                        BoatLinksAttachment nextBoatData = RapscallionsAndRockhoppers.getHelper().getBoatData(next.getSecond());
                         nextBoatData.removePreviousLinkedBoat(this.getProvider().getUUID());
                     }
                     this.getProvider().spawnAtLocation(RockhoppersItems.BOAT_HOOK);
@@ -267,7 +266,7 @@ public class BoatLinksAttachment {
             }).toList()) {
                 if (previous.getSecond() == null || previous.getSecond().isRemoved() || previous.getSecond().distanceTo(this.getProvider()) > 16) {
                     if (previous.getSecond() != null) {
-                        BoatLinksAttachment nextBoatData = IRockhoppersPlatformHelper.INSTANCE.getBoatData(previous.getSecond());
+                        BoatLinksAttachment nextBoatData = RapscallionsAndRockhoppers.getHelper().getBoatData(previous.getSecond());
                         nextBoatData.removePreviousLinkedBoat(this.getProvider().getUUID());
                     }
                     this.getProvider().spawnAtLocation(RockhoppersItems.BOAT_HOOK);
@@ -349,6 +348,6 @@ public class BoatLinksAttachment {
     public void sync() {
         if (getProvider() == null || getProvider().level().isClientSide())
             return;
-        IRockhoppersPlatformHelper.INSTANCE.syncBoatData(getProvider());
+        RapscallionsAndRockhoppers.getHelper().syncBoatData(getProvider());
     }
 }

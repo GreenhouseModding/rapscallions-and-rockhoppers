@@ -2,7 +2,6 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.PlayerLinksAttachment;
-import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
@@ -53,7 +52,7 @@ public record SyncPlayerLinksAttachmentPacketS2C(int entityId, PlayerLinksAttach
                     return;
                 }
 
-                IRockhoppersPlatformHelper.INSTANCE.getPlayerData(player).setFrom(attachment);
+                RapscallionsAndRockhoppers.getHelper().getPlayerData(player).setFrom(attachment);
             }
         });
     }

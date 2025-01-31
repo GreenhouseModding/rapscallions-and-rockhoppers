@@ -3,7 +3,7 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.attachment;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
-import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
+import dev.greenhouseteam.rapscallionsandrockhoppers.platform.RockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.EntityGetUtil;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -96,6 +96,6 @@ public class PlayerLinksAttachment {
     public void sync() {
         if (getProvider() == null || getProvider().level().isClientSide())
             return;
-        IRockhoppersPlatformHelper.INSTANCE.syncPlayerData(getProvider());
+        RapscallionsAndRockhoppers.getHelper().syncPlayerData(getProvider());
     }
 }

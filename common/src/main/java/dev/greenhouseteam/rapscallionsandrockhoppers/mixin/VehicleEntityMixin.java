@@ -1,6 +1,6 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.mixin;
 
-import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
+import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersItems;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.VehicleEntity;
@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class VehicleEntityMixin {
     @Inject(method = "destroy(Lnet/minecraft/world/item/Item;)V", at = @At("HEAD"))
     private void rapscallionsandrockhoppers$returnHook(Item item, CallbackInfo ci) {
-        if ((VehicleEntity)(Object)this instanceof Boat boat && IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat).getLinkedPlayer() != null) {
+        if ((VehicleEntity)(Object)this instanceof Boat boat && RapscallionsAndRockhoppers.getHelper().getBoatData(boat).getLinkedPlayer() != null) {
             ((VehicleEntity)(Object)this).spawnAtLocation(RockhoppersItems.BOAT_HOOK);
         }
     }

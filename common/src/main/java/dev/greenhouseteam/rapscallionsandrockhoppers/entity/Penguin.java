@@ -7,7 +7,7 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.sensor.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.mixin.LevelAccessor;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.InvalidateCachedPenguinTypePacketS2C;
-import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
+import dev.greenhouseteam.rapscallionsandrockhoppers.platform.RockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.WeightedHolderSet;
@@ -770,7 +770,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
     @Override
     public void spawnChildFromBreeding(ServerLevel level, Animal animal) {
-        boolean cancelled = IRockhoppersPlatformHelper.INSTANCE.runAndIsBreedEventCancelled(this, animal);
+        boolean cancelled = RapscallionsAndRockhoppers.getHelper().runAndIsBreedEventCancelled(this, animal);
         if (cancelled) {
             this.setAge(6000);
             animal.setAge(6000);
@@ -786,7 +786,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     @Override
     public boolean canRide(Entity vehicle) {
         if (vehicle instanceof Boat boat) {
-            return IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat).penguinCount() == 0 && IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat).getPreviousLinkedBoats().stream().noneMatch(boat1 -> IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat1).penguinCount() > 0) && IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat).getNextLinkedBoats().stream().noneMatch(boat1 -> IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat1).penguinCount() > 0);
+            return RapscallionsAndRockhoppers.getHelper().getBoatData(boat).penguinCount() == 0 && RapscallionsAndRockhoppers.getHelper().getBoatData(boat).getPreviousLinkedBoats().stream().noneMatch(boat1 -> RapscallionsAndRockhoppers.getHelper().getBoatData(boat1).penguinCount() > 0) && RapscallionsAndRockhoppers.getHelper().getBoatData(boat).getNextLinkedBoats().stream().noneMatch(boat1 -> RapscallionsAndRockhoppers.getHelper().getBoatData(boat1).penguinCount() > 0);
         }
         return true;
     }
@@ -906,14 +906,14 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         return RapscallionsAndRockhoppers.asResource("missing");
     }
 
-    public void setCustomName(@javax.annotation.Nullable Component name) {
+    public void setCustomName(@Nullable Component name) {
         this.onNameChange(name);
         super.setCustomName(name);
     }
 
     public void invalidateCachedPenguinType() {
         if (!this.level().isClientSide()) {
-            IRockhoppersPlatformHelper.INSTANCE.sendS2CTracking(new InvalidateCachedPenguinTypePacketS2C(this.getId(), this.getPenguinTypeKey()), this);
+            RapscallionsAndRockhoppers.getHelper().sendS2CTracking(new InvalidateCachedPenguinTypePacketS2C(this.getId(), this.getPenguinTypeKey()), this);
         }
         this.cachedPenguinType = null;
         this.getPenguinType();

@@ -3,7 +3,6 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour;
 import com.mojang.datafixers.util.Pair;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
-import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersSoundEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;

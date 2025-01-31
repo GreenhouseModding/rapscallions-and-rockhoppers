@@ -1,9 +1,9 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.entity.behaviour;
 
 import com.mojang.datafixers.util.Pair;
+import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.Penguin;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBlockPosLookPacketS2C;
-import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
@@ -60,7 +60,7 @@ public class PenguinShove extends ExtendedBehaviour<Penguin> {
         penguin.setShoveTicks(Penguin.SHOVE_ANIMATION_LENGTH);
         this.shoveTarget.stumbleWithoutInitialAnimation();
 
-        IRockhoppersPlatformHelper.INSTANCE.sendS2CTracking(new SyncBlockPosLookPacketS2C(penguin.getId(), this.shoveTarget.getId(), this.lookPos), penguin);
+        RapscallionsAndRockhoppers.getHelper().sendS2CTracking(new SyncBlockPosLookPacketS2C(penguin.getId(), this.shoveTarget.getId(), this.lookPos), penguin);
     }
 
     @Override

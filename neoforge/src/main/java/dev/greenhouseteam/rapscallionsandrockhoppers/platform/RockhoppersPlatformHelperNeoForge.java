@@ -1,11 +1,9 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.platform;
 
-import com.google.auto.service.AutoService;
 import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.BoatLinksAttachment;
 import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.PlayerLinksAttachment;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacketS2C;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacketS2C;
-import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersAttachments;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -18,8 +16,7 @@ import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.event.entity.living.BabyEntitySpawnEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-@AutoService(IRockhoppersPlatformHelper.class)
-public class NeoForgeRockhoppersPlatformHelper implements IRockhoppersPlatformHelper {
+public class RockhoppersPlatformHelperNeoForge implements RockhoppersPlatformHelper {
 
     @Override
     public String getPlatformName() {

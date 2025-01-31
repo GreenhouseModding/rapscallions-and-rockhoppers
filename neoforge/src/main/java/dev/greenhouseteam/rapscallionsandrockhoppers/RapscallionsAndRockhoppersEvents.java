@@ -8,7 +8,6 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.InvalidateCache
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBlockPosLookPacketS2C;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacketS2C;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacketS2C;
-import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RegisterFunction;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
@@ -48,21 +47,21 @@ public class RapscallionsAndRockhoppersEvents {
         public static void registerContent(RegisterEvent event) {
             if (event.getRegistryKey() == Registries.ENTITY_TYPE)
                 register(event, RockhoppersEntityTypes::registerEntityTypes);
-            else if (event.getRegistryKey() == Registries.SOUND_EVENT)
+            if (event.getRegistryKey() == Registries.SOUND_EVENT)
                 register(event, RockhoppersSoundEvents::registerSoundEvents);
-            else if (event.getRegistryKey() == Registries.ITEM)
+            if (event.getRegistryKey() == Registries.ITEM)
                 register(event, RockhoppersItems::registerItems);
-            else if (event.getRegistryKey() == Registries.BLOCK)
+            if (event.getRegistryKey() == Registries.BLOCK)
                 register(event, RockhoppersBlocks::registerBlocks);
-            else if (event.getRegistryKey() == Registries.ACTIVITY)
+            if (event.getRegistryKey() == Registries.ACTIVITY)
                 register(event, RockhoppersActivities::registerActivities);
-            else if (event.getRegistryKey() == Registries.MEMORY_MODULE_TYPE)
+            if (event.getRegistryKey() == Registries.MEMORY_MODULE_TYPE)
                 register(event, RockhoppersMemoryModuleTypes::registerMemoryModuleTypes);
-            else if (event.getRegistryKey() == Registries.SENSOR_TYPE)
+            if (event.getRegistryKey() == Registries.SENSOR_TYPE)
                 register(event, RockhoppersSensorTypes::registerSensorTypes);
-            else if (event.getRegistryKey() == Registries.BLOCK_ENTITY_TYPE)
+            if (event.getRegistryKey() == Registries.BLOCK_ENTITY_TYPE)
                 register(event, RockhoppersBlockEntityTypes::registerBlockEntityTypes);
-            else if (event.getRegistryKey() == Registries.DATA_COMPONENT_TYPE)
+            if (event.getRegistryKey() == Registries.DATA_COMPONENT_TYPE)
                 register(event, RockhoppersDataComponents::registerDataComponents);
         }
 
@@ -137,7 +136,7 @@ public class RapscallionsAndRockhoppersEvents {
         @SubscribeEvent
         public static void onBoatInteraction(PlayerInteractEvent.EntityInteract event) {
             if (event.getTarget() instanceof Boat boat) {
-                BoatLinksAttachment capability = IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat);
+                BoatLinksAttachment capability = RapscallionsAndRockhoppers.getHelper().getBoatData(boat);
                 InteractionResult result = capability.handleInteractionWithBoatHook(event.getEntity(), event.getHand());
                 if (result != InteractionResult.PASS) {
                     event.setCancellationResult(result);

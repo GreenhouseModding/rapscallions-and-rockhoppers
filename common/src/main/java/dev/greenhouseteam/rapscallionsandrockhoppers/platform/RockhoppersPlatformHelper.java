@@ -1,8 +1,7 @@
-package dev.greenhouseteam.rapscallionsandrockhoppers.platform.services;
+package dev.greenhouseteam.rapscallionsandrockhoppers.platform;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.BoatLinksAttachment;
 import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.PlayerLinksAttachment;
-import dev.greenhouseteam.rapscallionsandrockhoppers.platform.ServiceUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.Entity;
@@ -10,9 +9,7 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 
-public interface IRockhoppersPlatformHelper {
-    IRockhoppersPlatformHelper INSTANCE = ServiceUtil.load(IRockhoppersPlatformHelper.class);
-
+public interface RockhoppersPlatformHelper {
     /**
      * Gets the name of the current platform
      *
@@ -48,8 +45,11 @@ public interface IRockhoppersPlatformHelper {
     void sendS2CTracking(CustomPacketPayload packet, Entity entity);
 
     BoatLinksAttachment getBoatData(Boat boat);
+
     void syncBoatData(Boat boat);
+
     PlayerLinksAttachment getPlayerData(Player player);
+
     void syncPlayerData(Player player);
 
     boolean runAndIsBreedEventCancelled(Animal parent, Animal otherParent);

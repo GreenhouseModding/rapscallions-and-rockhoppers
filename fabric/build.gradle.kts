@@ -26,8 +26,6 @@ dependencies {
 
     modImplementation("net.tslat.smartbrainlib:SmartBrainLib-fabric-${Versions.MINECRAFT}:${Versions.SMART_BRAIN_LIB}")
     include("net.tslat.smartbrainlib:SmartBrainLib-fabric-${Versions.MINECRAFT}:${Versions.SMART_BRAIN_LIB}")
-    compileOnly("com.google.auto.service:auto-service:1.0.1")
-    annotationProcessor("com.google.auto.service:auto-service:1.0.1")
 }
 
 loom {

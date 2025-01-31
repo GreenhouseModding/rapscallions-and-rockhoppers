@@ -5,7 +5,6 @@ import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.RockhoppersPackets;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacketS2C;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacketS2C;
-import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.*;
 import dev.greenhouseteam.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
 import net.fabricmc.api.ModInitializer;
@@ -46,7 +45,7 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
             if (player.isSpectator() || !(entity instanceof Boat boat)) {
                 return InteractionResult.PASS;
             }
-            return IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat).handleInteractionWithBoatHook(player, hand);
+            return RapscallionsAndRockhoppers.getHelper().getBoatData(boat).handleInteractionWithBoatHook(player, hand);
         });
 
         EntityTrackingEvents.START_TRACKING.register((entity, player) -> {

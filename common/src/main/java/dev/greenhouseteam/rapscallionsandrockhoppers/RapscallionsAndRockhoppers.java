@@ -2,6 +2,7 @@ package dev.greenhouseteam.rapscallionsandrockhoppers;
 
 import com.mojang.datafixers.util.Pair;
 import dev.greenhouseteam.rapscallionsandrockhoppers.entity.PenguinType;
+import dev.greenhouseteam.rapscallionsandrockhoppers.platform.RockhoppersPlatformHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
@@ -21,12 +22,22 @@ public class RapscallionsAndRockhoppers {
     public static final String MOD_NAME = "Rapscallions and Rockhoppers";
     public static final Logger LOG = LoggerFactory.getLogger(MOD_NAME);
 
+    private static RockhoppersPlatformHelper helper;
+
     private static final List<Pair<Integer, Integer>> PENGUIN_LOADED_CHUNKS = new ArrayList<>();
     private static Registry<PenguinType> biomePopulationPenguinTypeRegistry = null;
     private static boolean hasBiomePopulationBeenHandled;
 
     public static void init() {
 
+    }
+
+    public static RockhoppersPlatformHelper getHelper() {
+        return helper;
+    }
+
+    public static void setHelper(RockhoppersPlatformHelper helper) {
+        RapscallionsAndRockhoppers.helper = helper;
     }
 
     /**

@@ -2,7 +2,6 @@ package dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c;
 
 import dev.greenhouseteam.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.BoatLinksAttachment;
-import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
@@ -41,19 +40,15 @@ public record SyncBoatLinksAttachmentPacketS2C(int entityId, BoatLinksAttachment
     }
 
     public void handle() {
-        // Lambdarised version of this will break on NeoForge.
-        Minecraft.getInstance().execute(new Runnable() {
-            @Override
-            public void run() {
-                Entity entity = Minecraft.getInstance().level.getEntity(entityId());
+        Minecraft.getInstance().execute(() -> {
+            Entity entity = Minecraft.getInstance().level.getEntity(entityId());
 
-                if (!(entity instanceof Boat boat)) {
-                    RapscallionsAndRockhoppers.LOG.warn("Could not sync boat link attachment.");
-                    return;
-                }
-
-                IRockhoppersPlatformHelper.INSTANCE.getBoatData(boat).setFrom(attachment);
+            if (!(entity instanceof Boat boat)) {
+                RapscallionsAndRockhoppers.LOG.warn("Could not sync boat link attachment.");
+                return;
             }
+
+            RapscallionsAndRockhoppers.getHelper().getBoatData(boat).setFrom(attachment);
         });
     }
 

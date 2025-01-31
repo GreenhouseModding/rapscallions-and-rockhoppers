@@ -1,12 +1,10 @@
 package dev.greenhouseteam.rapscallionsandrockhoppers.platform;
 
-import com.google.auto.service.AutoService;
 import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.BoatLinksAttachment;
 import dev.greenhouseteam.rapscallionsandrockhoppers.attachment.PlayerLinksAttachment;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.RockhoppersPackets;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacketS2C;
 import dev.greenhouseteam.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacketS2C;
-import dev.greenhouseteam.rapscallionsandrockhoppers.platform.services.IRockhoppersPlatformHelper;
 import dev.greenhouseteam.rapscallionsandrockhoppers.registry.RockhoppersAttachments;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.nbt.CompoundTag;
@@ -16,8 +14,7 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 
-@AutoService(IRockhoppersPlatformHelper.class)
-public class FabricRockhoppersPlatformHelper implements IRockhoppersPlatformHelper {
+public class RockhoppersPlatformHelperFabric implements RockhoppersPlatformHelper {
 
     @Override
     public String getPlatformName() {
