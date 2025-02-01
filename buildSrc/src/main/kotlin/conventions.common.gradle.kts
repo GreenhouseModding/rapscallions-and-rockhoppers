@@ -1,5 +1,5 @@
-import house.greenhouse.examplemod.gradle.Properties
-import house.greenhouse.examplemod.gradle.Versions
+import house.greenhouse.rapscallionsandrockhoppers.gradle.Properties
+import house.greenhouse.rapscallionsandrockhoppers.gradle.Versions
 
 plugins {
     base

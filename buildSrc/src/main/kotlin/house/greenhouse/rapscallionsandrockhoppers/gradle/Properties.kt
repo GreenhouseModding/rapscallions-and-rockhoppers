@@ -1,4 +1,4 @@
-package house.greenhouse.examplemod.gradle
+package house.greenhouse.rapscallionsandrockhoppers.gradle
 
 object Properties {
     const val GROUP = "dev.greenhouseteam"

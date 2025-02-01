@@ -1,4 +1,4 @@
-package house.greenhouse.examplemod.gradle
+package house.greenhouse.rapscallionsandrockhoppers.gradle
 
 object Versions {
     const val MOD = "1.0.0"
