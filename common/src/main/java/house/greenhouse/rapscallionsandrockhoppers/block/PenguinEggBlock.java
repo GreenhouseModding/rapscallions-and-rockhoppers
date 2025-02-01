@@ -60,8 +60,8 @@ public class PenguinEggBlock extends Block implements EntityBlock {
             penguin.setAge(-24000);
             penguin.moveTo(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5, 0.0f, 0.0f);
             if (serverLevel.getBlockEntity(blockPos) instanceof PenguinEggBlockEntity penguinEggBlockEntity) {
-                var penguinType = penguinEggBlockEntity.getPenguinType(serverLevel);
-                penguin.setPenguinType(penguinType);
+                var penguinType = penguinEggBlockEntity.getPenguinVariant();
+                penguin.setVariant(penguinType);
             }
             serverLevel.addFreshEntity(penguin);
             serverLevel.removeBlock(blockPos, false);

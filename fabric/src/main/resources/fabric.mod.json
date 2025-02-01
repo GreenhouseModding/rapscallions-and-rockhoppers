@@ -25,15 +25,14 @@
         "client": [
           "house.greenhouse.rapscallionsandrockhoppers.client.RapscallionsAndRockhoppersFabricClient"
         ],
+      "preLaunch": [
+        "house.greenhouse.rapscallionsandrockhoppers.RapscallionsAndRockhoppersFabricPre"
+      ],
         "fabric-datagen": [
           "house.greenhouse.rapscallionsandrockhoppers.datagen.RockhoppersDatagen"
         ]
     },
     "custom": {
-        "cardinal-components": [
-            "rapscallionsandrockhoppers:boat_data",
-            "rapscallionsandrockhoppers:player_data"
-        ],
         "modmenu": {
             "links": {
                 "modmenu.curseforge": "${curseforge_page}",
@@ -42,7 +41,7 @@
             }
         }
     },
-    "accessWidener" : "rapscallionsandrockhoppers.accesswidener",
+    "accessWidener": "rapscallionsandrockhoppers.accesswidener",
     "mixins": [
         "${mod_id}.mixins.json",
         "${mod_id}.fabric.mixins.json"

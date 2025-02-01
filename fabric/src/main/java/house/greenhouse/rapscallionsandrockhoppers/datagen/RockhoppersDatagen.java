@@ -1,14 +1,13 @@
 package house.greenhouse.rapscallionsandrockhoppers.datagen;
 
 import house.greenhouse.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
-import house.greenhouse.rapscallionsandrockhoppers.entity.PenguinType;
+import house.greenhouse.rapscallionsandrockhoppers.entity.PenguinVariant;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersBlocks;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersDataComponents;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersItems;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersLootTables;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersTags;
 import house.greenhouse.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
-import house.greenhouse.rapscallionsandrockhoppers.util.WeightedHolderSet;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
@@ -20,6 +19,7 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.SimpleFabricLootTableProvider;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.models.BlockModelGenerators;
@@ -36,6 +36,7 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -78,7 +79,7 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
 
     @Override
     public void buildRegistry(RegistrySetBuilder registryBuilder) {
-        registryBuilder.add(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY, v -> {});
+        registryBuilder.add(RockhoppersResourceKeys.PENGUIN_VARIANT, v -> {});
     }
 
     public static class RockhoppersDynamicRegistryProvider extends FabricDynamicRegistryProvider {
@@ -89,20 +90,26 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
 
         @Override
         protected void configure(HolderLookup.Provider registries, Entries entries) {
-            Optional<Holder<SoundEvent>> idleSound = Optional.of(registries.lookup(Registries.SOUND_EVENT).orElseThrow().getOrThrow(RockhoppersResourceKeys.SoundEventKeys.PENGUIN_AMBIENT));
-            Optional<Holder<SoundEvent>> hurtSound = Optional.of(registries.lookup(Registries.SOUND_EVENT).orElseThrow().getOrThrow(RockhoppersResourceKeys.SoundEventKeys.PENGUIN_HURT));
-            Optional<Holder<SoundEvent>> deathSound = Optional.of(registries.lookup(Registries.SOUND_EVENT).orElseThrow().getOrThrow(RockhoppersResourceKeys.SoundEventKeys.PENGUIN_DEATH));
-            Optional<Holder<SoundEvent>> waterJumpSound = Optional.of(registries.lookup(Registries.SOUND_EVENT).orElseThrow().getOrThrow(RockhoppersResourceKeys.SoundEventKeys.PENGUIN_JUMP));
+            Optional<Holder<SoundEvent>> idleSound = Optional.of(registries.lookupOrThrow(Registries.SOUND_EVENT).getOrThrow(RockhoppersResourceKeys.SoundEventKeys.PENGUIN_AMBIENT));
+            Optional<Holder<SoundEvent>> hurtSound = Optional.of(registries.lookupOrThrow(Registries.SOUND_EVENT).getOrThrow(RockhoppersResourceKeys.SoundEventKeys.PENGUIN_HURT));
+            Optional<Holder<SoundEvent>> deathSound = Optional.of(registries.lookupOrThrow(Registries.SOUND_EVENT).getOrThrow(RockhoppersResourceKeys.SoundEventKeys.PENGUIN_DEATH));
+            Optional<Holder<SoundEvent>> waterJumpSound = Optional.of(registries.lookupOrThrow(Registries.SOUND_EVENT).getOrThrow(RockhoppersResourceKeys.SoundEventKeys.PENGUIN_JUMP));
 
-            entries.add(RockhoppersResourceKeys.PenguinTypeKeys.ROCKHOPPER, new PenguinType(
-                    Optional.empty(), Optional.empty(), List.of(new WeightedHolderSet<>(new DummyHolderSet<>(RockhoppersTags.BiomeTags.ROCKHOPPER_PENGUIN_SPAWN_BIOMES), 1)),
-                    new PenguinType.PenguinSounds(idleSound, hurtSound, deathSound, waterJumpSound), Optional.empty()));
-            entries.add(RockhoppersResourceKeys.PenguinTypeKeys.CHINSTRAP, new PenguinType(
-                    Optional.empty(), Optional.empty(), List.of(new WeightedHolderSet<>(new DummyHolderSet<>(RockhoppersTags.BiomeTags.CHINSTRAP_PENGUIN_SPAWN_BIOMES), 1)),
-                    new PenguinType.PenguinSounds(idleSound, hurtSound, deathSound, waterJumpSound), Optional.empty()));
-            entries.add(RockhoppersResourceKeys.PenguinTypeKeys.GUNTER, new PenguinType(
-                    Optional.empty(), Optional.of(RapscallionsAndRockhoppers.asResource("penguin/gunter_penguin")), List.of(),
-                    new PenguinType.PenguinSounds(idleSound, hurtSound, deathSound, waterJumpSound), Optional.of("Gunter")));
+            HolderSet.Named<Biome> rockhopperSpawnBiomes = registries.lookupOrThrow(Registries.BIOME).getOrThrow(RockhoppersTags.BiomeTags.SPAWNS_ROCKHOPPER_PENGUINS);
+            HolderSet.Named<Biome> chinstrapSpawnBiomes = registries.lookupOrThrow(Registries.BIOME).getOrThrow(RockhoppersTags.BiomeTags.SPAWNS_CHINSTRAP_PENGUINS);
+
+            entries.add(RockhoppersResourceKeys.PenguinTypeKeys.ROCKHOPPER, new PenguinVariant(
+                    RapscallionsAndRockhoppers.asResource("entity/penguin/rockhopper_penguin"), RapscallionsAndRockhoppers.asResource("entity/penguin/rockhopper_penguin_suprised"),
+                    SimpleWeightedRandomList.single(rockhopperSpawnBiomes),
+                    new PenguinVariant.PenguinSounds(idleSound, hurtSound, deathSound, waterJumpSound), Optional.empty()));
+            entries.add(RockhoppersResourceKeys.PenguinTypeKeys.CHINSTRAP, new PenguinVariant(
+                    RapscallionsAndRockhoppers.asResource("entity/penguin/chinstrap_penguin"), RapscallionsAndRockhoppers.asResource("entity/penguin/chinstrap_penguin_suprised"),
+                    SimpleWeightedRandomList.single(chinstrapSpawnBiomes),
+                    new PenguinVariant.PenguinSounds(idleSound, hurtSound, deathSound, waterJumpSound), Optional.empty()));
+            entries.add(RockhoppersResourceKeys.PenguinTypeKeys.GUNTER, new PenguinVariant(
+                    RapscallionsAndRockhoppers.asResource("entity/penguin/gunter_penguin"), RapscallionsAndRockhoppers.asResource("entity/penguin/gunter_penguin"),
+                    SimpleWeightedRandomList.empty(),
+                    new PenguinVariant.PenguinSounds(idleSound, hurtSound, deathSound, waterJumpSound), Optional.of("Gunter")));
         }
 
         @Override
@@ -249,8 +256,8 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
 
         @Override
         protected void addTags(HolderLookup.Provider provider) {
-            this.tag(RockhoppersTags.BiomeTags.ROCKHOPPER_PENGUIN_SPAWN_BIOMES).add(Biomes.STONY_SHORE);
-            this.tag(RockhoppersTags.BiomeTags.CHINSTRAP_PENGUIN_SPAWN_BIOMES).add(Biomes.FROZEN_OCEAN, Biomes.DEEP_FROZEN_OCEAN);
+            this.tag(RockhoppersTags.BiomeTags.SPAWNS_ROCKHOPPER_PENGUINS).add(Biomes.STONY_SHORE);
+            this.tag(RockhoppersTags.BiomeTags.SPAWNS_CHINSTRAP_PENGUINS).add(Biomes.FROZEN_OCEAN, Biomes.DEEP_FROZEN_OCEAN);
         }
     }
 

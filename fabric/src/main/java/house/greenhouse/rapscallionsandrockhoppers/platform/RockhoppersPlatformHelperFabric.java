@@ -17,8 +17,8 @@ import net.minecraft.world.entity.vehicle.Boat;
 public class RockhoppersPlatformHelperFabric implements RockhoppersPlatformHelper {
 
     @Override
-    public String getPlatformName() {
-        return "Fabric";
+    public RockhoppersPlatform getPlatform() {
+        return RockhoppersPlatform.FABRIC;
     }
 
     @Override

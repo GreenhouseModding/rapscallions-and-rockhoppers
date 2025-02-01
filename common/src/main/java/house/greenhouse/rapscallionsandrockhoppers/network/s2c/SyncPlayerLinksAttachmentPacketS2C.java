@@ -32,28 +32,16 @@ public record SyncPlayerLinksAttachmentPacketS2C(int entityId, PlayerLinksAttach
         }));
     }
 
-    public static SyncPlayerLinksAttachmentPacketS2C read(FriendlyByteBuf buf) {
-        return new SyncPlayerLinksAttachmentPacketS2C(buf.readInt(), PlayerLinksAttachment.CODEC.decode(NbtOps.INSTANCE, buf.readNbt()).getOrThrow(result -> {
-            RapscallionsAndRockhoppers.LOG.error("Could not decode player link attachment: {}", result);
-            return null;
-        }).getFirst());
-    }
-
-
     public void handle() {
-        // Lambdarised version of this will break on NeoForge.
-        Minecraft.getInstance().execute(new Runnable() {
-            @Override
-            public void run() {
-                Entity entity = Minecraft.getInstance().level.getEntity(entityId());
+        Minecraft.getInstance().execute(() -> {
+            Entity entity = Minecraft.getInstance().level.getEntity(entityId());
 
-                if (!(entity instanceof Player player)) {
-                    RapscallionsAndRockhoppers.LOG.warn("Could not sync player link attachment.");
-                    return;
-                }
-
-                RapscallionsAndRockhoppers.getHelper().getPlayerData(player).setFrom(attachment);
+            if (!(entity instanceof Player player)) {
+                RapscallionsAndRockhoppers.LOG.warn("Could not sync player link attachment.");
+                return;
             }
+
+            RapscallionsAndRockhoppers.getHelper().getPlayerData(player).setFrom(attachment);
         });
     }
 

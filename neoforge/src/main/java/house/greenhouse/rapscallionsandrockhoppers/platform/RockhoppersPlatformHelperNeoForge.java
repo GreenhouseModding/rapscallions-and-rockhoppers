@@ -19,8 +19,8 @@ import net.neoforged.neoforge.network.PacketDistributor;
 public class RockhoppersPlatformHelperNeoForge implements RockhoppersPlatformHelper {
 
     @Override
-    public String getPlatformName() {
-        return "NeoForge";
+    public RockhoppersPlatform getPlatform() {
+        return RockhoppersPlatform.NEOFORGE;
     }
 
     @Override

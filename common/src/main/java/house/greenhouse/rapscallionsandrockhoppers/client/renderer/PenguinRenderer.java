@@ -1,7 +1,10 @@
 package house.greenhouse.rapscallionsandrockhoppers.client.renderer;
 
+import house.greenhouse.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import house.greenhouse.rapscallionsandrockhoppers.client.renderer.model.PenguinModel;
 import house.greenhouse.rapscallionsandrockhoppers.entity.Penguin;
+import house.greenhouse.rapscallionsandrockhoppers.entity.PenguinVariant;
+import house.greenhouse.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
@@ -18,23 +21,20 @@ public class PenguinRenderer extends MobRenderer<Penguin, PenguinModel> {
         super(context, new PenguinModel(context.bakeLayer(PenguinModel.LAYER_LOCATION)), 0.5F);
     }
 
-    // TODO: Improve by constructing texture path in actual variant class
     @Override
     public ResourceLocation getTextureLocation(Penguin penguin) {
         if (penguin.isShocked() || penguin.isStumbling() && !penguin.isGettingUp()) {
-            ResourceLocation textureLocation = penguin.getPenguinType().surprisedTextureLocation().map(resourceLocation -> ResourceLocation.fromNamespaceAndPath(resourceLocation.getNamespace(), "textures/entity/" + resourceLocation.getPath() + ".png")).orElse(ResourceLocation.fromNamespaceAndPath(penguin.getPenguinTypeKey().getNamespace(), "textures/entity/penguin/" + penguin.getPenguinTypeKey().getPath() + "_penguin_surprised.png"));
+            ResourceLocation textureLocation = penguin.getVariant().value().surprisedTexture().withPath(path -> "textures/" + path + ".png");
             addToTextureCache(textureLocation);
-            if (PENGUIN_TEXTURE_CACHE.getOrDefault(textureLocation, false)) {
+            if (PENGUIN_TEXTURE_CACHE.getOrDefault(textureLocation, false))
                 return textureLocation;
-            }
         } else {
-            ResourceLocation textureLocation = penguin.getPenguinType().textureLocation().map(resourceLocation -> ResourceLocation.fromNamespaceAndPath(resourceLocation.getNamespace(), "textures/entity/" + resourceLocation.getPath() + ".png")).orElse(ResourceLocation.fromNamespaceAndPath(penguin.getPenguinTypeKey().getNamespace(), "textures/entity/penguin/" + penguin.getPenguinTypeKey().getPath() + "_penguin.png"));
+            ResourceLocation textureLocation = penguin.getVariant().value().texture().withPath(path -> "textures/" + path + ".png");
             addToTextureCache(textureLocation);
-            if (PENGUIN_TEXTURE_CACHE.getOrDefault(textureLocation, false)) {
+            if (PENGUIN_TEXTURE_CACHE.getOrDefault(textureLocation, false))
                 return textureLocation;
-            }
         }
-        return penguin.getPenguinType().textureLocation().orElse(ResourceLocation.fromNamespaceAndPath(penguin.getPenguinTypeKey().getNamespace(), "textures/entity/penguin/missing_penguin.png"));
+        return penguin.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getOrThrow(RockhoppersResourceKeys.PenguinTypeKeys.ROCKHOPPER).texture();
     }
 
     private void addToTextureCache(ResourceLocation textureLocation) {

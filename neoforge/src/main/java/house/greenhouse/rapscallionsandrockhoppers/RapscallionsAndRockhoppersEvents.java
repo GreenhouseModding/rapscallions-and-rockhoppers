@@ -3,7 +3,7 @@ package house.greenhouse.rapscallionsandrockhoppers;
 import house.greenhouse.rapscallionsandrockhoppers.attachment.BoatLinksAttachment;
 import house.greenhouse.rapscallionsandrockhoppers.attachment.PlayerLinksAttachment;
 import house.greenhouse.rapscallionsandrockhoppers.entity.Penguin;
-import house.greenhouse.rapscallionsandrockhoppers.entity.PenguinType;
+import house.greenhouse.rapscallionsandrockhoppers.entity.PenguinVariant;
 import house.greenhouse.rapscallionsandrockhoppers.network.s2c.InvalidateCachedPenguinTypePacketS2C;
 import house.greenhouse.rapscallionsandrockhoppers.network.s2c.SyncBlockPosLookPacketS2C;
 import house.greenhouse.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacketS2C;
@@ -76,7 +76,7 @@ public class RapscallionsAndRockhoppersEvents {
 
         @SubscribeEvent
         public static void createNewDataPackRegistries(DataPackRegistryEvent.NewRegistry event) {
-            event.dataPackRegistry(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY, PenguinType.CODEC, PenguinType.CODEC);
+            event.dataPackRegistry(RockhoppersResourceKeys.PENGUIN_VARIANT, PenguinVariant.DIRECT_CODEC, PenguinVariant.DIRECT_CODEC);
         }
 
         private static <T> void register(RegisterEvent event, Consumer<RegisterFunction<T>> consumer) {
@@ -127,19 +127,7 @@ public class RapscallionsAndRockhoppersEvents {
     public static class ForgeBusEvents {
         @SubscribeEvent
         public static void onServerStarted(ServerStartedEvent event) {
-            RapscallionsAndRockhoppers.removeCachedPenguinTypeRegistry(false);
-        }
-
-        @SubscribeEvent
-        public static void onServerStopped(ServerStoppingEvent event) {
-            RapscallionsAndRockhoppers.removeCachedPenguinTypeRegistry(true);
-        }
-
-        @SubscribeEvent
-        public static void onDataPackSync(OnDatapackSyncEvent event) {
-            if (event.getPlayer() == null) {
-                event.getPlayerList().getServer().getAllLevels().forEach(Penguin::invalidateCachedPenguinTypes);
-            }
+            RapscallionsAndRockhoppers.setBiomePopulationPenguinTypeRegistry(null);
         }
 
         @SubscribeEvent

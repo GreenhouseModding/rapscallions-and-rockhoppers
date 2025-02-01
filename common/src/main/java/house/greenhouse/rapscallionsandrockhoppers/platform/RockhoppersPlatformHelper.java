@@ -15,7 +15,7 @@ public interface RockhoppersPlatformHelper {
      *
      * @return The name of the current platform.
      */
-    String getPlatformName();
+    RockhoppersPlatform getPlatform();
 
     /**
      * Checks if a mod with the given id is loaded.

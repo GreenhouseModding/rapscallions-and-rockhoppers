@@ -1,7 +1,7 @@
 package house.greenhouse.rapscallionsandrockhoppers;
 
 import house.greenhouse.rapscallionsandrockhoppers.entity.Penguin;
-import house.greenhouse.rapscallionsandrockhoppers.entity.PenguinType;
+import house.greenhouse.rapscallionsandrockhoppers.entity.PenguinVariant;
 import house.greenhouse.rapscallionsandrockhoppers.network.RockhoppersPackets;
 import house.greenhouse.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacketS2C;
 import house.greenhouse.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacketS2C;
@@ -75,7 +75,7 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
             if (RapscallionsAndRockhoppers.getBiomePopulationPenguinTypeRegistry() == null) {
                 return false;
             }
-            return RapscallionsAndRockhoppers.getBiomePopulationPenguinTypeRegistry().stream().anyMatch(penguinType -> penguinType.spawnBiomes().stream().anyMatch(holderSet -> holderSet.holders().contains(biomeSelectionContext.getBiomeRegistryEntry())));
+            return RapscallionsAndRockhoppers.getBiomePopulationPenguinTypeRegistry().stream().anyMatch(penguinType -> penguinType.biomes().unwrap().stream().anyMatch(holderSet -> holderSet.data().contains(biomeSelectionContext.getBiomeRegistryEntry())));
         };
     }
 
@@ -90,7 +90,7 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
     }
 
     public static void handleRegistration() {
-        DynamicRegistries.registerSynced(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY, PenguinType.CODEC);
+        DynamicRegistries.registerSynced(RockhoppersResourceKeys.PENGUIN_VARIANT, PenguinVariant.DIRECT_CODEC);
 
         RockhoppersBlocks.registerBlocks(Registry::register);
         RockhoppersItems.registerItems(Registry::register);
@@ -111,12 +111,6 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
     }
 
     public static void handlePenguinTypeRegistryEvents() {
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> RapscallionsAndRockhoppers.removeCachedPenguinTypeRegistry(false));
-        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, closeableResourceManager, success) -> {
-            if (success) {
-                server.getAllLevels().forEach(Penguin::invalidateCachedPenguinTypes);
-            }
-        });
-        ServerLifecycleEvents.SERVER_STOPPED.register(server -> RapscallionsAndRockhoppers.removeCachedPenguinTypeRegistry(true));
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> RapscallionsAndRockhoppers.setBiomePopulationPenguinTypeRegistry(null));
     }
 }

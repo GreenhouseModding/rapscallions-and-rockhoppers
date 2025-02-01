@@ -12,13 +12,13 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.Map;
 
 @Mixin(RegistryDataLoader.class)
-public abstract class RegistryDataLoaderRegistryDataMixin<T> {
+public abstract class RegistryDataLoaderRegistryDataMixin {
 
     // TODO: Look into migrating this into an event maybe?
-    @Inject(method = { "method_45128", "lambda$load$6" }, at = @At("RETURN"), locals = LocalCapture.CAPTURE_FAILHARD)
-    private static void rapscallionsandrockhoppers$cachePenguinRegistry(Map map, RegistryDataLoader.Loader p_344258_, CallbackInfo ci) {
-        if (p_344258_.registry().key().location() == RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY.location()) {
-            RapscallionsAndRockhoppers.setBiomePopulationPenguinTypeRegistry(p_344258_.registry());
+    @Inject(method = { "method_45128", "lambda$load$6" }, at = @At("RETURN"))
+    private static void rapscallionsandrockhoppers$cachePenguinRegistry(Map map, RegistryDataLoader.Loader loader, CallbackInfo ci) {
+        if (loader.registry().key().location() == RockhoppersResourceKeys.PENGUIN_VARIANT.location()) {
+            RapscallionsAndRockhoppers.setBiomePopulationPenguinTypeRegistry(loader.registry());
         }
     }
 }

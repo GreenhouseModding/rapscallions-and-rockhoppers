@@ -26,26 +26,18 @@ public record SyncBlockPosLookPacketS2C(int entityId, int otherEntityId, Vec3 lo
         buf.writeVec3(packet.lookPos());
     }
 
-    public static SyncBlockPosLookPacketS2C read(FriendlyByteBuf buf) {
-        return new SyncBlockPosLookPacketS2C(buf.readInt(), buf.readInt(), buf.readVec3());
-    }
-
     public void handle() {
-        // Lambdarised version of this will break on NeoForge.
-        Minecraft.getInstance().execute(new Runnable() {
-            @Override
-            public void run() {
-                Entity entity = Minecraft.getInstance().level.getEntity(entityId());
-                Entity otherEntity = Minecraft.getInstance().level.getEntity(otherEntityId());
+        Minecraft.getInstance().execute(() -> {
+            Entity entity = Minecraft.getInstance().level.getEntity(entityId());
+            Entity otherEntity = Minecraft.getInstance().level.getEntity(otherEntityId());
 
-                if (entity == null || otherEntity == null) {
-                    RapscallionsAndRockhoppers.LOG.warn("Could not sync rotations of penguins.");
-                    return;
-                }
-
-                entity.lookAt(EntityAnchorArgument.Anchor.FEET, lookPos());
-                otherEntity.lookAt(EntityAnchorArgument.Anchor.FEET, lookPos());
+            if (entity == null || otherEntity == null) {
+                RapscallionsAndRockhoppers.LOG.warn("Could not sync rotations of penguins.");
+                return;
             }
+
+            entity.lookAt(EntityAnchorArgument.Anchor.FEET, lookPos());
+            otherEntity.lookAt(EntityAnchorArgument.Anchor.FEET, lookPos());
         });
     }
 

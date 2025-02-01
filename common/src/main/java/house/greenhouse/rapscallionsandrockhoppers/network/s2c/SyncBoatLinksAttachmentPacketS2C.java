@@ -32,13 +32,6 @@ public record SyncBoatLinksAttachmentPacketS2C(int entityId, BoatLinksAttachment
         }));
     }
 
-    public static SyncBoatLinksAttachmentPacketS2C read(FriendlyByteBuf buf) {
-        return new SyncBoatLinksAttachmentPacketS2C(buf.readInt(), BoatLinksAttachment.CODEC.decode(NbtOps.INSTANCE, buf.readNbt()).getOrThrow(result -> {
-            RapscallionsAndRockhoppers.LOG.error("Could not decode boat link attachment: {}", result);
-            return null;
-        }).getFirst());
-    }
-
     public void handle() {
         Minecraft.getInstance().execute(() -> {
             Entity entity = Minecraft.getInstance().level.getEntity(entityId());

@@ -27,8 +27,6 @@ import house.greenhouse.rapscallionsandrockhoppers.entity.sensor.NearbyWaterSens
 import house.greenhouse.rapscallionsandrockhoppers.entity.sensor.PenguinAttackTargetSensor;
 import house.greenhouse.rapscallionsandrockhoppers.entity.sensor.PenguinHomeSensor;
 import house.greenhouse.rapscallionsandrockhoppers.entity.sensor.PlayerToCoughForSensor;
-import house.greenhouse.rapscallionsandrockhoppers.mixin.LevelAccessor;
-import house.greenhouse.rapscallionsandrockhoppers.network.s2c.InvalidateCachedPenguinTypePacketS2C;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersActivities;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersBlocks;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
@@ -36,12 +34,12 @@ import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersMemoryMod
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersSoundEvents;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersTags;
 import house.greenhouse.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
-import house.greenhouse.rapscallionsandrockhoppers.util.WeightedHolderSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -51,13 +49,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.util.AbortableIterationConsumer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.valueproviders.ConstantFloat;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -80,6 +78,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -120,8 +119,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     public static final int COUGH_ANIMATION_LENGTH = 40;
 
     protected static final Ingredient TEMPTATION_ITEM = Ingredient.of(RockhoppersTags.ItemTags.PENGUIN_TEMPT_ITEMS);
-    private static final EntityDataAccessor<String> DATA_TYPE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.STRING);
-    private static final EntityDataAccessor<String> DATA_PREVIOUS_TYPE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<String> DATA_VARIANT = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<String> DATA_PREVIOUS_VARIANT = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Integer> DATA_SHOCKED_TIME = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_COUGH_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_PECK_TICKS = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.INT);
@@ -131,8 +130,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     private static final EntityDataAccessor<Float> DATA_STUMBLE_CHANCE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> DATA_SHOVE_CHANCE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<String> DATA_EGG = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.STRING);
-    private boolean hasLoggedMissingError = false;
-    private PenguinType cachedPenguinType = null;
+
+    private Holder<PenguinVariant> variant;
 
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState waddleAnimationState = new AnimationState();
@@ -175,41 +174,39 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         compoundTag.putFloat("shove_chance", this.getShoveChance());
         if (BrainUtils.hasMemory(this, MemoryModuleType.HOME)) {
             compoundTag.put("home", GlobalPos.CODEC.encodeStart(NbtOps.INSTANCE, BrainUtils.getMemory(this, MemoryModuleType.HOME)).getOrThrow(result -> {
-                RapscallionsAndRockhoppers.LOG.error("Memory Encoding Error in Penguin: {}", result);
+                RapscallionsAndRockhoppers.LOG.error("Memory encoding error in penguin: {}", result);
                 return null;
             }));
         }
-        if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW)) {
+        if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW))
             compoundTag.putUUID("boat_to_follow", BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW));
-        }
-        if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER)) {
+
+        if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER))
             compoundTag.putUUID("last_following_boat_controller", BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER));
-        }
-        if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR)) {
+
+        if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR))
             compoundTag.putUUID("player_to_cough_for", BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR));
-        }
-        if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_FOLLOW_BOAT)) {
+
+        if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_FOLLOW_BOAT))
             compoundTag.putInt("time_allowed_to_follow_boat", BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_FOLLOW_BOAT));
-        }
-        if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_WATER_JUMP)) {
+
+        if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_WATER_JUMP))
             compoundTag.putInt("time_allowed_to_water_jump", BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_WATER_JUMP));
-        }
-        if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT)) {
+
+        if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT))
             compoundTag.putInt("time_allowed_to_eat", BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT));
-        }
-        if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.HUNGRY_TIME)) {
+
+        if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.HUNGRY_TIME))
             compoundTag.putInt("hungry_time", BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.HUNGRY_TIME));
-        }
-        if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.FISH_EATEN)) {
+
+        if (BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.FISH_EATEN))
             compoundTag.putInt("fish_eaten", BrainUtils.getMemory(this, RockhoppersMemoryModuleTypes.FISH_EATEN));
-        }
-        compoundTag.putString("type", this.getEntityData().get(DATA_TYPE));
-        if (!this.getEntityData().get(DATA_PREVIOUS_TYPE).isEmpty()) {
-            compoundTag.putString("type", this.getEntityData().get(DATA_PREVIOUS_TYPE));
-        }
-        if (!this.getEntityData().get(DATA_EGG).isEmpty()) {
+
+        compoundTag.putString("variant", this.getEntityData().get(DATA_VARIANT));
+        if (!this.getEntityData().get(DATA_PREVIOUS_VARIANT).isEmpty())
+            compoundTag.putString("previous_variant", this.getEntityData().get(DATA_PREVIOUS_VARIANT));
+        if (!this.getEntityData().get(DATA_EGG).isEmpty())
             compoundTag.putString("egg", this.getEntityData().get(DATA_EGG));
-        }
     }
 
     @Override
@@ -219,7 +216,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         this.setShoveChance(compoundTag.getFloat("shove_chance"));
         if (compoundTag.contains("home", CompoundTag.TAG_COMPOUND))
             BrainUtils.setMemory(this, MemoryModuleType.HOME, GlobalPos.CODEC.decode(NbtOps.INSTANCE, compoundTag.getCompound("home")).getOrThrow(result -> {
-                RapscallionsAndRockhoppers.LOG.error("Memory Encoding Error in Penguin: {}", result);
+                RapscallionsAndRockhoppers.LOG.error("Memory decoding error in penguin: {}", result);
                 return null;
             }).getFirst());
         if (compoundTag.contains("boat_to_follow"))
@@ -236,33 +233,28 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             BrainUtils.clearMemory(this, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR);
 
         if (compoundTag.contains("time_allowed_to_follow_boat", CompoundTag.TAG_INT))
-            this.setTimeAllowedToFollowBoat(integerOptional(compoundTag.getInt("time_allowed_to_follow_boat")));
+            setTimeAllowedToFollowBoat(integerOptional(compoundTag.getInt("time_allowed_to_follow_boat")));
         if (compoundTag.contains("time_allowed_to_water_jump", CompoundTag.TAG_INT))
-            this.setTimeAllowedToWaterJump(integerOptional(compoundTag.getInt("time_allowed_to_water_jump")));
+            setTimeAllowedToWaterJump(integerOptional(compoundTag.getInt("time_allowed_to_water_jump")));
         if (compoundTag.contains("time_allowed_to_eat", CompoundTag.TAG_INT))
-            this.setTimeAllowedToEat(integerOptional(compoundTag.getInt("time_allowed_to_eat")));
+            setTimeAllowedToEat(integerOptional(compoundTag.getInt("time_allowed_to_eat")));
         if (compoundTag.contains("hungry_time", CompoundTag.TAG_INT))
-            this.setHungryTime(integerOptional(compoundTag.getInt("hungry_time")));
+            setHungryTime(integerOptional(compoundTag.getInt("hungry_time")));
         if (compoundTag.contains("fish_eaten", CompoundTag.TAG_INT))
-            this.setFishEaten(compoundTag.getInt("fish_eaten"));
+            setFishEaten(compoundTag.getInt("fish_eaten"));
 
-        if (compoundTag.contains("previous_type"))
-            this.getEntityData().set(DATA_PREVIOUS_TYPE, compoundTag.getString("previous_type"));
+        if (compoundTag.contains("previous_variant"))
+            getEntityData().set(DATA_PREVIOUS_VARIANT, compoundTag.getString("previous_variant"));
+        else if (compoundTag.contains("previous_type")) // Backwards compatibility.
+            getEntityData().set(DATA_PREVIOUS_VARIANT, compoundTag.getString("previous_variant"));
 
-        if (compoundTag.contains("type")) {
-//            ResourceLocation typeKey = new ResourceLocation(compoundTag.getString("type"));
-            ResourceLocation typeKey = ResourceLocation.tryParse(compoundTag.getString("type"));
-            if (typeKey != null) {
-                this.setPenguinType(typeKey);
-            } else {
-                RapscallionsAndRockhoppers.LOG.error("Invalid penguin type key in NBT: " + compoundTag.getString("type"));
-            }
+        if (compoundTag.contains("variant") || compoundTag.contains("type")) { // 'type' nbt backwards compatibility.
+            ResourceLocation typeKey = ResourceLocation.tryParse(compoundTag.contains("variant") ? compoundTag.getString("variant") : compoundTag.getString("type"));
+            Optional<Holder.Reference<PenguinVariant>> variant = typeKey == null ? Optional.empty() : level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getHolder(typeKey);
+            variant.ifPresent(this::setVariant);
         }
-        if (compoundTag.contains("egg")) {
-            if (ResourceLocation.tryParse(compoundTag.getString("egg")) != null) {
-                setEggPenguinType(compoundTag.getString("egg"));
-            }
-        }
+        if (compoundTag.contains("egg") && ResourceLocation.tryParse(compoundTag.getString("egg")) != null)
+            setEggPenguinType(compoundTag.getString("egg"));
     }
 
     private Optional<Integer> integerOptional(int value) {
@@ -481,8 +473,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
-        builder.define(DATA_TYPE, "rapscallionsandrockhoppers:rockhopper");
-        builder.define(DATA_PREVIOUS_TYPE, "");
+        builder.define(DATA_VARIANT, "rapscallionsandrockhoppers:rockhopper");
+        builder.define(DATA_PREVIOUS_VARIANT, "");
         builder.define(DATA_STUMBLE_CHANCE, 0.0F);
         builder.define(DATA_STUMBLE_TICKS, Integer.MIN_VALUE);
         builder.define(DATA_STUMBLE_TICKS_BEFORE_GETTING_UP, Integer.MIN_VALUE);
@@ -574,13 +566,13 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 }
             }
 
-            if (this.hasEgg() && this.onGround() && !isStumbling() && this.getPose() == Pose.STANDING) {
-                if (level().getBlockState(this.blockPosition()).isAir() 
-                        && getBlockStateOn().isFaceSturdy(level(), this.blockPosition(), this.getDirection())
-                        && !level().getBlockState(this.blockPosition().below()).isAir()) {
-                    this.level().setBlockAndUpdate(this.blockPosition(), RockhoppersBlocks.PENGUIN_EGG.defaultBlockState());
-                    if (this.level().getBlockEntity(this.blockPosition()) instanceof PenguinEggBlockEntity penguinEggBlockEntity) {
-                        penguinEggBlockEntity.setPenguinType(this.getEggType());
+            if (hasEgg() && onGround() && !isStumbling() && getPose() == Pose.STANDING) {
+                if (level().getBlockState(blockPosition()).isAir()
+                        && getBlockStateOn().isFaceSturdy(level(), blockPosition(), getDirection())
+                        && !level().getBlockState(blockPosition().below()).isAir()) {
+                    level().setBlockAndUpdate(blockPosition(), RockhoppersBlocks.PENGUIN_EGG.defaultBlockState());
+                    if (level().getBlockEntity(blockPosition()) instanceof PenguinEggBlockEntity penguinEggBlockEntity) {
+                        penguinEggBlockEntity.setPenguinVariant(getEggType());
                     }
                     this.setEggPenguinType("");
                 }
@@ -695,7 +687,6 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         }
     }
 
-
     // TODO: There's probably a better algorithm for calculating this... Oh well.
     private BlockPos getRandomPos(BlockPos home) {
         int xOffset = this.getRandom().nextIntBetweenInclusive(8, 12);
@@ -717,80 +708,26 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
-        if (getTotalSpawnWeight(level(), this.blockPosition()) > 0) {
-            this.setPenguinType(getPenguinSpawnTypeDependingOnBiome(level, this.blockPosition(), this.getRandom()));
-        } else {
-            this.setPenguinType(getPenguinSpawnTypeGlobal(level, this.blockPosition(), this.getRandom()));
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData data) {
+        if (spawnType != MobSpawnType.STRUCTURE) {
+            if (data == null) {
+                data = new PenguinGroupData();
+            }
+            setVariant(((PenguinGroupData)data).getSpawnType(blockPosition(), level, level.getRandom()));
         }
-        this.setHungryTime(integerOptional(this.tickCount + Mth.randomBetweenInclusive(level.getRandom(), 3600, 4800)));
-        this.setStumbleChance(Mth.randomBetween(this.getRandom(), 0.0025F, 0.005F));
-        this.setShoveChance(Mth.randomBetween(this.getRandom(), 0.001F, 0.0025F));
-
-        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+        return super.finalizeSpawn(level, difficulty, spawnType, data);
     }
 
     public static boolean checkPenguinSpawnRules(EntityType<? extends Penguin> entityType, net.minecraft.world.level.LevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {
         return getTotalSpawnWeight(level, pos) > 0 && Animal.isBrightEnoughToSpawn(level, pos);
     }
 
-
-    public PenguinType getPenguinSpawnTypeDependingOnBiome(net.minecraft.world.level.LevelAccessor level, BlockPos pos, RandomSource random) {
-        List<PenguinType> penguinTypes = new ArrayList<>();
-        int totalWeight = 0;
-
-        for (PenguinType penguinType : level.registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY)) {
-            if (penguinType.spawnBiomes().stream().anyMatch(pt -> pt.holders().contains(level.getBiome(pos)) && pt.weight() > 0)) {
-                penguinTypes.add(penguinType);
-                totalWeight += penguinType.spawnBiomes().stream().map(WeightedHolderSet::weight).reduce(Integer::sum).orElse(0);
-            }
-        }
-
-        if (penguinTypes.size() == 1) {
-            return penguinTypes.get(0);
-        } else if (!penguinTypes.isEmpty()) {
-            int r = Mth.nextInt(random, 0, totalWeight - 1);
-            for (PenguinType penguinType : penguinTypes) {
-                r -= penguinType.spawnBiomes().stream().map(WeightedHolderSet::weight).reduce(Integer::sum).orElse(0);
-                if (r < 0) {
-                    return penguinType;
-                }
-            }
-        }
-        return null;
-    }
-
-    public PenguinType getPenguinSpawnTypeGlobal(net.minecraft.world.level.LevelAccessor level, BlockPos pos, RandomSource random) {
-        List<PenguinType> penguinTypes = new ArrayList<>();
-        int totalWeight = 0;
-
-        for (PenguinType penguinType : level.registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY)) {
-            if (penguinType.spawnBiomes().stream().anyMatch(pt -> pt.holders().size() > 0 && pt.weight() > 0)) {
-                penguinTypes.add(penguinType);
-                totalWeight += penguinType.spawnBiomes().stream().map(WeightedHolderSet::weight).reduce(Integer::sum).orElse(0);
-            }
-        }
-
-        if (penguinTypes.size() == 1) {
-            return penguinTypes.get(0);
-        } else if (!penguinTypes.isEmpty()) {
-            int r = Mth.nextInt(random, 0, totalWeight - 1);
-            for (PenguinType penguinType : penguinTypes) {
-                r -= penguinType.spawnBiomes().stream().map(WeightedHolderSet::weight).reduce(Integer::sum).orElse(0);
-                if (r < 0) {
-                    return penguinType;
-                }
-            }
-        }
-        return null;
-    }
-
     public static int getTotalSpawnWeight(net.minecraft.world.level.LevelAccessor level, BlockPos pos) {
         int totalWeight = 0;
 
-        for (PenguinType penguinType : level.registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY)) {
-            if (penguinType.spawnBiomes().stream().anyMatch(pt -> pt.holders().contains(level.getBiome(pos)) && pt.weight() > 0)) {
-                totalWeight += penguinType.spawnBiomes().stream().map(WeightedHolderSet::weight).reduce(Integer::sum).orElse(0);
+        for (PenguinVariant variant : level.registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT)) {
+            if (variant.biomes().unwrap().stream().anyMatch(pt -> pt.data().contains(level.getBiome(pos)) && pt.weight().asInt() > 0)) {
+                totalWeight += variant.biomes().unwrap().stream().map(holderSetWrapper -> holderSetWrapper.weight().asInt()).reduce(Integer::sum).orElse(0);
             }
         }
         return totalWeight;
@@ -853,85 +790,68 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     }
 
     protected void setFromParent(Penguin penguin) {
-        if (!penguin.getEntityData().get(DATA_PREVIOUS_TYPE).isEmpty()) {
+        Registry<PenguinVariant> registry = level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT);
+        if (!penguin.getEntityData().get(DATA_PREVIOUS_VARIANT).isEmpty()) {
             try {
-                this.setPenguinType(ResourceLocation.tryParse(penguin.getEntityData().get(DATA_PREVIOUS_TYPE)));
+                Optional<Holder.Reference<PenguinVariant>> variant = registry.getHolder(ResourceLocation.tryParse(penguin.getEntityData().get(DATA_PREVIOUS_VARIANT)));
+                variant.ifPresent(this::setVariant);
             } catch (Exception ex) {
-                RapscallionsAndRockhoppers.LOG.error("Failed to set penguin from parent: ");
-                ex.printStackTrace();
+                RapscallionsAndRockhoppers.LOG.error("Failed to set penguin from parent: ", ex);
             }
+            return;
         }
         try {
-            this.setPenguinType(ResourceLocation.tryParse(penguin.getEntityData().get(DATA_TYPE)));
+            Optional<Holder.Reference<PenguinVariant>> variant = registry.getHolder(ResourceLocation.tryParse(penguin.getEntityData().get(DATA_VARIANT)));
+            variant.ifPresent(this::setVariant);
         } catch (Exception ex) {
-            RapscallionsAndRockhoppers.LOG.error("Failed to set penguin from parent: ");
-            ex.printStackTrace();
+            RapscallionsAndRockhoppers.LOG.error("Failed to set penguin from parent: ", ex);
         }
     }
 
     @Override
     public SoundEvent getAmbientSound() {
-        Optional<Holder<SoundEvent>> soundEventHolder = this.getPenguinType().sounds().ambientSound();
+        Optional<Holder<SoundEvent>> soundEventHolder = getVariant().value().sounds().ambientSound();
         if (soundEventHolder.isPresent() && soundEventHolder.get().isBound()) {
             return soundEventHolder.get().value();
         }
-        return null;
+        return SoundEvents.EMPTY;
     }
 
     @Override
     public SoundEvent getHurtSound(DamageSource damageSource) {
-        Optional<Holder<SoundEvent>> soundEventHolder = this.getPenguinType().sounds().hurtSound();
+        Optional<Holder<SoundEvent>> soundEventHolder = getVariant().value().sounds().hurtSound();
         if (soundEventHolder.isPresent() && soundEventHolder.get().isBound()) {
             return soundEventHolder.get().value();
         }
-        return null;
+        return SoundEvents.EMPTY;
     }
 
     @Override
     public SoundEvent getDeathSound() {
-        Optional<Holder<SoundEvent>> soundEventHolder = this.getPenguinType().sounds().deathSound();
+        Optional<Holder<SoundEvent>> soundEventHolder = getVariant().value().sounds().deathSound();
         if (soundEventHolder.isPresent() && soundEventHolder.get().isBound()) {
             return soundEventHolder.get().value();
         }
-        return null;
+        return SoundEvents.EMPTY;
     }
 
     public SoundEvent getWaterJumpSound() {
-        Optional<Holder<SoundEvent>> soundEventHolder = this.getPenguinType().sounds().waterJumpSound();
+        Optional<Holder<SoundEvent>> soundEventHolder = getVariant().value().sounds().waterJumpSound();
         if (soundEventHolder.isPresent() && soundEventHolder.get().isBound()) {
             return soundEventHolder.get().value();
         }
-        return null;
+        return SoundEvents.EMPTY;
     }
 
-    @Nullable
-    public PenguinType getPenguinType() {
-        try {
-            ResourceKey<PenguinType> resourceKey = ResourceKey.create(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY, ResourceLocation.tryParse(this.getEntityData().get(Penguin.DATA_TYPE)));
-            if (cachedPenguinType == null && this.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY).containsKey(resourceKey)) {
-                this.cachedPenguinType = this.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY).get(ResourceKey.create(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY, ResourceLocation.tryParse(this.getEntityData().get(Penguin.DATA_TYPE))));
-            }
-            if (this.cachedPenguinType != null) {
-                return this.cachedPenguinType;
-            }
-        } catch (Exception ex) {
-            if (!this.hasLoggedMissingError) {
-                RapscallionsAndRockhoppers.LOG.error("Could not load PenguinType for penguin with UUID '{}'.", this.getStringUUID());
-                this.hasLoggedMissingError = true;
-            }
+    public Holder<PenguinVariant> getVariant() {
+        if (variant == null) {
+            ResourceLocation variantLocation = ResourceLocation.tryParse(getEntityData().get(DATA_VARIANT));
+            if (variantLocation == null)
+                variantLocation = RapscallionsAndRockhoppers.asResource("rapscallionsandrockhoppers:rockhopper");
+            level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getHolder(variantLocation).ifPresentOrElse(v -> variant = v, () ->
+                    variant = level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getHolderOrThrow(RockhoppersResourceKeys.PenguinTypeKeys.ROCKHOPPER));
         }
-        if (!this.hasLoggedMissingError) {
-            RapscallionsAndRockhoppers.LOG.error("Could not load PenguinType for penguin with UUID '{}'.", this.getStringUUID());
-            this.hasLoggedMissingError = true;
-        }
-        return PenguinType.MISSING;
-    }
-
-    public ResourceLocation getPenguinTypeKey() {
-        if (this.cachedPenguinType != null) {
-            return this.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY).getKey(this.cachedPenguinType);
-        }
-        return RapscallionsAndRockhoppers.asResource("missing");
+        return variant;
     }
 
     public void setCustomName(@Nullable Component name) {
@@ -939,52 +859,25 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         super.setCustomName(name);
     }
 
-    public void invalidateCachedPenguinType() {
-        if (!this.level().isClientSide()) {
-            RapscallionsAndRockhoppers.getHelper().sendS2CTracking(new InvalidateCachedPenguinTypePacketS2C(this.getId(), this.getPenguinTypeKey()), this);
+    public void setVariant(Holder<PenguinVariant> value) {
+        this.getEntityData().set(DATA_VARIANT, value.unwrapKey().orElseThrow().location().toString());
+        if (value.isBound() && value.value().whenNamed().isEmpty()) {
+            this.getEntityData().set(DATA_PREVIOUS_VARIANT, "");
         }
-        this.cachedPenguinType = null;
-        this.getPenguinType();
-    }
-
-    public static void invalidateCachedPenguinTypes(Level level) {
-        ((LevelAccessor)level).rapscallionsandrockhoppers$invokeGetEntities().get(EntityTypeTest.forClass(Penguin.class), AbortableIterationConsumer.forConsumer(Penguin::invalidateCachedPenguinType));
-    }
-
-    public void setPenguinType(PenguinType penguinType) {
-        Registry<PenguinType> registry = this.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY);
-        this.getEntityData().set(DATA_TYPE, registry.getKey(penguinType).toString());
-        if (penguinType.whenNamed().isEmpty()) {
-            this.getEntityData().set(DATA_PREVIOUS_TYPE, "");
-        }
-        this.invalidateCachedPenguinType();
-    }
-
-    public void setPenguinType(ResourceLocation penguinTypeKey) {
-        Registry<PenguinType> registry = this.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY);
-        this.getEntityData().set(DATA_TYPE, penguinTypeKey.toString());
-        if (registry.containsKey(penguinTypeKey) && registry.get(penguinTypeKey).whenNamed().isEmpty()) {
-            this.getEntityData().set(DATA_PREVIOUS_TYPE, "");
-        }
-        this.invalidateCachedPenguinType();
     }
 
     public void onNameChange(Component newName) {
-        Registry<PenguinType> registry = this.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_TYPE_REGISTRY);
-        Optional<PenguinType> nameReference = registry.stream().filter(penguinType -> penguinType.whenNamed().isPresent() && penguinType.whenNamed().get().equals(ChatFormatting.stripFormatting(newName.getString()))).findFirst();
+        Registry<PenguinVariant> registry = this.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT);
+        Optional<Holder.Reference<PenguinVariant>> nameReference = registry.holders().filter(penguinType -> penguinType.value().whenNamed().isPresent() && penguinType.value().whenNamed().get().equals(ChatFormatting.stripFormatting(newName.getString()))).findFirst();
         if (nameReference.isPresent()) {
-            if (this.getEntityData().get(DATA_PREVIOUS_TYPE).isEmpty()) {
-                this.getEntityData().set(DATA_PREVIOUS_TYPE, this.getEntityData().get(DATA_TYPE));
-            }
-            ResourceLocation nameKey = registry.getKey(nameReference.get());
-            if (nameKey != null) {
-                this.setPenguinType(nameKey);
-            }
-        } else if (!this.getEntityData().get(DATA_PREVIOUS_TYPE).isEmpty()) {
-            ResourceLocation nameKey = ResourceLocation.tryParse(this.getEntityData().get(DATA_PREVIOUS_TYPE));
-            if (nameKey != null) {
-                this.setPenguinType(nameKey);
-                this.getEntityData().set(DATA_PREVIOUS_TYPE, "");
+            if (this.getEntityData().get(DATA_PREVIOUS_VARIANT).isEmpty())
+                this.getEntityData().set(DATA_PREVIOUS_VARIANT, this.getEntityData().get(DATA_VARIANT));
+            setVariant(nameReference.get());
+        } else if (!this.getEntityData().get(DATA_PREVIOUS_VARIANT).isEmpty()) {
+            Optional<Holder.Reference<PenguinVariant>> previous = registry.getHolder(ResourceLocation.tryParse(getEntityData().get(DATA_PREVIOUS_VARIANT)));
+            if (previous.isPresent()) {
+                this.setVariant(previous.get());
+                this.getEntityData().set(DATA_PREVIOUS_VARIANT, "");
             }
         }
     }
@@ -1157,7 +1050,6 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         return this.isStumbling() && this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE && this.getStumbleTicks() > STUMBLE_ANIMATION_LENGTH + this.getStumbleTicksBeforeGettingUp();
     }
 
-
     public void setEggPenguinType(String eggPenguinType) {
         this.getEntityData().set(DATA_EGG, eggPenguinType);
     }
@@ -1165,19 +1057,67 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         return !this.getEntityData().get(DATA_EGG).isEmpty();
     }
 
-    public ResourceLocation getEggType() {
-        return ResourceLocation.tryParse(this.getEntityData().get(DATA_EGG));
+    public Holder<PenguinVariant> getEggType() {
+        ResourceLocation previousTypeKey = ResourceLocation.tryParse(getEntityData().get(DATA_EGG));
+        if (previousTypeKey != null) {
+            var variant = level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getHolder(previousTypeKey);
+            if (variant.isPresent())
+                return variant.get();
+        }
+        return getVariant();
     }
 
     /**
      * If the penguin has a previous type, it will return that. Otherwise, it will return the current type.
      * @return The resource location of the penguin's type.
      */
-    public ResourceLocation getTrueType() {
-        if (!this.getEntityData().get(DATA_PREVIOUS_TYPE).isEmpty()) {
-            return ResourceLocation.tryParse(this.getEntityData().get(DATA_PREVIOUS_TYPE));
-        } else {
-            return ResourceLocation.tryParse(this.getEntityData().get(DATA_TYPE));
+    public Holder<PenguinVariant> getTrueType() {
+        if (!this.getEntityData().get(DATA_PREVIOUS_VARIANT).isEmpty()) {
+            ResourceLocation previousTypeKey = ResourceLocation.tryParse(getEntityData().get(DATA_PREVIOUS_VARIANT));
+            if (previousTypeKey != null) {
+                var variant = level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getHolder(previousTypeKey);
+                if (variant.isPresent())
+                    return variant.get();
+            }
+        }
+        return getVariant();
+    }
+
+    public static class PenguinGroupData extends AgeableMobGroupData {
+        public PenguinGroupData() {
+            super(true);
+        }
+
+        public Holder<PenguinVariant> getSpawnType(BlockPos pos, ServerLevelAccessor level, RandomSource random) {
+            if (getTotalSpawnWeight(level, pos) > 0)
+                return getSpawnTypeDependingOnBiome(level, pos, random);
+            return level.registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getHolderOrThrow(RockhoppersResourceKeys.PenguinTypeKeys.ROCKHOPPER);
+        }
+
+        public Holder<PenguinVariant> getSpawnTypeDependingOnBiome(ServerLevelAccessor level, BlockPos pos, RandomSource random) {
+            List<Holder<PenguinVariant>> penguinList = new ArrayList<>();
+            int totalWeight = 0;
+
+            for (Holder.Reference<PenguinVariant> variant : level.registryAccess().registry(RockhoppersResourceKeys.PENGUIN_VARIANT).orElseThrow().holders().filter(Holder.Reference::isBound).toList()) {
+                Optional<WeightedEntry.Wrapper<HolderSet<Biome>>> biome = variant.value().biomes().unwrap().stream().filter(holderSetWrapper -> holderSetWrapper.data().contains(level.getBiome(pos))).findFirst();
+                if (biome.isPresent()) {
+                    penguinList.add(variant);
+                    totalWeight += biome.get().weight().asInt();
+                }
+            }
+
+            if (penguinList.size() == 1) {
+                return penguinList.getFirst();
+            } else if (!penguinList.isEmpty()) {
+                int r = Mth.nextInt(random, 0, totalWeight - 1);
+                for (Holder<PenguinVariant> variant : penguinList) {
+                    int max = variant.value().biomes().unwrap().stream().filter(wrapper -> wrapper.data().contains(level.getBiome(pos))).map(wrapper -> wrapper.weight().asInt()).max(Comparator.comparingInt(value -> value)).orElse(0);
+                    r -= max;
+                    if (r < 0.0)
+                        return variant;
+                }
+            }
+            return level.registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getHolderOrThrow(RockhoppersResourceKeys.PenguinTypeKeys.ROCKHOPPER);
         }
     }
 

@@ -1,7 +1,7 @@
 package house.greenhouse.rapscallionsandrockhoppers;
 
 import com.mojang.datafixers.util.Pair;
-import house.greenhouse.rapscallionsandrockhoppers.entity.PenguinType;
+import house.greenhouse.rapscallionsandrockhoppers.entity.PenguinVariant;
 import house.greenhouse.rapscallionsandrockhoppers.platform.RockhoppersPlatformHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -10,6 +10,7 @@ import net.minecraft.core.WritableRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +26,7 @@ public class RapscallionsAndRockhoppers {
     private static RockhoppersPlatformHelper helper;
 
     private static final List<Pair<Integer, Integer>> PENGUIN_LOADED_CHUNKS = new ArrayList<>();
-    private static Registry<PenguinType> biomePopulationPenguinTypeRegistry = null;
-    private static boolean hasBiomePopulationBeenHandled;
+    private static Registry<PenguinVariant> biomePopulationPenguinTypeRegistry = null;
 
     public static void init() {
 
@@ -49,24 +49,13 @@ public class RapscallionsAndRockhoppers {
      *
      * @return The PenguinType registry.
      */
-    public static Registry<PenguinType> getBiomePopulationPenguinTypeRegistry() {
+    public static Registry<PenguinVariant> getBiomePopulationPenguinTypeRegistry() {
         return biomePopulationPenguinTypeRegistry;
     }
 
-    public static void setBiomePopulationPenguinTypeRegistry(WritableRegistry<PenguinType> value) {
-        if (hasBiomePopulationBeenHandled) {
-            return;
-        } else {
-            hasBiomePopulationBeenHandled = true;
-        }
+    @ApiStatus.Internal
+    public static void setBiomePopulationPenguinTypeRegistry(WritableRegistry<PenguinVariant> value) {
         biomePopulationPenguinTypeRegistry = value;
-    }
-
-    protected static void removeCachedPenguinTypeRegistry(boolean resetState) {
-        biomePopulationPenguinTypeRegistry = null;
-        if (resetState) {
-            hasBiomePopulationBeenHandled = false;
-        }
     }
 
     public static void loadNearbyChunks(BlockPos pos, ServerLevel level) {

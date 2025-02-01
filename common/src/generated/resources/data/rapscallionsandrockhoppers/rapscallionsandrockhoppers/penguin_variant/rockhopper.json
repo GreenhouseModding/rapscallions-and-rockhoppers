@@ -1,0 +1,16 @@
+{
+  "biomes": [
+    {
+      "data": "#rapscallionsandrockhoppers:spawns_rockhopper_penguins",
+      "weight": 1
+    }
+  ],
+  "sounds": {
+    "ambient": "rapscallionsandrockhoppers:entity.penguin.ambient",
+    "death": "rapscallionsandrockhoppers:entity.penguin.death",
+    "hurt": "rapscallionsandrockhoppers:entity.penguin.hurt",
+    "water_jump": "rapscallionsandrockhoppers:entity.penguin.jump"
+  },
+  "surprised_texture": "rapscallionsandrockhoppers:entity/penguin/rockhopper_penguin_suprised",
+  "texture": "rapscallionsandrockhoppers:entity/penguin/rockhopper_penguin"
+}
