@@ -39,7 +39,11 @@ public class PenguinEggBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.put("baby_variant", PenguinVariant.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), babyVariant).getOrThrow());
+        if (babyVariant != null) {
+            tag.put("penguin_type", PenguinVariant.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), babyVariant).getOrThrow());
+        } else {
+            tag.put("penguin_type", PenguinVariant.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), registries.lookupOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getOrThrow(RockhoppersResourceKeys.PenguinTypeKeys.ROCKHOPPER)).getOrThrow());
+        }
     }
 
 
