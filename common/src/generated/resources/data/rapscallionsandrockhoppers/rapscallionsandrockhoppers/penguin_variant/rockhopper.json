@@ -11,6 +11,6 @@
     "hurt": "rapscallionsandrockhoppers:entity.penguin.hurt",
     "water_jump": "rapscallionsandrockhoppers:entity.penguin.jump"
   },
-  "surprised_texture": "rapscallionsandrockhoppers:entity/penguin/rockhopper_penguin_suprised",
+  "surprised_texture": "rapscallionsandrockhoppers:entity/penguin/rockhopper_penguin_surprised",
   "texture": "rapscallionsandrockhoppers:entity/penguin/rockhopper_penguin"
 }

@@ -99,11 +99,11 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
             HolderSet.Named<Biome> chinstrapSpawnBiomes = registries.lookupOrThrow(Registries.BIOME).getOrThrow(RockhoppersTags.BiomeTags.SPAWNS_CHINSTRAP_PENGUINS);
 
             entries.add(RockhoppersResourceKeys.PenguinTypeKeys.ROCKHOPPER, new PenguinVariant(
-                    RapscallionsAndRockhoppers.asResource("entity/penguin/rockhopper_penguin"), RapscallionsAndRockhoppers.asResource("entity/penguin/rockhopper_penguin_suprised"),
+                    RapscallionsAndRockhoppers.asResource("entity/penguin/rockhopper_penguin"), RapscallionsAndRockhoppers.asResource("entity/penguin/rockhopper_penguin_surprised"),
                     SimpleWeightedRandomList.single(rockhopperSpawnBiomes),
                     new PenguinVariant.PenguinSounds(idleSound, hurtSound, deathSound, waterJumpSound), Optional.empty()));
             entries.add(RockhoppersResourceKeys.PenguinTypeKeys.CHINSTRAP, new PenguinVariant(
-                    RapscallionsAndRockhoppers.asResource("entity/penguin/chinstrap_penguin"), RapscallionsAndRockhoppers.asResource("entity/penguin/chinstrap_penguin_suprised"),
+                    RapscallionsAndRockhoppers.asResource("entity/penguin/chinstrap_penguin"), RapscallionsAndRockhoppers.asResource("entity/penguin/chinstrap_penguin_surprised"),
                     SimpleWeightedRandomList.single(chinstrapSpawnBiomes),
                     new PenguinVariant.PenguinSounds(idleSound, hurtSound, deathSound, waterJumpSound), Optional.empty()));
             entries.add(RockhoppersResourceKeys.PenguinTypeKeys.GUNTER, new PenguinVariant(
