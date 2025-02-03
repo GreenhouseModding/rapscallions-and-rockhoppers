@@ -2,8 +2,8 @@ package house.greenhouse.rapscallionsandrockhoppers.registry;
 
 import house.greenhouse.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import house.greenhouse.rapscallionsandrockhoppers.entity.Penguin;
-import house.greenhouse.rapscallionsandrockhoppers.util.RegisterFunction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -29,20 +29,20 @@ public class RockhoppersMemoryModuleTypes {
     public static final MemoryModuleType<List<FishingHook>> NEAREST_BOBBERS = createEmpty();
     public static final MemoryModuleType<FishingHook> CAUGHT_BOBBER = createEmpty();
 
-    public static void registerMemoryModuleTypes(RegisterFunction<MemoryModuleType<?>> function) {
-        function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("boat_to_follow"), BOAT_TO_FOLLOW);
-        function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("last_following_boat_controller"), LAST_FOLLOWING_BOAT_CONTROLLER);
-        function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("player_to_cough_for"), PLAYER_TO_COUGH_FOR);
-        function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("fish_eaten"), FISH_EATEN);
-        function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("hungry_time"), HUNGRY_TIME);
-        function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("nearest_visible_shoveable"), NEAREST_VISIBLE_SHOVEABLE);
-        function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("nearest_water"), NEAREST_WATER);
-        function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("time_allowed_to_eat"), TIME_ALLOWED_TO_EAT);
-        function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("time_allowed_to_follow_boat"), TIME_ALLOWED_TO_FOLLOW_BOAT);
-        function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("time_allowed_to_water_jump"), TIME_ALLOWED_TO_WATER_JUMP);
-        function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("is_jumping"), IS_JUMPING);
-        function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("egg_pos"), EGG_POS);
-        function.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("nearest_bobbers"), NEAREST_BOBBERS);
+    public static void registerMemoryModuleTypes() {
+        Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("boat_to_follow"), BOAT_TO_FOLLOW);
+        Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("last_following_boat_controller"), LAST_FOLLOWING_BOAT_CONTROLLER);
+        Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("player_to_cough_for"), PLAYER_TO_COUGH_FOR);
+        Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("fish_eaten"), FISH_EATEN);
+        Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("hungry_time"), HUNGRY_TIME);
+        Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("nearest_visible_shoveable"), NEAREST_VISIBLE_SHOVEABLE);
+        Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("nearest_water"), NEAREST_WATER);
+        Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("time_allowed_to_eat"), TIME_ALLOWED_TO_EAT);
+        Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("time_allowed_to_follow_boat"), TIME_ALLOWED_TO_FOLLOW_BOAT);
+        Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("time_allowed_to_water_jump"), TIME_ALLOWED_TO_WATER_JUMP);
+        Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("is_jumping"), IS_JUMPING);
+        Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("egg_pos"), EGG_POS);
+        Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("nearest_bobbers"), NEAREST_BOBBERS);
     }
 
     private static <T> MemoryModuleType<T> createEmpty() {

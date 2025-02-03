@@ -3,7 +3,7 @@ package house.greenhouse.rapscallionsandrockhoppers.registry;
 import house.greenhouse.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import house.greenhouse.rapscallionsandrockhoppers.entity.Penguin;
 import house.greenhouse.rapscallionsandrockhoppers.platform.RockhoppersPlatform;
-import house.greenhouse.rapscallionsandrockhoppers.util.RegisterFunction;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,8 +24,8 @@ public class RockhoppersEntityTypes {
         return RapscallionsAndRockhoppers.getHelper().getPlatform() == RockhoppersPlatform.FABRIC ? null : key.get();
     }
 
-    public static void registerEntityTypes(RegisterFunction<EntityType<?>> function) {
-        function.register(BuiltInRegistries.ENTITY_TYPE, RapscallionsAndRockhoppers.asResource("penguin"), PENGUIN);
+    public static void registerEntityTypes() {
+        Registry.register(BuiltInRegistries.ENTITY_TYPE, RapscallionsAndRockhoppers.asResource("penguin"), PENGUIN);
     }
 
     public static void createMobAttributes(BiConsumer<EntityType<? extends LivingEntity>, AttributeSupplier> consumer) {

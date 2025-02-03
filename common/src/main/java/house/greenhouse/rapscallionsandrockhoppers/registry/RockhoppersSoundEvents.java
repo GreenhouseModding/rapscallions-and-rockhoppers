@@ -1,7 +1,7 @@
 package house.greenhouse.rapscallionsandrockhoppers.registry;
 
 import house.greenhouse.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
-import house.greenhouse.rapscallionsandrockhoppers.util.RegisterFunction;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvent;
 
@@ -13,13 +13,13 @@ public class RockhoppersSoundEvents {
     public static final SoundEvent PENGUIN_HURT = SoundEvent.createVariableRangeEvent(RapscallionsAndRockhoppers.asResource("entity.penguin.hurt"));
     public static final SoundEvent PENGUIN_JUMP = SoundEvent.createVariableRangeEvent(RapscallionsAndRockhoppers.asResource("entity.penguin.jump"));
 
-    public static void registerSoundEvents(RegisterFunction<SoundEvent> function) {
-        function.register(BuiltInRegistries.SOUND_EVENT, RapscallionsAndRockhoppers.asResource("entity.penguin.ambient"), PENGUIN_AMBIENT);
-        function.register(BuiltInRegistries.SOUND_EVENT, RapscallionsAndRockhoppers.asResource("entity.penguin.cough"), PENGUIN_COUGH);
-        function.register(BuiltInRegistries.SOUND_EVENT, RapscallionsAndRockhoppers.asResource("entity.penguin.death"), PENGUIN_DEATH);
-        function.register(BuiltInRegistries.SOUND_EVENT, RapscallionsAndRockhoppers.asResource("entity.penguin.eat"), PENGUIN_EAT);
-        function.register(BuiltInRegistries.SOUND_EVENT, RapscallionsAndRockhoppers.asResource("entity.penguin.hurt"), PENGUIN_HURT);
-        function.register(BuiltInRegistries.SOUND_EVENT, RapscallionsAndRockhoppers.asResource("entity.penguin.jump"), PENGUIN_JUMP);
+    public static void registerSoundEvents() {
+        Registry.register(BuiltInRegistries.SOUND_EVENT, RapscallionsAndRockhoppers.asResource("entity.penguin.ambient"), PENGUIN_AMBIENT);
+        Registry.register(BuiltInRegistries.SOUND_EVENT, RapscallionsAndRockhoppers.asResource("entity.penguin.cough"), PENGUIN_COUGH);
+        Registry.register(BuiltInRegistries.SOUND_EVENT, RapscallionsAndRockhoppers.asResource("entity.penguin.death"), PENGUIN_DEATH);
+        Registry.register(BuiltInRegistries.SOUND_EVENT, RapscallionsAndRockhoppers.asResource("entity.penguin.eat"), PENGUIN_EAT);
+        Registry.register(BuiltInRegistries.SOUND_EVENT, RapscallionsAndRockhoppers.asResource("entity.penguin.hurt"), PENGUIN_HURT);
+        Registry.register(BuiltInRegistries.SOUND_EVENT, RapscallionsAndRockhoppers.asResource("entity.penguin.jump"), PENGUIN_JUMP);
     }
 
 }

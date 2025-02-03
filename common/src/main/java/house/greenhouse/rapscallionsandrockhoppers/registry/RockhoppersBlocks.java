@@ -2,9 +2,8 @@ package house.greenhouse.rapscallionsandrockhoppers.registry;
 
 import house.greenhouse.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import house.greenhouse.rapscallionsandrockhoppers.block.PenguinEggBlock;
-import house.greenhouse.rapscallionsandrockhoppers.util.RegisterFunction;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -22,7 +21,7 @@ public class RockhoppersBlocks {
                     .noOcclusion()
                     .pushReaction(PushReaction.DESTROY)
     );
-    public static void registerBlocks(RegisterFunction<Block> function) {
-        function.register(BuiltInRegistries.BLOCK, RapscallionsAndRockhoppers.asResource("penguin_egg"), PENGUIN_EGG);
+    public static void registerBlocks() {
+        Registry.register(BuiltInRegistries.BLOCK, RapscallionsAndRockhoppers.asResource("penguin_egg"), PENGUIN_EGG);
     }
 }

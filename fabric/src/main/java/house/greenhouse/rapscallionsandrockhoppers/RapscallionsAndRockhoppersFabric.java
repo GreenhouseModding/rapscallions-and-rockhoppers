@@ -92,15 +92,15 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
     public static void handleRegistration() {
         DynamicRegistries.registerSynced(RockhoppersResourceKeys.PENGUIN_VARIANT, PenguinVariant.DIRECT_CODEC);
 
-        RockhoppersBlocks.registerBlocks(Registry::register);
-        RockhoppersItems.registerItems(Registry::register);
-        RockhoppersDataComponents.registerDataComponents(Registry::register);
-        RockhoppersEntityTypes.registerEntityTypes(Registry::register);
-        RockhoppersSoundEvents.registerSoundEvents(Registry::register);
-        RockhoppersActivities.registerActivities(Registry::register);
-        RockhoppersMemoryModuleTypes.registerMemoryModuleTypes(Registry::register);
-        RockhoppersSensorTypes.registerSensorTypes(Registry::register);
-        RockhoppersBlockEntityTypes.registerBlockEntityTypes(Registry::register);
+        RockhoppersBlocks.registerBlocks();
+        RockhoppersItems.registerItems();
+        RockhoppersDataComponents.registerDataComponents();
+        RockhoppersEntityTypes.registerEntityTypes();
+        RockhoppersSoundEvents.registerSoundEvents();
+        RockhoppersActivities.registerActivities();
+        RockhoppersMemoryModuleTypes.registerMemoryModuleTypes();
+        RockhoppersSensorTypes.registerSensorTypes();
+        RockhoppersBlockEntityTypes.registerBlockEntityTypes();
 
         RockhoppersEntityTypes.createMobAttributes(FabricDefaultAttributeRegistry::register);
 

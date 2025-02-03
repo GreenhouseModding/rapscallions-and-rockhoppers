@@ -18,7 +18,6 @@ import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersItems;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersSensorTypes;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersSoundEvents;
-import house.greenhouse.rapscallionsandrockhoppers.util.RegisterFunction;
 import house.greenhouse.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerPlayer;
@@ -55,33 +54,31 @@ public class RapscallionsAndRockhoppersEvents {
         @SubscribeEvent
         public static void registerContent(RegisterEvent event) {
             if (event.getRegistryKey() == Registries.ENTITY_TYPE)
-                register(event, RockhoppersEntityTypes::registerEntityTypes);
+                RockhoppersEntityTypes.registerEntityTypes();
             if (event.getRegistryKey() == Registries.SOUND_EVENT)
-                register(event, RockhoppersSoundEvents::registerSoundEvents);
+                RockhoppersSoundEvents.registerSoundEvents();
             if (event.getRegistryKey() == Registries.ITEM)
-                register(event, RockhoppersItems::registerItems);
+                RockhoppersItems.registerItems();
             if (event.getRegistryKey() == Registries.BLOCK)
-                register(event, RockhoppersBlocks::registerBlocks);
+                RockhoppersBlocks.registerBlocks();
             if (event.getRegistryKey() == Registries.ACTIVITY)
-                register(event, RockhoppersActivities::registerActivities);
+                RockhoppersActivities.registerActivities();
             if (event.getRegistryKey() == Registries.MEMORY_MODULE_TYPE)
-                register(event, RockhoppersMemoryModuleTypes::registerMemoryModuleTypes);
+                RockhoppersMemoryModuleTypes.registerMemoryModuleTypes();
             if (event.getRegistryKey() == Registries.SENSOR_TYPE)
-                register(event, RockhoppersSensorTypes::registerSensorTypes);
+                RockhoppersSensorTypes.registerSensorTypes();
             if (event.getRegistryKey() == Registries.BLOCK_ENTITY_TYPE)
-                register(event, RockhoppersBlockEntityTypes::registerBlockEntityTypes);
+                RockhoppersBlockEntityTypes.registerBlockEntityTypes();
             if (event.getRegistryKey() == Registries.DATA_COMPONENT_TYPE)
-                register(event, RockhoppersDataComponents::registerDataComponents);
+                RockhoppersDataComponents.registerDataComponents();
         }
 
         @SubscribeEvent
         public static void createNewDataPackRegistries(DataPackRegistryEvent.NewRegistry event) {
             event.dataPackRegistry(RockhoppersResourceKeys.PENGUIN_VARIANT, PenguinVariant.DIRECT_CODEC, PenguinVariant.DIRECT_CODEC);
         }
-
-        private static <T> void register(RegisterEvent event, Consumer<RegisterFunction<T>> consumer) {
-            consumer.accept((registry, id, value) -> event.register(registry.key(), id, () -> value));
-        }
+        
+      
 
         @SubscribeEvent(priority = EventPriority.HIGHEST)
         public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
