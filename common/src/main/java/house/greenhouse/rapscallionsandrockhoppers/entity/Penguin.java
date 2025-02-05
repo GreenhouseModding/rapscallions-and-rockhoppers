@@ -751,7 +751,11 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     @Override
     public boolean canRide(Entity vehicle) {
         if (vehicle instanceof Boat boat) {
-            return RapscallionsAndRockhoppers.getHelper().getBoatData(boat).penguinCount() == 0 && RapscallionsAndRockhoppers.getHelper().getBoatData(boat).getPreviousLinkedBoats().stream().noneMatch(boat1 -> RapscallionsAndRockhoppers.getHelper().getBoatData(boat1).penguinCount() > 0) && RapscallionsAndRockhoppers.getHelper().getBoatData(boat).getNextLinkedBoats().stream().noneMatch(boat1 -> RapscallionsAndRockhoppers.getHelper().getBoatData(boat1).penguinCount() > 0);
+            return RapscallionsAndRockhoppers.getHelper().getBoatPenguinData(boat).penguinCount() == 0 
+                    && RapscallionsAndRockhoppers.getHelper().getBoatData(boat).getPreviousLinkedBoats().stream()
+                        .noneMatch(boat1 -> RapscallionsAndRockhoppers.getHelper().getBoatPenguinData(boat1).penguinCount() > 0)
+                    && RapscallionsAndRockhoppers.getHelper().getBoatData(boat).getNextLinkedBoats().stream()
+                        .noneMatch(boat1 -> RapscallionsAndRockhoppers.getHelper().getBoatPenguinData(boat1).penguinCount() > 0);
         }
         return true;
     }
@@ -867,6 +871,9 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     }
 
     public void onNameChange(Component newName) {
+        if (newName == null) {
+            return;
+        }
         Registry<PenguinVariant> registry = this.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT);
         Optional<Holder.Reference<PenguinVariant>> nameReference = registry.holders().filter(penguinType -> penguinType.value().whenNamed().isPresent() && penguinType.value().whenNamed().get().equals(ChatFormatting.stripFormatting(newName.getString()))).findFirst();
         if (nameReference.isPresent()) {

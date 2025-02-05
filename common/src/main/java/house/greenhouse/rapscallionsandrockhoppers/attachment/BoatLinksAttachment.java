@@ -33,7 +33,6 @@ public class BoatLinksAttachment {
     public static final ResourceLocation ID = RapscallionsAndRockhoppers.asResource("boat_links");
 
     private static final double HOOK_DAMPENING_FACTOR = 0.2D;
-    private Set<UUID> penguins;
     private Set<UUID> nextLinkedBoats;
     private Set<UUID> previousLinkedBoats;
 
@@ -41,25 +40,21 @@ public class BoatLinksAttachment {
     private @Nullable Boat instance;
 
     public static final Codec<BoatLinksAttachment> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            UUIDUtil.CODEC_SET.fieldOf("penguins").forGetter(BoatLinksAttachment::getFollowingPenguins),
             UUIDUtil.CODEC_SET.fieldOf("linked_boats_after").forGetter(BoatLinksAttachment::getNextLinkedBoatUuids),
             UUIDUtil.CODEC_SET.fieldOf("linked_boats_before").forGetter(BoatLinksAttachment::getPreviousLinkedBoatUuids)
     ).apply(inst, BoatLinksAttachment::new));
 
     public BoatLinksAttachment() {
-        this.penguins = new HashSet<>();
         this.nextLinkedBoats = new HashSet<>();
         this.previousLinkedBoats = new HashSet<>();
     }
 
-    public BoatLinksAttachment(Set<UUID> penguins, Set<UUID> nextLinkedBoats, Set<UUID> previousLinkedBoats) {
-        this.penguins = penguins;
+    public BoatLinksAttachment(Set<UUID> nextLinkedBoats, Set<UUID> previousLinkedBoats) {
         this.nextLinkedBoats = nextLinkedBoats;
         this.previousLinkedBoats = previousLinkedBoats;
     }
 
     public void setFrom(BoatLinksAttachment other) {
-        this.penguins = other.penguins;
         this.nextLinkedBoats = other.nextLinkedBoats;
         this.previousLinkedBoats = other.previousLinkedBoats;
     }
@@ -102,26 +97,6 @@ public class BoatLinksAttachment {
 
     public void removePreviousLinkedBoat(@Nullable UUID boat) {
         this.previousLinkedBoats.remove(boat);
-    }
-
-    public Set<UUID> getFollowingPenguins() {
-        return Set.copyOf(this.penguins);
-    }
-
-    public int penguinCount() {
-        return this.penguins.size();
-    }
-
-    public void addFollowingPenguin(UUID penguinUUID) {
-        this.penguins.add(penguinUUID);
-    }
-
-    public void removeFollowingPenguin(UUID penguinUUID) {
-        this.penguins.remove(penguinUUID);
-    }
-
-    public void clearFollowingPenguins() {
-        this.penguins.clear();
     }
 
     public @Nullable Boat getProvider() {
@@ -335,13 +310,13 @@ public class BoatLinksAttachment {
                 this.addPreviousLinkedBoat(NbtUtils.loadUUID(boat));
             }
         }
-        this.clearFollowingPenguins();
-        if (tag.contains("following_penguins", Tag.TAG_LIST)) {
-            ListTag penguins = tag.getList("following_penguins", Tag.TAG_INT_ARRAY);
-            for (Tag penguin : penguins) {
-                this.addFollowingPenguin(NbtUtils.loadUUID(penguin));
-            }
-        }
+//        this.clearFollowingPenguins();
+//        if (tag.contains("following_penguins", Tag.TAG_LIST)) {
+//            ListTag penguins = tag.getList("following_penguins", Tag.TAG_INT_ARRAY);
+//            for (Tag penguin : penguins) {
+//                this.addFollowingPenguin(NbtUtils.loadUUID(penguin));
+//            }
+//        }
     }
 
     public void sync() {

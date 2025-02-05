@@ -1,6 +1,7 @@
 package house.greenhouse.rapscallionsandrockhoppers.platform;
 
 import house.greenhouse.rapscallionsandrockhoppers.attachment.BoatLinksAttachment;
+import house.greenhouse.rapscallionsandrockhoppers.attachment.BoatPenguinsAttachment;
 import house.greenhouse.rapscallionsandrockhoppers.attachment.PlayerLinksAttachment;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -51,6 +52,10 @@ public interface RockhoppersPlatformHelper {
     PlayerLinksAttachment getPlayerData(Player player);
 
     void syncPlayerData(Player player);
+
+    BoatPenguinsAttachment getBoatPenguinData(Boat boat);
+    
+    void syncBoatPenguinData(Boat boat);
 
     boolean runAndIsBreedEventCancelled(Animal parent, Animal otherParent);
 

@@ -2,6 +2,7 @@ package house.greenhouse.rapscallionsandrockhoppers.mixin;
 
 import house.greenhouse.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import house.greenhouse.rapscallionsandrockhoppers.attachment.BoatLinksAttachment;
+import house.greenhouse.rapscallionsandrockhoppers.attachment.BoatPenguinsAttachment;
 import house.greenhouse.rapscallionsandrockhoppers.util.EntityGetUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -42,7 +43,7 @@ public abstract class BoatMixin extends VehicleEntity {
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;controlBoat()V", shift = At.Shift.BY, by = 2))
     private void rapscallionsandrockhoppers$addPenguinSpeedBonus(CallbackInfo ci) {
-        BoatLinksAttachment boatData = RapscallionsAndRockhoppers.getHelper().getBoatData((Boat)(Object)this);
+        BoatPenguinsAttachment boatData = RapscallionsAndRockhoppers.getHelper().getBoatPenguinData((Boat)(Object)this);
         if (this.getStatus().equals(Boat.Status.IN_WATER) && boatData.penguinCount() > 0 && boatData.getFollowingPenguins().stream().anyMatch(uuid -> {
             Entity entity = EntityGetUtil.getEntityFromUuid(this.level(), uuid);
             return entity != null && entity.isInWater();

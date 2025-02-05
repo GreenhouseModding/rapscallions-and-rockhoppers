@@ -4,10 +4,7 @@ import house.greenhouse.rapscallionsandrockhoppers.attachment.BoatLinksAttachmen
 import house.greenhouse.rapscallionsandrockhoppers.attachment.PlayerLinksAttachment;
 import house.greenhouse.rapscallionsandrockhoppers.entity.Penguin;
 import house.greenhouse.rapscallionsandrockhoppers.entity.PenguinVariant;
-import house.greenhouse.rapscallionsandrockhoppers.network.s2c.InvalidateCachedPenguinTypePacketS2C;
-import house.greenhouse.rapscallionsandrockhoppers.network.s2c.SyncBlockPosLookPacketS2C;
-import house.greenhouse.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacketS2C;
-import house.greenhouse.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacketS2C;
+import house.greenhouse.rapscallionsandrockhoppers.network.s2c.*;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersActivities;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersAttachments;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersBlockEntityTypes;
@@ -31,13 +28,11 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -45,7 +40,6 @@ import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class RapscallionsAndRockhoppersEvents {
     @EventBusSubscriber(modid = RapscallionsAndRockhoppers.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
@@ -92,7 +86,8 @@ public class RapscallionsAndRockhoppersEvents {
                     .playToClient(InvalidateCachedPenguinTypePacketS2C.TYPE, InvalidateCachedPenguinTypePacketS2C.STREAM_CODEC, (payload, context) -> payload.handle())
                     .playToClient(SyncBlockPosLookPacketS2C.TYPE, SyncBlockPosLookPacketS2C.STREAM_CODEC, (payload, context) -> payload.handle())
                     .playToClient(SyncBoatLinksAttachmentPacketS2C.TYPE, SyncBoatLinksAttachmentPacketS2C.STREAM_CODEC, (payload, context) -> payload.handle())
-                    .playToClient(SyncPlayerLinksAttachmentPacketS2C.TYPE, SyncPlayerLinksAttachmentPacketS2C.STREAM_CODEC, (payload, context) -> payload.handle());
+                    .playToClient(SyncPlayerLinksAttachmentPacketS2C.TYPE, SyncPlayerLinksAttachmentPacketS2C.STREAM_CODEC, (payload, context) -> payload.handle())
+                    .playToClient(SyncBoatPenguinsAttachmentPacketS2C.TYPE, SyncBoatPenguinsAttachmentPacketS2C.STREAM_CODEC, (payload, context) -> payload.handle());
         }
 
 

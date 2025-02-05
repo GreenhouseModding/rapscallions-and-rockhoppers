@@ -1,9 +1,6 @@
 package house.greenhouse.rapscallionsandrockhoppers.network;
 
-import house.greenhouse.rapscallionsandrockhoppers.network.s2c.InvalidateCachedPenguinTypePacketS2C;
-import house.greenhouse.rapscallionsandrockhoppers.network.s2c.SyncBlockPosLookPacketS2C;
-import house.greenhouse.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacketS2C;
-import house.greenhouse.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacketS2C;
+import house.greenhouse.rapscallionsandrockhoppers.network.s2c.*;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -20,6 +17,7 @@ public class RockhoppersPackets {
             ClientPlayNetworking.registerReceiver(InvalidateCachedPenguinTypePacketS2C.TYPE, (payload, context) -> payload.handle());
             ClientPlayNetworking.registerReceiver(SyncBoatLinksAttachmentPacketS2C.TYPE, (payload, context) -> payload.handle());
             ClientPlayNetworking.registerReceiver(SyncPlayerLinksAttachmentPacketS2C.TYPE, (payload, context) -> payload.handle());
+            ClientPlayNetworking.registerReceiver(SyncBoatPenguinsAttachmentPacketS2C.TYPE, (payload, context) -> payload.handle());
         });
     }
 
@@ -28,6 +26,7 @@ public class RockhoppersPackets {
         PayloadTypeRegistry.playS2C().register(InvalidateCachedPenguinTypePacketS2C.TYPE, InvalidateCachedPenguinTypePacketS2C.STREAM_CODEC);
         PayloadTypeRegistry.playS2C().register(SyncBoatLinksAttachmentPacketS2C.TYPE, SyncBoatLinksAttachmentPacketS2C.STREAM_CODEC);
         PayloadTypeRegistry.playS2C().register(SyncPlayerLinksAttachmentPacketS2C.TYPE, SyncPlayerLinksAttachmentPacketS2C.STREAM_CODEC);
+        PayloadTypeRegistry.playS2C().register(SyncBoatPenguinsAttachmentPacketS2C.TYPE, SyncBoatPenguinsAttachmentPacketS2C.STREAM_CODEC);
     }
 
     public static void sendS2C(CustomPacketPayload packet, ServerPlayer player) {
