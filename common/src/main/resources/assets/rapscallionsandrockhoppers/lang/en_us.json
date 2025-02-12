@@ -9,5 +9,6 @@
   "block.rapscallionsandrockhoppers.penguin_egg": "Penguin Egg",
   "item.rapscallionsandrockhoppers.penguin_spawn_egg": "Penguin Spawn Egg",
   "item.rapscallionsandrockhoppers.boat_hook": "Boat Hook",
-  "item.rapscallionsandrockhoppers.fish_bones": "Fish Bones"
+  "item.rapscallionsandrockhoppers.fish_bones": "Fish Bones",
+  "entity.rapscallionsandrockhoppers.boat_hook_fence_knot": "Boat Hook Fence Knot"
 }

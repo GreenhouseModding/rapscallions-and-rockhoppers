@@ -1,5 +1,6 @@
 package house.greenhouse.rapscallionsandrockhoppers.client;
 
+import house.greenhouse.rapscallionsandrockhoppers.client.renderer.BoatHookKnotRenderer;
 import house.greenhouse.rapscallionsandrockhoppers.client.renderer.PenguinRenderer;
 import house.greenhouse.rapscallionsandrockhoppers.client.renderer.model.PenguinModel;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
@@ -24,5 +25,6 @@ public class RapscallionsAndRockhoppersClient {
 
     public static void createRenderers(EntityRendererCallback consumer) {
         consumer.accept(RockhoppersEntityTypes.PENGUIN, PenguinRenderer::new);
+        consumer.accept(RockhoppersEntityTypes.BOAT_HOOK_FENCE_KNOT, BoatHookKnotRenderer::new);
     }
 }

@@ -36,6 +36,8 @@ public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
         boatData.getPreviousLinkedBoats().forEach(previous -> rapscallionsandrockhoppers$renderLeash(boat, yaw, tickDelta, poseStack, multiBufferSource, previous));
         if (boatData.getLinkedPlayer() != null) {
             rapscallionsandrockhoppers$renderLeash(boat, yaw, tickDelta, poseStack, multiBufferSource, boatData.getLinkedPlayer());
+        } else if (boatData.getHookKnot() != null) {
+            rapscallionsandrockhoppers$renderLeash(boat, yaw, tickDelta, poseStack, multiBufferSource, boatData.getHookKnot());
         }
     }
 

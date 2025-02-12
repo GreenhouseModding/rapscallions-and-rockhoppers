@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import house.greenhouse.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
+import house.greenhouse.rapscallionsandrockhoppers.entity.BoatHookFenceKnotEntity;
 import house.greenhouse.rapscallionsandrockhoppers.mixin.BoatAccessor;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersItems;
 import house.greenhouse.rapscallionsandrockhoppers.util.EntityGetUtil;
@@ -23,10 +24,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Unique;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BoatLinksAttachment {
@@ -38,10 +36,13 @@ public class BoatLinksAttachment {
 
     private @Nullable UUID linkedPlayer;
     private @Nullable Boat instance;
+    
+    private Optional<UUID> hookKnotUuid = Optional.empty();
 
     public static final Codec<BoatLinksAttachment> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             UUIDUtil.CODEC_SET.fieldOf("linked_boats_after").forGetter(BoatLinksAttachment::getNextLinkedBoatUuids),
-            UUIDUtil.CODEC_SET.fieldOf("linked_boats_before").forGetter(BoatLinksAttachment::getPreviousLinkedBoatUuids)
+            UUIDUtil.CODEC_SET.fieldOf("linked_boats_before").forGetter(BoatLinksAttachment::getPreviousLinkedBoatUuids),
+            UUIDUtil.CODEC.optionalFieldOf("hook_knot_uuid").forGetter(BoatLinksAttachment::getHookKnotUuid)
     ).apply(inst, BoatLinksAttachment::new));
 
     public BoatLinksAttachment() {
@@ -49,14 +50,16 @@ public class BoatLinksAttachment {
         this.previousLinkedBoats = new HashSet<>();
     }
 
-    public BoatLinksAttachment(Set<UUID> nextLinkedBoats, Set<UUID> previousLinkedBoats) {
+    public BoatLinksAttachment(Set<UUID> nextLinkedBoats, Set<UUID> previousLinkedBoats, @Nullable Optional<UUID> hookKnotUuid) {
         this.nextLinkedBoats = nextLinkedBoats;
         this.previousLinkedBoats = previousLinkedBoats;
+        this.hookKnotUuid = hookKnotUuid;
     }
 
     public void setFrom(BoatLinksAttachment other) {
         this.nextLinkedBoats = other.nextLinkedBoats;
         this.previousLinkedBoats = other.previousLinkedBoats;
+        this.hookKnotUuid = other.hookKnotUuid;
     }
 
     public Set<UUID> getNextLinkedBoatUuids() {
@@ -108,6 +111,14 @@ public class BoatLinksAttachment {
             return;
         instance = boat;
     }
+    
+    public Optional<UUID> getHookKnotUuid() {
+        return hookKnotUuid;
+    }
+    
+    public void setHookKnotUuid(@Nullable UUID hookKnotUuid) {
+        this.hookKnotUuid = Optional.ofNullable(hookKnotUuid);
+    }
 
     public Set<Boat> getNextLinkedBoats() {
         if (getProvider() != null) {
@@ -140,6 +151,16 @@ public class BoatLinksAttachment {
             Entity entity = EntityGetUtil.getEntityFromUuid(this.getProvider().level(), linkedPlayer);
             if (entity instanceof Player player) {
                 return player;
+            }
+        }
+        return null;
+    }
+    
+    public @Nullable BoatHookFenceKnotEntity getHookKnot() {
+        if (getProvider() != null) {
+            Entity entity = EntityGetUtil.getEntityFromUuid(this.getProvider().level(), hookKnotUuid.orElse(null));
+            if (entity instanceof BoatHookFenceKnotEntity knot) {
+                return knot;
             }
         }
         return null;
@@ -206,6 +227,15 @@ public class BoatLinksAttachment {
             if (distanceBetween > 10 || !this.getLinkedPlayer().isAlive()) {
                 this.getProvider().spawnAtLocation(RockhoppersItems.BOAT_HOOK);
                 this.setLinkedPlayer(null);
+            }
+        }
+        if (this.getHookKnot() != null) {
+            var knot = getHookKnot();
+            var distanceBetween = knot.distanceTo(this.getProvider());
+            if (distanceBetween > 10) {
+                this.getProvider().spawnAtLocation(RockhoppersItems.BOAT_HOOK);
+                this.setHookKnotUuid(null);
+                this.sync();
             }
         }
         moveTowardsBoats(this.getNextLinkedBoatUuids(), this.getPreviousLinkedBoatUuids());
