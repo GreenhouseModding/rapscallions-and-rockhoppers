@@ -333,11 +333,11 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                 new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
                                 new BreedWithPartner<>(),
                                 new StayWithinHome().setRadius(8),
+                                new BreatheAir(),
                                 new SetAttackTarget<Penguin>().attackPredicate(penguin -> BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) && penguin.tickCount > BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) - 300),
                                 new PenguinPeck(8),
                                 new AvoidEntity<>().avoiding(entity -> entity instanceof Pufferfish),
                                 new FirstApplicableBehaviour<>(
-                                        new BreatheAir(),
                                         new FollowTemptation<>(),
                                         new SetWalkTargetToAttackTarget<>().startCondition(penguin -> penguin.getAirSupply() >= 260),
                                         new PenguinJump(),
@@ -352,6 +352,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                         .behaviours(
                                 new LeaveBoat(),
                                 new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
+                                new BreatheAir(),
                                 new SetAttackTarget<Penguin>().attackPredicate(penguin -> {
                                     if  (!BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) || penguin.getAirSupply() < 260) {
                                         return false;
@@ -372,7 +373,6 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                 new FollowBoat().untilDistance(2.0F).runFor(penguin -> 200),
                                 new StayWithinBoat().setRadius(8),
                                 new FirstApplicableBehaviour<>(
-                                        new BreatheAir(),
                                         new FollowTemptation<>(),
                                         new SetWalkTargetToAttackTarget<>().startCondition(penguin -> penguin.getAirSupply() >= 260),
                                         new PenguinJump(),
@@ -964,6 +964,9 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         if (this.getHungryTime() != Integer.MIN_VALUE) {
             this.setHungryTime(integerOptional(this.getHungryTime() - 40));
         }
+        // Useful util for debugging.
+//        RapscallionsAndRockhoppers.LOG.info("Penguin hurt by {}", damageSource.typeHolder().getRegisteredName());
+//        this.addEffect(new MobEffectInstance(MobEffects.GLOWING, 120, 2));
     }
 
     public void stumbleWithoutInitialAnimation() {
