@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "rapscallionsandrockhoppers:block/seahorse_fish_scale_slab"
+    },
+    "type=double": {
+      "model": "rapscallionsandrockhoppers:block/seahorse_fish_scale_block"
+    },
+    "type=top": {
+      "model": "rapscallionsandrockhoppers:block/seahorse_fish_scale_slab_top"
+    }
+  }
+}

@@ -36,8 +36,11 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -57,7 +60,6 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -69,6 +71,7 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
         FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
         pack.addProvider(RockhoppersBiomeTagProvider::new);
         pack.addProvider(RockhoppersItemTagProvider::new);
+        pack.addProvider(RockhoppersBlockTagProvider::new);
         pack.addProvider(RockhoppersEntityTagProvider::new);
         pack.addProvider(RockhoppersDynamicRegistryProvider::new);
         pack.addProvider(RockhoppersModelProvider::new);
@@ -127,6 +130,14 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
         @Override
         public void generateBlockStateModels(BlockModelGenerators blockStateModelGenerator) {
             createEgg(RockhoppersBlocks.PENGUIN_EGG, blockStateModelGenerator);
+            blockStateModelGenerator.family(RockhoppersBlocks.SEAHORSE_FISH_SCALE_BLOCK)
+                    .generateFor(RockhoppersBlockFamilies.SEAHORSE_FISH_SCALE);
+            blockStateModelGenerator.family(RockhoppersBlocks.EEL_FISH_SCALE_BLOCK)
+                    .generateFor(RockhoppersBlockFamilies.EEL_FISH_SCALE);
+            blockStateModelGenerator.family(RockhoppersBlocks.JELLYFISH_FISH_SCALE_BLOCK)
+                    .generateFor(RockhoppersBlockFamilies.JELLYFISH_FISH_SCALE);
+            blockStateModelGenerator.family(RockhoppersBlocks.SHARK_FISH_SCALE_BLOCK)
+                    .generateFor(RockhoppersBlockFamilies.SHARK_FISH_SCALE);
         }
 
         @Override
@@ -165,6 +176,22 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
                             .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
                                     .include(RockhoppersDataComponents.PENGUIN_TYPE)
                             ))));
+            dropSelf(RockhoppersBlocks.SEAHORSE_FISH_SCALE_BLOCK);
+            dropSelf(RockhoppersBlocks.EEL_FISH_SCALE_BLOCK);
+            dropSelf(RockhoppersBlocks.JELLYFISH_FISH_SCALE_BLOCK);
+            dropSelf(RockhoppersBlocks.SHARK_FISH_SCALE_BLOCK);
+            this.add(RockhoppersBlocks.SEAHORSE_FISH_SCALE_SLAB, this::createSlabItemTable);
+            this.add(RockhoppersBlocks.EEL_FISH_SCALE_SLAB, this::createSlabItemTable);
+            this.add(RockhoppersBlocks.JELLYFISH_FISH_SCALE_SLAB, this::createSlabItemTable);
+            this.add(RockhoppersBlocks.SHARK_FISH_SCALE_SLAB, this::createSlabItemTable);
+            dropSelf(RockhoppersBlocks.SEAHORSE_FISH_SCALE_STAIRS);
+            dropSelf(RockhoppersBlocks.EEL_FISH_SCALE_STAIRS);
+            dropSelf(RockhoppersBlocks.JELLYFISH_FISH_SCALE_STAIRS);
+            dropSelf(RockhoppersBlocks.SHARK_FISH_SCALE_STAIRS);
+            dropSelf(RockhoppersBlocks.SEAHORSE_FISH_SCALE_WALL);
+            dropSelf(RockhoppersBlocks.EEL_FISH_SCALE_WALL);
+            dropSelf(RockhoppersBlocks.JELLYFISH_FISH_SCALE_WALL);
+            dropSelf(RockhoppersBlocks.SHARK_FISH_SCALE_WALL);
         }
     }
 
@@ -183,6 +210,11 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
                     .define('F', RockhoppersItems.FISH_BONES).define('~', Items.STRING).define('O', Items.SLIME_BALL)
                     .unlockedBy("has_fish_bones", FabricRecipeProvider.has(RockhoppersItems.FISH_BONES))
                     .save(exporter, "boat_hook");
+            //TODO: The recipes for the fish scale blocks themselves.
+            generateRecipes(exporter, RockhoppersBlockFamilies.SEAHORSE_FISH_SCALE, FeatureFlagSet.of(FeatureFlags.VANILLA));
+            generateRecipes(exporter, RockhoppersBlockFamilies.EEL_FISH_SCALE, FeatureFlagSet.of(FeatureFlags.VANILLA));
+            generateRecipes(exporter, RockhoppersBlockFamilies.JELLYFISH_FISH_SCALE, FeatureFlagSet.of(FeatureFlags.VANILLA));
+            generateRecipes(exporter, RockhoppersBlockFamilies.SHARK_FISH_SCALE, FeatureFlagSet.of(FeatureFlags.VANILLA));
         }
 
     }
@@ -245,6 +277,28 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
             this.tag(RockhoppersTags.ItemTags.PENGUIN_TEMPT_ITEMS)
                     .addTag(RockhoppersTags.ItemTags.PENGUIN_FOOD_ITEMS)
                     .addTag(RockhoppersTags.ItemTags.PENGUIN_BREED_ITEMS);
+        }
+    }
+    
+    public static class RockhoppersBlockTagProvider extends FabricTagProvider<Block> {
+
+        public RockhoppersBlockTagProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
+            super(output, Registries.BLOCK, registriesFuture);
+        }
+
+        @Override
+        protected void addTags(HolderLookup.Provider provider) {
+            this.getOrCreateTagBuilder(BlockTags.SLABS)
+                    .add(RockhoppersBlocks.SEAHORSE_FISH_SCALE_SLAB, RockhoppersBlocks.EEL_FISH_SCALE_SLAB, RockhoppersBlocks.JELLYFISH_FISH_SCALE_SLAB, RockhoppersBlocks.SHARK_FISH_SCALE_SLAB);
+            this.getOrCreateTagBuilder(BlockTags.STAIRS)
+                    .add(RockhoppersBlocks.SEAHORSE_FISH_SCALE_STAIRS, RockhoppersBlocks.EEL_FISH_SCALE_STAIRS, RockhoppersBlocks.JELLYFISH_FISH_SCALE_STAIRS, RockhoppersBlocks.SHARK_FISH_SCALE_STAIRS);
+            this.getOrCreateTagBuilder(BlockTags.WALLS)
+                    .add(RockhoppersBlocks.SEAHORSE_FISH_SCALE_WALL, RockhoppersBlocks.EEL_FISH_SCALE_WALL, RockhoppersBlocks.JELLYFISH_FISH_SCALE_WALL, RockhoppersBlocks.SHARK_FISH_SCALE_WALL);
+            this.getOrCreateTagBuilder(BlockTags.MINEABLE_WITH_PICKAXE)
+                    .add(RockhoppersBlocks.SEAHORSE_FISH_SCALE_BLOCK, RockhoppersBlocks.EEL_FISH_SCALE_BLOCK, RockhoppersBlocks.JELLYFISH_FISH_SCALE_BLOCK, RockhoppersBlocks.SHARK_FISH_SCALE_BLOCK)
+                    .add(RockhoppersBlocks.SEAHORSE_FISH_SCALE_SLAB, RockhoppersBlocks.EEL_FISH_SCALE_SLAB, RockhoppersBlocks.JELLYFISH_FISH_SCALE_SLAB, RockhoppersBlocks.SHARK_FISH_SCALE_SLAB)
+                    .add(RockhoppersBlocks.SEAHORSE_FISH_SCALE_STAIRS, RockhoppersBlocks.EEL_FISH_SCALE_STAIRS, RockhoppersBlocks.JELLYFISH_FISH_SCALE_STAIRS, RockhoppersBlocks.SHARK_FISH_SCALE_STAIRS)
+                    .add(RockhoppersBlocks.SEAHORSE_FISH_SCALE_WALL, RockhoppersBlocks.EEL_FISH_SCALE_WALL, RockhoppersBlocks.JELLYFISH_FISH_SCALE_WALL, RockhoppersBlocks.SHARK_FISH_SCALE_WALL);
         }
     }
 

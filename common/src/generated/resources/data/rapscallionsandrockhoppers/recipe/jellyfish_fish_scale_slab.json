@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": {
+      "item": "rapscallionsandrockhoppers:jellyfish_fish_scale_block"
+    }
+  },
+  "pattern": [
+    "###"
+  ],
+  "result": {
+    "count": 6,
+    "id": "rapscallionsandrockhoppers:jellyfish_fish_scale_slab"
+  }
+}

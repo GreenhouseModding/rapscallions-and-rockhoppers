@@ -107,8 +107,9 @@ public class RapscallionsAndRockhoppersEvents {
                 RockhoppersItems.addAfterNaturalBlocksTab((stack, stack2) -> event.insertAfter(stack, stack2, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
             } else if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
                 RockhoppersItems.addSpawnEggsTab(event::accept);
+            } else if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
+                RockhoppersItems.addAfterBuildingBlocksTab((stack, stack2) -> event.insertAfter(stack, stack2, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
             }
-
         }
 
     }

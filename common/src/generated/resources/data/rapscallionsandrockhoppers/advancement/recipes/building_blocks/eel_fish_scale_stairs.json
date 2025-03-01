@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_eel_fish_scale_block": {
+      "conditions": {
+        "items": [
+          {
+            "items": "rapscallionsandrockhoppers:eel_fish_scale_block"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "rapscallionsandrockhoppers:eel_fish_scale_stairs"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_eel_fish_scale_block"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "rapscallionsandrockhoppers:eel_fish_scale_stairs"
+    ]
+  }
+}

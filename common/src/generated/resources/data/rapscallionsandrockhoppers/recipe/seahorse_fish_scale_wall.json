@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "rapscallionsandrockhoppers:seahorse_fish_scale_block"
+    }
+  },
+  "pattern": [
+    "###",
+    "###"
+  ],
+  "result": {
+    "count": 6,
+    "id": "rapscallionsandrockhoppers:seahorse_fish_scale_wall"
+  }
+}

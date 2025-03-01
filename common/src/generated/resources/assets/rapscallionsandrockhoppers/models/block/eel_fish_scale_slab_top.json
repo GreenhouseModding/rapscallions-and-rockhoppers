@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "bottom": "rapscallionsandrockhoppers:block/eel_fish_scale_block",
+    "side": "rapscallionsandrockhoppers:block/eel_fish_scale_block",
+    "top": "rapscallionsandrockhoppers:block/eel_fish_scale_block"
+  }
+}

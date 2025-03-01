@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "rapscallionsandrockhoppers:block/shark_fish_scale_block"
+  }
+}
