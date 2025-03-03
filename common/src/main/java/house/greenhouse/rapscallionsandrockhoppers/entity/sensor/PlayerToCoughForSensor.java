@@ -20,12 +20,17 @@ public class PlayerToCoughForSensor extends PredicateSensor<Boat, Penguin> {
 
     @Override
     public List<MemoryModuleType<?>> memoriesUsed() {
-        return List.of(RockhoppersMemoryModuleTypes.FISH_EATEN, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR);
+        return List.of(RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR);
     }
 
     protected void doTick(ServerLevel level, Penguin penguin) {
+        if (penguin.isEyeInFluid(FluidTags.WATER))
+            BrainUtils.clearMemory(penguin, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR);
+
         if (BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.FISH_EATEN) && !BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR)) {
             UUID uuid = BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER);
+            if (uuid == null)
+                uuid = BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.FED_BY);
             if (uuid == null) return;
             Entity entity = level.getEntity(uuid);
             if (entity != null && entity.onGround() && !entity.isEyeInFluid(FluidTags.WATER) && entity.level().getBlockState(entity.getOnPos()).isCollisionShapeFullBlock(entity.level(), entity.getOnPos()) && penguin.distanceTo(entity) < 16.0F) {
@@ -33,6 +38,8 @@ public class PlayerToCoughForSensor extends PredicateSensor<Boat, Penguin> {
             }
         } else {
             UUID uuid = BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR);
+            if (uuid == null)
+                uuid = BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.FED_BY);
             if (uuid == null) return;
             Entity entity = level.getEntity(uuid);
             if (entity == null || entity.isEyeInFluid(FluidTags.WATER) || !entity.level().getBlockState(entity.getOnPos()).isCollisionShapeFullBlock(entity.level(), entity.getOnPos())  || penguin.distanceTo(entity) > 16.0F) {

@@ -15,18 +15,28 @@
       "bonus_rolls": 0.0,
       "entries": [
         {
+          "type": "minecraft:item",
+          "name": "rapscallionsandrockhoppers:fish_scale"
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
           "type": "minecraft:loot_table",
           "value": "minecraft:gameplay/fishing/junk",
           "weight": 20
         },
         {
           "type": "minecraft:loot_table",
-          "value": "rapscallionsandrockhoppers:gameplay/penguin_cough_up_ink_sac",
+          "value": "rapscallionsandrockhoppers:gameplay/penguin_cough_up/ink_sac",
           "weight": 15
         },
         {
           "type": "minecraft:loot_table",
-          "value": "rapscallionsandrockhoppers:gameplay/penguin_cough_up_rocks",
+          "value": "rapscallionsandrockhoppers:gameplay/penguin_cough_up/rocks",
           "weight": 10
         },
         {
@@ -50,7 +60,11 @@
           "name": "minecraft:name_tag"
         }
       ],
-      "rolls": 1.0
+      "rolls": {
+        "type": "minecraft:uniform",
+        "max": 3.0,
+        "min": 2.0
+      }
     }
   ]
 }

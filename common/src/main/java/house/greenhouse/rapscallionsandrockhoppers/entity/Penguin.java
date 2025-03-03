@@ -131,8 +131,6 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     private static final EntityDataAccessor<Float> DATA_SHOVE_CHANCE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<String> DATA_EGG = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.STRING);
 
-    private Holder<PenguinVariant> variant;
-
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState waddleAnimationState = new AnimationState();
     public final AnimationState shockArmAnimationState = new AnimationState();
@@ -149,6 +147,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     public final AnimationState shoveAnimationState = new AnimationState();
     public final AnimationState peckAnimationState = new AnimationState();
     public final AnimationState coughUpAnimationState = new AnimationState();
+    public int walkTime = 0;
 
     private boolean areAnimationsWater = false;
     private boolean animationArmState = false;
@@ -388,7 +387,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                         .behaviours(
                                 new BreatheAir(),
                                 new WalkToRewardedPlayer(),
-                                new CoughUpRewards(4)
+                                new FollowTemptation<>(),
+                                new CoughUpRewards(8)
                         )
                         .onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.FISH_EATEN, MemoryStatus.VALUE_PRESENT)
                         .onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR, MemoryStatus.VALUE_PRESENT)
@@ -498,10 +498,9 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             }
             if (this.tickCount > this.getTimeAllowedToEat()) {
                 this.setHungryTime(Optional.of(this.tickCount + 4800));
-                this.setTimeAllowedToEat(Optional.of(this.tickCount + 400));
-                if (this.getBoatToFollow() != null) {
-                    this.incrementFishEaten();
-                }
+                this.setTimeAllowedToEat(Optional.of(this.tickCount + 120));
+                this.incrementFishEaten();
+                BrainUtils.setMemory(this, RockhoppersMemoryModuleTypes.FED_BY, player.getUUID());
                 stack.consume(1, player);
                 ((ServerLevel) this.level()).sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(0.5), this.getRandomY() + 0.5, this.getRandomZ(0.5), 7, 0.25, 0.1, 0.25, 0);
                 this.playSound(RockhoppersSoundEvents.PENGUIN_EAT);
@@ -534,6 +533,12 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         }
 
         if (!this.level().isClientSide()) {
+            if (walkAnimation.isMoving())
+                walkTime = 20;
+
+            if (walkTime > 0)
+                --walkTime;
+
             if (this.isShocked()) {
                 this.setShockedTime(this.getShockedTime() - 1);
             }

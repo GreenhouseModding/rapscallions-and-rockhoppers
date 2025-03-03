@@ -7,6 +7,7 @@ import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersMemoryMod
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersSoundEvents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.ai.behavior.EntityTracker;
@@ -31,7 +32,7 @@ public class CoughUpRewards extends DelayedBehaviour<Penguin> {
 
     @Override
     protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-        return List.of(Pair.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT), Pair.of(RockhoppersMemoryModuleTypes.FISH_EATEN, MemoryStatus.VALUE_PRESENT), Pair.of(RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR, MemoryStatus.VALUE_PRESENT), Pair.of(RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW, MemoryStatus.VALUE_PRESENT));
+        return List.of(Pair.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT), Pair.of(RockhoppersMemoryModuleTypes.FISH_EATEN, MemoryStatus.VALUE_PRESENT), Pair.of(RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR, MemoryStatus.VALUE_PRESENT));
     }
 
     @Override
@@ -40,7 +41,7 @@ public class CoughUpRewards extends DelayedBehaviour<Penguin> {
         if (playerToCoughFor instanceof Player player && player.onGround()) {
             this.playerToCoughFor = player;
         }
-        return penguin.onGround() && !penguin.isInWaterOrBubble() && this.playerToCoughFor != null;
+        return penguin.onGround() && penguin.walkTime == 0 && !penguin.isEyeInFluid(FluidTags.WATER) && this.playerToCoughFor != null;
     }
 
     @Override
@@ -67,7 +68,9 @@ public class CoughUpRewards extends DelayedBehaviour<Penguin> {
     @Override
     protected void stop(Penguin penguin) {
         this.playerToCoughFor = null;
-        BrainUtils.clearMemory(penguin, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR);
-        BrainUtils.clearMemory(penguin, RockhoppersMemoryModuleTypes.FISH_EATEN);
+        BrainUtils.clearMemories(penguin,
+                RockhoppersMemoryModuleTypes.FED_BY,
+                RockhoppersMemoryModuleTypes.FISH_EATEN,
+                RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR);
     }
 }
