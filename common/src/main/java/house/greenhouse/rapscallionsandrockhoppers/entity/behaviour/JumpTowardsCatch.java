@@ -65,7 +65,7 @@ public class JumpTowardsCatch extends ExtendedBehaviour<Penguin> {
         if (penguin.getTimeAllowedToEat() <= 0) {
             Optional<ItemEntity> item = penguin.level().getEntitiesOfClass(ItemEntity.class, penguin.getBoundingBox().inflate(1.25), itemEntity -> itemEntity.getItem().is(RockhoppersTags.ItemTags.PENGUIN_FOOD_ITEMS)).stream().min(Comparator.comparing(penguin::distanceTo));
             if (item.isPresent()) {
-                penguin.setHungryTime(Optional.of(4800));
+                penguin.setHungryTime(Optional.of(2400));
                 penguin.setTimeAllowedToEat(Optional.of(120));
                 penguin.incrementFishEaten();
                 BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.FED_BY, BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.CAUGHT_BOBBER).getPlayerOwner().getUUID());

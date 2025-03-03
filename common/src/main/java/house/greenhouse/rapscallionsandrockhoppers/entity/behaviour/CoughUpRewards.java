@@ -60,8 +60,8 @@ public class CoughUpRewards extends DelayedBehaviour<Penguin> {
 
     @Override
     protected void start(Penguin penguin) {
-        BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME, penguin.tickCount + 4800);
-        BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT, penguin.tickCount + 1800);
+        BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME, 2400);
+        BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT, 120);
         penguin.setCoughTicks(0);
     }
 

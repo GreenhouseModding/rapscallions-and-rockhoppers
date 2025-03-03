@@ -76,7 +76,7 @@ public class BoatToFollowSensor extends PredicateSensor<Boat, Penguin> {
                 var boatPenguins = RapscallionsAndRockhoppers.getHelper().getBoatPenguinData(boat.get());
                 boatPenguins.addFollowingPenguin(penguin.getUUID());
                 boatPenguins.sync();
-                penguin.setHungryTime(Optional.of(4800));
+                penguin.setHungryTime(Optional.of(2400));
                 penguin.setTimeAllowedToEat(Optional.of(120));
                 ((ServerLevel)penguin.level()).sendParticles(ParticleTypes.GLOW, boat.get().getX(), boat.get().getY(), boat.get().getZ(), 8, 0.5, 0.25, 0.5, 0.02);
                 penguin.previousBoatPos = penguin.getBoatToFollow().position();

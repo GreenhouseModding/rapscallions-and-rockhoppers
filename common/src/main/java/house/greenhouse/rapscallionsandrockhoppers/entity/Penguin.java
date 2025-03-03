@@ -483,7 +483,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 return InteractionResult.SUCCESS;
             }
             if (this.tickCount > this.getTimeAllowedToEat()) {
-                this.setHungryTime(Optional.of(4800));
+                this.setHungryTime(Optional.of(2400));
                 this.setTimeAllowedToEat(Optional.of(120));
                 this.incrementFishEaten();
                 BrainUtils.setMemory(this, RockhoppersMemoryModuleTypes.FED_BY, player.getUUID());
