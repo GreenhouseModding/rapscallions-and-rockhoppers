@@ -36,7 +36,6 @@ public class SetRandomSwimTarget extends SetRandomWalkTarget<Penguin> {
         } else {
             BrainUtils.setMemory(penguin, MemoryModuleType.WALK_TARGET, new WalkTarget(targetPos, this.speedModifier.apply(penguin, targetPos), 2));
         }
-
     }
 
     @Override

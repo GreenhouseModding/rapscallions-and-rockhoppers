@@ -77,6 +77,7 @@ import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
@@ -107,7 +108,6 @@ import net.tslat.smartbrainlib.api.core.sensor.vanilla.*;
 import net.tslat.smartbrainlib.util.BrainUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.system.MemoryUtil;
 
 import java.util.*;
 
@@ -318,7 +318,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                         new SetWalkTargetToAttackTarget<>(),
                         new OneRandomBehaviour<>(
                                 Pair.of(new SetRandomWalkTarget<Penguin>().setRadius(4, 3).avoidWaterWhen(penguin -> penguin.getRandom().nextFloat() < 0.98F), 9),
-                                Pair.of(new Idle<>().runFor(entity -> entity.getRandom().nextInt(15, 30)), 1)
+                                Pair.of(new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)), 1)
                         )
                 )
         ).onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_ABSENT);
@@ -342,8 +342,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                         new SetWalkTargetToAttackTarget<>().startCondition(penguin -> penguin.getAirSupply() >= 260),
                                         new PenguinJump(),
                                         new OneRandomBehaviour<>(
-                                                Pair.of(new SetRandomSwimTarget().avoidLandWhen(penguin -> penguin.getRandom().nextFloat() < 0.98F).setRadius(5, 4).walkTargetPredicate((mob, vec3) -> vec3 == null || mob.level().getEntities(EntityTypeTest.forClass(Boat.class), mob.getBoundingBox().move(vec3.subtract(mob.position())).inflate(3.0F, 2.0F, 3.0F), boat -> true).isEmpty()), 19),
-                                                Pair.of(new Idle<>().runFor(entity -> entity.getRandom().nextInt(15, 30)), 1)
+                                                Pair.of(new SetRandomSwimTarget().avoidLandWhen(penguin -> penguin.getRandom().nextFloat() < 0.6F).setRadius(5, 4).walkTargetPredicate((mob, vec3) -> vec3 == null || mob.level().getEntities(EntityTypeTest.forClass(Boat.class), mob.getBoundingBox().move(vec3.subtract(mob.position())).inflate(3.0F, 2.0F, 3.0F), boat -> true).isEmpty()), 19),
+                                                Pair.of(new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)), 1)
                                         )
                                 )
                         ).onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT),
@@ -660,6 +660,15 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         this.refreshDimensionsIfShould();
     }
 
+    @Override
+    public double getFluidJumpThreshold() {
+        return isSwimming() ? 0.1 : super.getFluidJumpThreshold();
+    }
+
+    @Override
+    public boolean isPushedByFluid() {
+        return false;
+    }
 
     public void returnToHome() {
         GlobalPos home = BrainUtils.getMemory(this, MemoryModuleType.HOME);
@@ -716,7 +725,9 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             if (data == null) {
                 data = new PenguinGroupData();
             }
-            setVariant(((PenguinGroupData)data).getSpawnType(blockPosition(), level, level.getRandom()));
+            setVariant(((PenguinGroupData)data).getSpawnVariant(blockPosition(), level, level.getRandom()));
+            setStumbleChance(Mth.randomBetween(getRandom(), 0.0025F, 0.005F));
+            setShoveChance(Mth.randomBetween(getRandom(), 0.001F, 0.0025F));
         }
         return super.finalizeSpawn(level, difficulty, spawnType, data);
     }
@@ -725,7 +736,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         return getTotalSpawnWeight(level, pos) > 0 && Animal.isBrightEnoughToSpawn(level, pos);
     }
 
-    public static int getTotalSpawnWeight(net.minecraft.world.level.LevelAccessor level, BlockPos pos) {
+    public static int getTotalSpawnWeight(LevelAccessor level, BlockPos pos) {
         int totalWeight = 0;
 
         for (PenguinVariant variant : level.registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT)) {
@@ -776,7 +787,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
     @Override
     protected PathNavigation createNavigation(Level level) {
-        return new PenguinPathNavigation(this, level);
+        return new AmphibiousPathNavigation(this, level);
     }
 
     @Nullable
@@ -1088,7 +1099,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             super(true);
         }
 
-        public Holder<PenguinVariant> getSpawnType(BlockPos pos, ServerLevelAccessor level, RandomSource random) {
+        public Holder<PenguinVariant> getSpawnVariant(BlockPos pos, ServerLevelAccessor level, RandomSource random) {
             if (getTotalSpawnWeight(level, pos) > 0)
                 return getSpawnTypeDependingOnBiome(level, pos, random);
             return level.registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getHolderOrThrow(RockhoppersResourceKeys.PenguinVariantKeys.ROCKHOPPER);
@@ -1163,17 +1174,6 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             return !Penguin.this.isStumbling() && Penguin.this.getShoveTicks() == Integer.MIN_VALUE;
         }
 
-    }
-
-    public static class PenguinPathNavigation extends AmphibiousPathNavigation {
-        public PenguinPathNavigation(Mob mob, Level level) {
-            super(mob, level);
-        }
-
-        @Override
-        public boolean canCutCorner(PathType pathTypes) {
-            return pathTypes != PathType.WATER_BORDER && super.canCutCorner(pathTypes);
-        }
     }
 
 }

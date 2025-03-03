@@ -27,20 +27,17 @@ public class SitAtSurfaceOfWater extends ExtendedBehaviour<Penguin> {
     }
 
     protected boolean shouldSit(ServerLevel level, Penguin entity) {
-        return entity.getFluidHeight(FluidTags.WATER) < 0.6;
+        return entity.getFluidHeight(FluidTags.WATER) > 0.2 && entity.getFluidHeight(FluidTags.WATER) < 0.4;
     }
 
     protected void tick(Penguin entity) {
         if (this.shouldSit((ServerLevel)entity.level(), entity)) {
             entity.getNavigation().stop();
-            if (entity.getDeltaMovement().horizontalDistance() < 0.02) {
-                entity.setDeltaMovement(Vec3.ZERO);
-            }
             if (!BrainUtils.hasMemory(entity, RockhoppersMemoryModuleTypes.NEAREST_BOBBERS)) return;
             Optional<FishingHook> hook = BrainUtils.getMemory(entity, RockhoppersMemoryModuleTypes.NEAREST_BOBBERS).stream().findFirst();
             hook.ifPresent(fishingHook -> entity.lookAt(EntityAnchorArgument.Anchor.EYES, fishingHook.position()));
         } else {
-            entity.addDeltaMovement(new Vec3(0.0, 0.04, 0.0));
+            entity.addDeltaMovement(new Vec3(0.0, 0.001, 0.0));
         }
     }
 }

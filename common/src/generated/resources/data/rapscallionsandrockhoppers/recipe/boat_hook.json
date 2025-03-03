@@ -1,21 +1,13 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "minecraft:crafting_shapeless",
   "category": "equipment",
-  "key": {
-    "F": {
+  "ingredients": [
+    {
       "item": "rapscallionsandrockhoppers:fish_bones"
     },
-    "O": {
-      "item": "minecraft:slime_ball"
-    },
-    "~": {
-      "item": "minecraft:string"
+    {
+      "item": "minecraft:lead"
     }
-  },
-  "pattern": [
-    "F~ ",
-    "~O ",
-    "  ~"
   ],
   "result": {
     "count": 1,

@@ -59,18 +59,16 @@ public class JumpTowardsCatch extends ExtendedBehaviour<Penguin> {
             this.breached = fluidState.is(FluidTags.WATER);
         }
 
-        if (this.breached && !breached) {
+        if (this.breached && !breached)
             penguin.playSound(penguin.getWaterJumpSound(), 1.0F, 1.0F);
-        }
 
         if (penguin.getTimeAllowedToEat() < penguin.tickCount) {
             Optional<ItemEntity> item = penguin.level().getEntitiesOfClass(ItemEntity.class, penguin.getBoundingBox().inflate(1.25), itemEntity -> itemEntity.getItem().is(RockhoppersTags.ItemTags.PENGUIN_FOOD_ITEMS)).stream().min(Comparator.comparing(penguin::distanceTo));
             if (item.isPresent()) {
                 penguin.setHungryTime(Optional.of(penguin.tickCount + 4800));
-                penguin.setTimeAllowedToEat(Optional.of(penguin.tickCount + 400));
-                if (penguin.getBoatToFollow() != null) {
-                    penguin.incrementFishEaten();
-                }
+                penguin.setTimeAllowedToEat(Optional.of(penguin.tickCount + 120));
+                penguin.incrementFishEaten();
+                BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.FED_BY, BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.CAUGHT_BOBBER).getPlayerOwner().getUUID());
                 item.get().discard();
             }
         }

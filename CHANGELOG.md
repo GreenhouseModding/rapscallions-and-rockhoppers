@@ -15,4 +15,5 @@
 ## Bugfixes
 - Fixed Penguins preferring to drown than go for air on the surface.
 - Fixed Penguins getting caught in boats whilst swimming.
-- Fixed Boat Hooks not rendering 
+- Fixed Boat Hooks not rendering with modded boats.
+- Fixed Penguin spawn rates on NeoForge.
