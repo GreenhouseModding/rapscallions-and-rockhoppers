@@ -36,8 +36,10 @@ public class SitAtSurfaceOfWater extends ExtendedBehaviour<Penguin> {
             if (!BrainUtils.hasMemory(entity, RockhoppersMemoryModuleTypes.NEAREST_BOBBERS)) return;
             Optional<FishingHook> hook = BrainUtils.getMemory(entity, RockhoppersMemoryModuleTypes.NEAREST_BOBBERS).stream().findFirst();
             hook.ifPresent(fishingHook -> entity.lookAt(EntityAnchorArgument.Anchor.EYES, fishingHook.position()));
+        } else if (entity.getFluidHeight(FluidTags.WATER) < 0.2) {
+            entity.addDeltaMovement(new Vec3(0.0, -0.01, 0.0));
         } else {
-            entity.addDeltaMovement(new Vec3(0.0, 0.001, 0.0));
+            entity.addDeltaMovement(new Vec3(0.0, 0.01, 0.0));
         }
     }
 }
