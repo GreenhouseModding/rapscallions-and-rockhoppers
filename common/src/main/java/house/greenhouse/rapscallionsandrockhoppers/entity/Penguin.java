@@ -107,6 +107,7 @@ import net.tslat.smartbrainlib.api.core.sensor.vanilla.*;
 import net.tslat.smartbrainlib.util.BrainUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.system.MemoryUtil;
 
 import java.util.*;
 
@@ -752,12 +753,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
     @Override
     public boolean canRide(Entity vehicle) {
-        if (vehicle instanceof Boat boat) {
-            return RapscallionsAndRockhoppers.getHelper().getBoatPenguinData(boat).penguinCount() == 0 
-                    && RapscallionsAndRockhoppers.getHelper().getBoatData(boat).getPreviousLinkedBoats().stream()
-                        .noneMatch(boat1 -> RapscallionsAndRockhoppers.getHelper().getBoatPenguinData(boat1).penguinCount() > 0)
-                    && RapscallionsAndRockhoppers.getHelper().getBoatData(boat).getNextLinkedBoats().stream()
-                        .noneMatch(boat1 -> RapscallionsAndRockhoppers.getHelper().getBoatPenguinData(boat1).penguinCount() > 0);
+        if (vehicle instanceof Boat) {
+            return !BrainUtils.hasMemory(this, MemoryModuleType.IS_IN_WATER) && !BrainUtils.hasMemory(this, RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW);
         }
         return true;
     }
