@@ -19,12 +19,12 @@ public class BoatHookLeashRenderer {
         poseStack.pushPose();
         Vec3 linkedToPosition;
         if (linkedTo instanceof Boat) {
-            linkedToPosition = approximateClosestHitPoint(linkedTo, thisBoat.getPosition(tickDelta), tickDelta)
+            linkedToPosition = getEllipseIntersect(linkedTo, thisBoat.getPosition(tickDelta), tickDelta)
                     .add(linkedTo.getPosition(tickDelta).x(), linkedTo.getPosition(tickDelta).y() + linkedTo.getEyeHeight() / 2.0, linkedTo.getPosition(tickDelta).z());
         } else
             linkedToPosition = linkedTo.getRopeHoldPosition(tickDelta);
 
-        Vec3 thisPosition = approximateClosestHitPoint(thisBoat, linkedToPosition, tickDelta)
+        Vec3 thisPosition = getEllipseIntersect(thisBoat, linkedToPosition, tickDelta)
                 .add(0.0, thisBoat.getEyeHeight() / 2.0, 0.0);
         double xLerped = Mth.lerp(tickDelta, thisBoat.xo, thisBoat.getX()) + thisPosition.x();
         double yLerped = Mth.lerp(tickDelta, thisBoat.yo, thisBoat.getY()) + thisPosition.y();
@@ -56,8 +56,19 @@ public class BoatHookLeashRenderer {
         poseStack.popPose();
     }
 
-    private static Vec3 approximateClosestHitPoint(Entity thisBoat, Vec3 linkedToPos, float tickDelta) {
-        return linkedToPos.subtract(thisBoat.getPosition(tickDelta)).normalize().multiply(thisBoat.getBbWidth() / 1.5, 0.0, thisBoat.getBbWidth() / 1.5);
+    private static Vec3 getEllipseIntersect(Entity thisBoat, Vec3 linkedToPos, float tickDelta) {
+        Vec3 rot = thisBoat.calculateViewVector(0.0F, thisBoat.getViewYRot(tickDelta));
+        Vec3 pos = linkedToPos.subtract(thisBoat.getPosition(tickDelta)).normalize().multiply(1.0, 0.0, 1.0);
+        double width = thisBoat.getBbWidth() / 2.2;
+        double length = thisBoat.getBbWidth() / 1.5;
+
+        double inverseWidth = 1 / width;
+        double inverseDiff = 1 / length - inverseWidth;
+
+        Vec3 transformedPos = pos.scale(inverseWidth).add(rot.scale(inverseDiff * rot.dot(pos)));;
+        double t = 1 / transformedPos.length();
+
+        return pos.scale(t);
     }
 
     private static void addBoatHookVertexPair(VertexConsumer vertexConsumer, Matrix4f matrix4f, float xDisplacement, float yDisplacement, float zDisplacement, int leashedEntityBlockLight, int holdingEntityBlockLight, int leashedEntitySkyLight, int holdingEntitySkyLight, float leashYOffset, float crossYDirection, float crossXDirection, float crossZDirection, int pieceIndex, boolean swapDarkDirection) {
