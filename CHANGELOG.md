@@ -11,6 +11,7 @@
 
 ## Minor Changes
 - Updated Boat Hook texture to use a fish head on the end instead of the tail.
+- Boats are no longer required to be in water to gain the benefits of penguins. Only the penguins are.
 
 ## Bugfixes
 - Fixed Penguins preferring to drown than go for air on the surface.

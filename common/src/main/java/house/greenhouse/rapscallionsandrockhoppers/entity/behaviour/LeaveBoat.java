@@ -1,6 +1,7 @@
 package house.greenhouse.rapscallionsandrockhoppers.entity.behaviour;
 
 import com.mojang.datafixers.util.Pair;
+import house.greenhouse.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import house.greenhouse.rapscallionsandrockhoppers.entity.Penguin;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -28,7 +29,7 @@ public class LeaveBoat extends ExtendedBehaviour<Penguin> {
 
     @Override
     public boolean checkExtraStartConditions(ServerLevel level, Penguin penguin) {
-        if (penguin.tickCount < BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) && penguin.getBoatToFollow() != null && penguin.getBoatToFollow().distanceTo(penguin) < 32.0) {
+        if (penguin.tickCount < BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) && penguin.getBoatToFollow() != null && penguin.getBoatToFollow().distanceTo(penguin) <= 24.0) {
             return false;
         }
 
@@ -43,18 +44,23 @@ public class LeaveBoat extends ExtendedBehaviour<Penguin> {
 
     @Override
     protected void start(Penguin penguin) {
+        var boatData = RapscallionsAndRockhoppers.getHelper().getBoatPenguinData(penguin.getBoatToFollow());
+
+        boatData.removeFollowingPenguin(penguin.getUUID());
+        if (boatData.getFollowingPenguins().isEmpty())
+            RapscallionsAndRockhoppers.getHelper().removeBoatPenguinData(penguin.getBoatToFollow());
+
         BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW, null);
-        Vec3 posAway = DefaultRandomPos.getPosAway(penguin, 32, 8, leavingBoatPos);
-        if (posAway != null) {
-            BrainUtils.setMemory(penguin, MemoryModuleType.WALK_TARGET, new WalkTarget(posAway, 1.0F, 0));
-        }
+        BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER, null);
+        Vec3 posAway = DefaultRandomPos.getPosAway(penguin, 36, 8, leavingBoatPos);
+        if (posAway != null)
+            BrainUtils.setMemory(penguin, MemoryModuleType.WALK_TARGET, new WalkTarget(posAway, 1.0F, 2));
     }
 
     @Override
     protected void stop(Penguin penguin) {
-        if (penguin.position().distanceTo(this.leavingBoatPos) >= 64.0) {
+        if (penguin.position().distanceTo(this.leavingBoatPos) >= 32.0)
             penguin.returnToHome();
-        }
         this.leavingBoatPos = null;
     }
 }

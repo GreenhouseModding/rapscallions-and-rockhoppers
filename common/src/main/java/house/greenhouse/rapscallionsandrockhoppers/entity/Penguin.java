@@ -3,22 +3,7 @@ package house.greenhouse.rapscallionsandrockhoppers.entity;
 import com.mojang.datafixers.util.Pair;
 import house.greenhouse.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import house.greenhouse.rapscallionsandrockhoppers.block.entity.PenguinEggBlockEntity;
-import house.greenhouse.rapscallionsandrockhoppers.entity.behaviour.BreatheAir;
-import house.greenhouse.rapscallionsandrockhoppers.entity.behaviour.CoughUpRewards;
-import house.greenhouse.rapscallionsandrockhoppers.entity.behaviour.FollowBoat;
-import house.greenhouse.rapscallionsandrockhoppers.entity.behaviour.JumpTowardsCatch;
-import house.greenhouse.rapscallionsandrockhoppers.entity.behaviour.LeaveBoat;
-import house.greenhouse.rapscallionsandrockhoppers.entity.behaviour.PenguinJump;
-import house.greenhouse.rapscallionsandrockhoppers.entity.behaviour.PenguinPeck;
-import house.greenhouse.rapscallionsandrockhoppers.entity.behaviour.PenguinShove;
-import house.greenhouse.rapscallionsandrockhoppers.entity.behaviour.PenguinSitEgg;
-import house.greenhouse.rapscallionsandrockhoppers.entity.behaviour.PenguinStumble;
-import house.greenhouse.rapscallionsandrockhoppers.entity.behaviour.SetRandomSwimTarget;
-import house.greenhouse.rapscallionsandrockhoppers.entity.behaviour.SitAtSurfaceOfWater;
-import house.greenhouse.rapscallionsandrockhoppers.entity.behaviour.StayWithinBoat;
-import house.greenhouse.rapscallionsandrockhoppers.entity.behaviour.StayWithinHome;
-import house.greenhouse.rapscallionsandrockhoppers.entity.behaviour.SwimToFishingBobber;
-import house.greenhouse.rapscallionsandrockhoppers.entity.behaviour.WalkToRewardedPlayer;
+import house.greenhouse.rapscallionsandrockhoppers.entity.behaviour.*;
 import house.greenhouse.rapscallionsandrockhoppers.entity.sensor.BoatToFollowSensor;
 import house.greenhouse.rapscallionsandrockhoppers.entity.sensor.NearbyBobbersSensor;
 import house.greenhouse.rapscallionsandrockhoppers.entity.sensor.NearbyEggSensor;
@@ -306,8 +291,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 new SetPlayerLookTarget<>(),
                 new SetRandomLookTarget<>().lookChance(ConstantFloat.of(0.6F)),
                 new PenguinSitEgg().startCondition(penguin -> !penguin.isBaby()).runFor((penguin -> penguin.random.nextInt(3600, 9000))).cooldownFor(penguin -> 1000), // Between 180 and 450 seconds
-                new StayWithinHome().setRadius(5).startCondition(penguin -> !penguin.isStumbling() && penguin.getBoatToFollow() == null),
-                new SetAttackTarget<Penguin>().attackPredicate(penguin -> BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) && penguin.tickCount > BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) - 300),
+                new StayWithinHome().setRadius(8).startCondition(penguin -> !penguin.isStumbling() && penguin.getBoatToFollow() == null),
+                new SetAttackTarget<Penguin>().attackPredicate(penguin -> BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) && BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) <= 0),
                 new PenguinPeck(8),
                 new PenguinShove(),
                 new PenguinStumble(),
@@ -317,7 +302,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                         new FollowTemptation<>(),
                         new SetWalkTargetToAttackTarget<>(),
                         new OneRandomBehaviour<>(
-                                Pair.of(new SetRandomWalkTarget<Penguin>().setRadius(4, 3).avoidWaterWhen(penguin -> penguin.getRandom().nextFloat() < 0.98F), 9),
+                                Pair.of(new SetRandomWalkTarget<Penguin>().setRadius(4, 3).avoidWaterWhen(penguin -> penguin.getRandom().nextFloat() > 0.06F), 9),
                                 Pair.of(new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)), 1)
                         )
                 )
@@ -333,7 +318,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                 new BreatheAir(),
                                 new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
                                 new BreedWithPartner<>(),
-                                new StayWithinHome().setRadius(8),
+                                new StayWithinHome().setRadius(12),
                                 new SetAttackTarget<Penguin>().attackPredicate(penguin -> BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) && penguin.tickCount > BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) - 300),
                                 new PenguinPeck(8),
                                 new AvoidEntity<>().avoiding(entity -> entity instanceof Pufferfish),
@@ -342,7 +327,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                         new SetWalkTargetToAttackTarget<>().startCondition(penguin -> penguin.getAirSupply() >= 260),
                                         new PenguinJump(),
                                         new OneRandomBehaviour<>(
-                                                Pair.of(new SetRandomSwimTarget().avoidLandWhen(penguin -> penguin.getRandom().nextFloat() < 0.6F).setRadius(5, 4).walkTargetPredicate((mob, vec3) -> vec3 == null || mob.level().getEntities(EntityTypeTest.forClass(Boat.class), mob.getBoundingBox().move(vec3.subtract(mob.position())).inflate(3.0F, 2.0F, 3.0F), boat -> true).isEmpty()), 19),
+                                                Pair.of(new AmphibiousSetRandomSwimTarget().moveToLandWhen(penguin -> penguin.getRandom().nextFloat() < 0.06F).setRadius(5, 4).walkTargetPredicate((mob, vec3) -> vec3 == null || mob.level().getEntities(EntityTypeTest.forClass(Boat.class), mob.getBoundingBox().move(vec3.subtract(mob.position())).inflate(3.0F, 2.0F, 3.0F), boat -> true).isEmpty()), 19),
                                                 Pair.of(new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)), 1)
                                         )
                                 )
@@ -350,34 +335,34 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 RockhoppersActivities.FOLLOW_BOAT, new BrainActivityGroup<Penguin>(RockhoppersActivities.FOLLOW_BOAT)
                         .priority(20)
                         .behaviours(
-                                new LeaveBoat(),
                                 new BreatheAir(),
+                                new LeaveBoat(),
+                                new FollowBoat().untilDistance(2.0F).runFor(penguin -> 200),
                                 new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
                                 new SetAttackTarget<Penguin>().attackPredicate(penguin -> {
                                     if  (!BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) || penguin.getAirSupply() < 260) {
                                         return false;
                                     }
 
-                                    if (penguin.getBoatToFollow() != null && (!BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT) || penguin.tickCount > BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT))) {
+                                    if (penguin.getBoatToFollow() != null && (!BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT) || BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT) < 0)) {
                                         // As boats don't have velocity on the server, we must do this.
                                         boolean bl = penguin.previousBoatPos.subtract(penguin.getBoatToFollow().position()).horizontalDistance() > 0.075;
                                         penguin.previousBoatPos = penguin.getBoatToFollow().position();
                                         return bl;
                                     }
 
-                                    return penguin.tickCount > BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) - 280;
+                                    return BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) > 0;
                                 }),
                                 new PenguinPeck(8),
                                 new BreedWithPartner<>(),
                                 new AvoidEntity<>().avoiding(entity -> entity instanceof Pufferfish),
-                                new FollowBoat().untilDistance(2.0F).runFor(penguin -> 200),
                                 new StayWithinBoat().setRadius(8),
                                 new FirstApplicableBehaviour<>(
                                         new FollowTemptation<>(),
                                         new SetWalkTargetToAttackTarget<>().startCondition(penguin -> penguin.getAirSupply() >= 260),
                                         new PenguinJump(),
                                         new OneRandomBehaviour<>(
-                                                Pair.of(new SetRandomSwimTarget().setRadius(6.0F, 4.0F).startCondition(penguin -> penguin.getBoatToFollow() != null && penguin.getBoatToFollow().getDeltaMovement().horizontalDistanceSqr() < 0.05), 19),
+                                                Pair.of(new AmphibiousSetRandomSwimTarget().setRadius(6.0F, 4.0F).startCondition(penguin -> penguin.getBoatToFollow() != null && penguin.getBoatToFollow().getDeltaMovement().horizontalDistanceSqr() < 0.05), 19),
                                                 Pair.of(new Idle<>().runFor(entity -> entity.getRandom().nextInt(15, 30)), 1)
                                         )
                                 )
@@ -427,7 +412,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     }
 
     public int getTimeAllowedToWaterJump() {
-        return BrainUtils.memoryOrDefault(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_WATER_JUMP, () -> Integer.MIN_VALUE);
+        return BrainUtils.memoryOrDefault(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_WATER_JUMP, () -> 0);
     }
 
     public void setTimeAllowedToEat(Optional<Integer> eatTicks) {
@@ -435,7 +420,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     }
 
     public int getTimeAllowedToEat() {
-        return BrainUtils.memoryOrDefault(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT, () -> Integer.MIN_VALUE);
+        return BrainUtils.memoryOrDefault(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_EAT, () -> 0);
     }
 
     public void setHungryTime(Optional<Integer> leaveTime) {
@@ -443,7 +428,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     }
 
     public int getHungryTime() {
-        return BrainUtils.memoryOrDefault(this, RockhoppersMemoryModuleTypes.HUNGRY_TIME, () -> Integer.MIN_VALUE);
+        return BrainUtils.memoryOrDefault(this, RockhoppersMemoryModuleTypes.HUNGRY_TIME, () -> 0);
     }
 
     public void setTimeAllowedToFollowBoat(Optional<Integer> boatFollowCooldownTicks) {
@@ -451,7 +436,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     }
 
     public int getTimeAllowedToFollowBoat() {
-        return BrainUtils.memoryOrDefault(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_FOLLOW_BOAT, () -> Integer.MIN_VALUE);
+        return BrainUtils.memoryOrDefault(this, RockhoppersMemoryModuleTypes.TIME_ALLOWED_TO_FOLLOW_BOAT, () -> 0);
     }
 
     public void setBoatToFollow(@Nullable UUID boatUuid) {
@@ -498,8 +483,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 return InteractionResult.SUCCESS;
             }
             if (this.tickCount > this.getTimeAllowedToEat()) {
-                this.setHungryTime(Optional.of(this.tickCount + 4800));
-                this.setTimeAllowedToEat(Optional.of(this.tickCount + 120));
+                this.setHungryTime(Optional.of(4800));
+                this.setTimeAllowedToEat(Optional.of(120));
                 this.incrementFishEaten();
                 BrainUtils.setMemory(this, RockhoppersMemoryModuleTypes.FED_BY, player.getUUID());
                 stack.consume(1, player);
@@ -525,7 +510,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         if (!previousWaterValue && this.isInWater() && this.getVehicle() == null) {
             this.setPose(Pose.SWIMMING);
             if (!this.level().isClientSide()) {
-                this.setTimeAllowedToWaterJump(Optional.of(this.tickCount + Mth.randomBetweenInclusive(this.getRandom(), 200, 400)));
+                this.setTimeAllowedToWaterJump(Optional.of(Mth.randomBetweenInclusive(this.getRandom(), 200, 400)));
             }
             this.previousWaterValue = true;
         } else if (previousWaterValue && (!this.isInWater() && this.onGround() || this.getVehicle() != null)) {
@@ -568,6 +553,15 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                     this.setShoveTicks(previousValue - 1);
                 }
             }
+
+            if (getHungryTime() > 0)
+                setHungryTime(Optional.of(getHungryTime() - 1));
+            if (getTimeAllowedToEat() > 0)
+                setTimeAllowedToEat(Optional.of(getTimeAllowedToWaterJump() - 1));
+            if (getTimeAllowedToWaterJump() > 0)
+                setTimeAllowedToWaterJump(Optional.of(getTimeAllowedToWaterJump() - 1));
+            if (getTimeAllowedToFollowBoat() > 0)
+                setTimeAllowedToFollowBoat(Optional.of(getHungryTime() - 1));
 
             if (hasEgg() && onGround() && !isStumbling() && getPose() == Pose.STANDING) {
                 if (level().getBlockState(blockPosition()).isAir()
@@ -672,7 +666,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
     public void returnToHome() {
         GlobalPos home = BrainUtils.getMemory(this, MemoryModuleType.HOME);
-        if (home != null && this.level().dimension() == home.dimension() && this.blockPosition().distSqr(home.pos()) > 48 * 48) {
+        if (home != null && this.level().dimension() == home.dimension() && this.blockPosition().distSqr(home.pos()) > 32 * 32) {
             BlockPos randomPos = null;
 
             int xSection = SectionPos.blockToSectionCoord(home.pos().getX());
@@ -962,7 +956,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         this.setShockedTime(this.random.nextInt(60, 120));
         this.setShoveTicks(Integer.MIN_VALUE);
         this.setStumbleTicks(Integer.MIN_VALUE);
-        if (this.getHungryTime() != Integer.MIN_VALUE) {
+        if (this.getHungryTime() > 0) {
             this.setHungryTime(integerOptional(this.getHungryTime() - 40));
         }
         // Useful util for debugging.

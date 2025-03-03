@@ -73,8 +73,7 @@ public class FollowBoat extends ExtendedBehaviour<Penguin> {
     protected void tick(Penguin penguin) {
         if (--this.timeToRecalcPath <= 0) {
             this.timeToRecalcPath = 10;
-            Direction direction = penguin.getBoatToFollow().getDirection().getOpposite();
-            Vec3 directionVec = new Vec3(direction.getStepX(), direction.getStepY(), direction.getStepZ()).multiply(this.untilDistance, 1.0F, this.untilDistance);
+            Vec3 directionVec = penguin.getBoatToFollow().calculateViewVector(0.0F, penguin.getBoatToFollow().getYRot()).multiply(-this.untilDistance, 1.0F, -this.untilDistance);
             BlockPos boatPos = penguin.getBoatToFollow().blockPosition().offset((int) directionVec.x(), (int) directionVec.y(), (int) directionVec.z());
             boatPos = boatPos.offset(0, -2, 0);
             BrainUtils.setMemory(penguin, MemoryModuleType.WALK_TARGET, new WalkTarget(boatPos, penguin.isInWater() ? 2.0F : 1.5F, 1));

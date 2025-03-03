@@ -52,7 +52,7 @@ public class StayWithinHome extends ExtendedBehaviour<Penguin> {
 
     @Override
     protected void start(Penguin penguin) {
-        BrainUtils.setMemory(penguin, MemoryModuleType.WALK_TARGET, new WalkTarget(this.runPos, 1.0F, 0));
+        BrainUtils.setMemory(penguin, MemoryModuleType.WALK_TARGET, new WalkTarget(this.runPos, 1.0F, 2));
     }
 
     @Override

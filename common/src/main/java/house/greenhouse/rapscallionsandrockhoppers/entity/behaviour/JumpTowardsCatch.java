@@ -25,7 +25,7 @@ public class JumpTowardsCatch extends ExtendedBehaviour<Penguin> {
     private boolean breached;
 
     protected boolean checkExtraStartConditions(ServerLevel level, Penguin penguin) {
-        return penguin.getTimeAllowedToEat() < penguin.tickCount;
+        return penguin.getTimeAllowedToEat() <= 0;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class JumpTowardsCatch extends ExtendedBehaviour<Penguin> {
     protected void stop(Penguin penguin) {
         this.breached = false;
         penguin.setXRot(0.0F);
-        penguin.setTimeAllowedToWaterJump(Optional.of(penguin.tickCount + Mth.randomBetweenInclusive(penguin.getRandom(), 400, 600)));
+        penguin.setTimeAllowedToWaterJump(Optional.of(Mth.randomBetweenInclusive(penguin.getRandom(), 400, 600)));
         BrainUtils.clearMemories(penguin, RockhoppersMemoryModuleTypes.IS_JUMPING, RockhoppersMemoryModuleTypes.CAUGHT_BOBBER);
     }
 
@@ -62,11 +62,11 @@ public class JumpTowardsCatch extends ExtendedBehaviour<Penguin> {
         if (this.breached && !breached)
             penguin.playSound(penguin.getWaterJumpSound(), 1.0F, 1.0F);
 
-        if (penguin.getTimeAllowedToEat() < penguin.tickCount) {
+        if (penguin.getTimeAllowedToEat() <= 0) {
             Optional<ItemEntity> item = penguin.level().getEntitiesOfClass(ItemEntity.class, penguin.getBoundingBox().inflate(1.25), itemEntity -> itemEntity.getItem().is(RockhoppersTags.ItemTags.PENGUIN_FOOD_ITEMS)).stream().min(Comparator.comparing(penguin::distanceTo));
             if (item.isPresent()) {
-                penguin.setHungryTime(Optional.of(penguin.tickCount + 4800));
-                penguin.setTimeAllowedToEat(Optional.of(penguin.tickCount + 120));
+                penguin.setHungryTime(Optional.of(4800));
+                penguin.setTimeAllowedToEat(Optional.of(120));
                 penguin.incrementFishEaten();
                 BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.FED_BY, BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.CAUGHT_BOBBER).getPlayerOwner().getUUID());
                 item.get().discard();

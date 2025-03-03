@@ -62,24 +62,22 @@ public class BoatToFollowSensor extends PredicateSensor<Boat, Penguin> {
             radius = new SquareRadius(dist, dist);
         }
 
-        if (penguin.getBoatToFollow() == null && penguin.getTimeAllowedToFollowBoat() < penguin.tickCount && !penguin.isBaby()) {
+        if (penguin.getBoatToFollow() == null && penguin.getTimeAllowedToFollowBoat() <= 0 && !penguin.isBaby()) {
             Optional<Boat> boat = EntityRetrievalUtil.<Boat>getEntities(level, 
                     radius.inflateAABB(penguin.getBoundingBox()),
-                    obj -> obj instanceof Boat b && 
-                            ((BoatAccessor)b).rapscallionsandrockhoppers$getStatus() != null &&
-                            ((BoatAccessor)b).rapscallionsandrockhoppers$getStatus().equals(Boat.Status.IN_WATER) &&
+                    obj -> obj instanceof Boat b &&
                             b.hasControllingPassenger() &&
                             RapscallionsAndRockhoppers.getHelper().getBoatPenguinData(b).penguinCount() < 3).stream().min(Comparator.comparingInt(b -> RapscallionsAndRockhoppers.getHelper().getBoatPenguinData(b).penguinCount()));
             if (boat.isPresent()) {
                 penguin.setBoatToFollow(boat.get().getUUID());
                 if (this.updatePenguinRadius != null) {
-                    EntityRetrievalUtil.<Penguin>getEntities(level, this.updatePenguinRadius.inflateAABB(penguin.getBoundingBox()), obj -> obj instanceof Penguin && obj.isAlive()).forEach(p -> p.setTimeAllowedToFollowBoat(Optional.of(p.tickCount + 20)));
+                    EntityRetrievalUtil.<Penguin>getEntities(level, this.updatePenguinRadius.inflateAABB(penguin.getBoundingBox()), obj -> obj instanceof Penguin && obj.isAlive()).forEach(p -> p.setTimeAllowedToFollowBoat(Optional.of(20)));
                 }
                 var boatPenguins = RapscallionsAndRockhoppers.getHelper().getBoatPenguinData(boat.get());
                 boatPenguins.addFollowingPenguin(penguin.getUUID());
                 boatPenguins.sync();
-                penguin.setHungryTime(Optional.of(penguin.tickCount + 4800));
-                penguin.setTimeAllowedToEat(Optional.of(penguin.tickCount));
+                penguin.setHungryTime(Optional.of(4800));
+                penguin.setTimeAllowedToEat(Optional.of(120));
                 ((ServerLevel)penguin.level()).sendParticles(ParticleTypes.GLOW, boat.get().getX(), boat.get().getY(), boat.get().getZ(), 8, 0.5, 0.25, 0.5, 0.02);
                 penguin.previousBoatPos = penguin.getBoatToFollow().position();
             }
