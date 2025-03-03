@@ -51,7 +51,7 @@ public class CoughUpRewards extends DelayedBehaviour<Penguin> {
         LootTable lootTable = penguin.level().getServer().reloadableRegistries().getLootTable(lootTableKey);
         LootParams.Builder builder = (new LootParams.Builder((ServerLevel)penguin.level())).withParameter(LootContextParams.THIS_ENTITY, penguin).withParameter(LootContextParams.ORIGIN, penguin.position());
         LootParams params = builder.create(LootContextParamSets.GIFT);
-        for (int i = 0; i < Math.min(penguin.getFishEaten(), 12); ++i) {
+        for (int i = 0; i < Math.min(penguin.getFishEaten(), 6); ++i) {
             lootTable.getRandomItems(params, stack -> BehaviorUtils.throwItem(penguin, stack, this.playerToCoughFor.position()));
         }
         penguin.playSound(RockhoppersSoundEvents.PENGUIN_COUGH, 0.8F, 0.9F + penguin.getRandom().nextFloat() * 0.2F);
