@@ -1,7 +1,9 @@
 package house.greenhouse.rapscallionsandrockhoppers;
 
+import house.greenhouse.rapscallionsandrockhoppers.attachment.PlayerLinksAttachment;
 import house.greenhouse.rapscallionsandrockhoppers.entity.Penguin;
 import house.greenhouse.rapscallionsandrockhoppers.entity.PenguinVariant;
+import house.greenhouse.rapscallionsandrockhoppers.item.BoatHookItem;
 import house.greenhouse.rapscallionsandrockhoppers.network.RockhoppersPackets;
 import house.greenhouse.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacketS2C;
 import house.greenhouse.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacketS2C;
@@ -22,6 +24,7 @@ import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectionContext;
 import net.fabricmc.fabric.api.biome.v1.ModificationPhase;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -29,6 +32,7 @@ import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -39,6 +43,7 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public class RapscallionsAndRockhoppersFabric implements ModInitializer {
@@ -50,23 +55,31 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
         handleBiomeModifications();
         handlePenguinTypeRegistryEvents();
 
-        UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
-            if (player.isSpectator() || !(entity instanceof Boat boat)) {
+        UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
+            if (player.isSpectator() || !world.getBlockState(hitResult.getBlockPos()).is(BlockTags.FENCES))
                 return InteractionResult.PASS;
-            }
-            return RapscallionsAndRockhoppers.getHelper().getBoatData(boat).handleInteractionWithBoatHook(player, hand);
+            PlayerLinksAttachment data = player.getAttached(RockhoppersAttachments.PLAYER_LINKS);
+            if (data == null || data.getLinkedBoats(world).isEmpty())
+                return InteractionResult.PASS;
+            return BoatHookItem.attemptCreateBoatKnot(player, world, hitResult.getBlockPos());
+        });
+        UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
+            if (player.isSpectator() || !(entity instanceof Boat boat))
+                return InteractionResult.PASS;
+            return RapscallionsAndRockhoppers.getHelper().getBoatData(boat).handleInteractionWithBoatHook(boat, player, hand);
         });
 
         EntityTrackingEvents.START_TRACKING.register((entity, player) -> {
             if (entity.hasAttached(RockhoppersAttachments.BOAT_LINKS)) {
-                var packet = new SyncBoatLinksAttachmentPacketS2C(entity.getId(), entity.getAttached(RockhoppersAttachments.BOAT_LINKS));
+                var packet = new SyncBoatLinksAttachmentPacketS2C(entity.getId(), Optional.ofNullable(entity.getAttached(RockhoppersAttachments.BOAT_LINKS)));
                 ServerPlayNetworking.send(player, packet);
             }
             if (entity.hasAttached(RockhoppersAttachments.PLAYER_LINKS)) {
-                var packet = new SyncPlayerLinksAttachmentPacketS2C(entity.getId(), entity.getAttached(RockhoppersAttachments.PLAYER_LINKS));
+                var packet = new SyncPlayerLinksAttachmentPacketS2C(entity.getId(), Optional.ofNullable(entity.getAttached(RockhoppersAttachments.PLAYER_LINKS)));
                 ServerPlayNetworking.send(player, packet);
             }
         });
+
         RockhoppersPackets.registerPayloadTypes();
     }
 

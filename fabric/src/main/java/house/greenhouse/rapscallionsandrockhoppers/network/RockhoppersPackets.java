@@ -36,5 +36,7 @@ public class RockhoppersPackets {
     public static void sendS2CTracking(CustomPacketPayload packet, Entity entity) {
         for (ServerPlayer player : PlayerLookup.tracking(entity))
             sendS2C(packet, player);
+        if (entity instanceof ServerPlayer player)
+            sendS2C(packet, player);
     }
 }

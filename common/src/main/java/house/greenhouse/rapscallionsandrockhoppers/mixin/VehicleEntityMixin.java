@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class VehicleEntityMixin {
     @Inject(method = "destroy(Lnet/minecraft/world/item/Item;)V", at = @At("HEAD"))
     private void rapscallionsandrockhoppers$returnHook(Item item, CallbackInfo ci) {
-        if ((VehicleEntity)(Object)this instanceof Boat boat && RapscallionsAndRockhoppers.getHelper().getBoatData(boat).getLinkedPlayer() != null) {
+        if ((VehicleEntity)(Object)this instanceof Boat boat && RapscallionsAndRockhoppers.getHelper().getBoatData(boat).getLinkedPlayer(boat.level()) != null) {
             ((VehicleEntity)(Object)this).spawnAtLocation(RockhoppersItems.BOAT_HOOK);
         }
     }

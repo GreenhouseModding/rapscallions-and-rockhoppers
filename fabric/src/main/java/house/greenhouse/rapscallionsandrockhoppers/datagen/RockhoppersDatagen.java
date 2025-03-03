@@ -33,7 +33,6 @@ import net.minecraft.data.models.model.ModelTemplates;
 import net.minecraft.data.models.model.TextureMapping;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
@@ -211,10 +210,9 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
                     .requires(RockhoppersItems.FISH_BONES)
                     .unlockedBy("has_Fish_bones", FabricRecipeProvider.has(RockhoppersItems.FISH_BONES))
                     .save(exporter, "bone_meal_from_fish_bones");
-            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, RockhoppersItems.BOAT_HOOK).pattern("F~ ").pattern("~O ").pattern("  ~")
-                    .define('F', RockhoppersItems.FISH_BONES)
-                    .define('~', Items.STRING)
-                    .define('O', Items.SLIME_BALL)
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, RockhoppersItems.BOAT_HOOK)
+                    .requires(RockhoppersItems.FISH_BONES)
+                    .requires(Items.LEAD)
                     .unlockedBy("has_fish_bones", FabricRecipeProvider.has(RockhoppersItems.FISH_BONES))
                     .save(exporter, "boat_hook");
 

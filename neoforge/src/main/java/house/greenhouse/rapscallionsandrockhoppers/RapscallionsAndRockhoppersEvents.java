@@ -127,7 +127,7 @@ public class RapscallionsAndRockhoppersEvents {
         public static void onBoatInteraction(PlayerInteractEvent.EntityInteract event) {
             if (event.getTarget() instanceof Boat boat) {
                 BoatLinksAttachment capability = RapscallionsAndRockhoppers.getHelper().getBoatData(boat);
-                InteractionResult result = capability.handleInteractionWithBoatHook(event.getEntity(), event.getHand());
+                InteractionResult result = capability.handleInteractionWithBoatHook(boat, event.getEntity(), event.getHand());
                 if (result != InteractionResult.PASS) {
                     event.setCancellationResult(result);
                     event.setCanceled(true);
@@ -139,14 +139,14 @@ public class RapscallionsAndRockhoppersEvents {
         public static void onPlayerTick(PlayerTickEvent.Post event) {
             Optional<PlayerLinksAttachment> attachment = event.getEntity().getExistingData(RockhoppersAttachments.PLAYER_LINKS);
             if (attachment.isPresent() && event.getEntity().tickCount % 20 == 0) {
-                attachment.get().invalidateNonExistentBoats();
+                attachment.get().invalidateNonExistentBoats(event.getEntity().level());
             }
         }
 
         @SubscribeEvent
         public static void onStartTracking(PlayerEvent.StartTracking event) {
-            event.getTarget().getExistingData(RockhoppersAttachments.BOAT_LINKS).ifPresent(attachment -> PacketDistributor.sendToPlayer((ServerPlayer) event.getEntity(), new SyncBoatLinksAttachmentPacketS2C(attachment.getProvider().getId(), attachment)));
-            event.getTarget().getExistingData(RockhoppersAttachments.PLAYER_LINKS).ifPresent(attachment -> PacketDistributor.sendToPlayer((ServerPlayer) event.getEntity(), new SyncPlayerLinksAttachmentPacketS2C(attachment.getProvider().getId(), attachment)));
+            event.getTarget().getExistingData(RockhoppersAttachments.BOAT_LINKS).ifPresent(attachment -> PacketDistributor.sendToPlayer((ServerPlayer) event.getEntity(), new SyncBoatLinksAttachmentPacketS2C(event.getTarget().getId(), Optional.of(attachment))));
+            event.getTarget().getExistingData(RockhoppersAttachments.PLAYER_LINKS).ifPresent(attachment -> PacketDistributor.sendToPlayer((ServerPlayer) event.getEntity(), new SyncPlayerLinksAttachmentPacketS2C(event.getTarget().getId(), Optional.of(attachment))));
         }
     }
 }

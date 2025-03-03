@@ -6,7 +6,7 @@
   - Fish Scale Blocks also come in Slabs, Stairs and Walls.
 - Penguin items may now be obtained by more casually feeding a penguin. 
   - To gain stuff like rocks, junk and treasure, you will need to still travel with the penguin.
-- The Boat Hook crafting recipe has been changed to be more similar to the lead's recipe.
+- The Boat Hook crafting recipe has been changed to be similar to an upgrade to the lead.
 - Boat Hooks may now be attached to fences, just like leads.
 
 ## Minor Changes
@@ -15,3 +15,4 @@
 ## Bugfixes
 - Fixed Penguins preferring to drown than go for air on the surface.
 - Fixed Penguins getting caught in boats whilst swimming.
+- Fixed Boat Hooks not rendering 

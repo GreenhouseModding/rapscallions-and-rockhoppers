@@ -11,9 +11,8 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.level.Level;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
 public class PlayerLinksAttachment {
     public static final ResourceLocation ID = RapscallionsAndRockhoppers.asResource("boat_hook_player");
     private Set<UUID> linkedBoats;
-    private @Nullable Player instance;
 
     public static final Codec<PlayerLinksAttachment> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             UUIDUtil.CODEC_SET.fieldOf("linked_boats").forGetter(PlayerLinksAttachment::getLinkedBoatUUIDs)
@@ -58,19 +56,9 @@ public class PlayerLinksAttachment {
         this.linkedBoats.clear();
     }
 
-    public @Nullable Player getProvider() {
-        return instance;
-    }
-
-    public void setProvider(Player player) {
-        instance = player;
-    }
-
-    public Set<Boat> getLinkedBoats() {
-        if (getProvider() == null)
-            return Set.of();
+    public Set<Boat> getLinkedBoats(Level level) {
         return this.getLinkedBoatUUIDs().stream().map(uuid -> {
-            Entity entity = EntityGetUtil.getEntityFromUuid(this.getProvider().level(), uuid);
+            Entity entity = EntityGetUtil.getEntityFromUuid(level, uuid);
             if (entity instanceof Boat boat) {
                 return boat;
             }
@@ -78,8 +66,8 @@ public class PlayerLinksAttachment {
         }).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
-    public void invalidateNonExistentBoats() {
-        this.getLinkedBoatUUIDs().removeIf(uuid -> this.getLinkedBoats().stream().noneMatch(boat -> boat.getUUID() == uuid && !boat.isRemoved()));
+    public void invalidateNonExistentBoats(Level level) {
+        this.getLinkedBoatUUIDs().removeIf(uuid -> this.getLinkedBoats(level).stream().noneMatch(boat -> boat.getUUID() == uuid && !boat.isRemoved()));
     }
 
     public void deserializeLegacyData(CompoundTag tag) {
@@ -90,11 +78,5 @@ public class PlayerLinksAttachment {
                 this.addLinkedBoat(NbtUtils.loadUUID(linkedBoat));
             }
         }
-    }
-
-    public void sync() {
-        if (getProvider() == null || getProvider().level().isClientSide())
-            return;
-        RapscallionsAndRockhoppers.getHelper().syncPlayerData(getProvider());
     }
 }

@@ -45,16 +45,28 @@ public interface RockhoppersPlatformHelper {
 
     void sendS2CTracking(CustomPacketPayload packet, Entity entity);
 
+    boolean hasBoatData(Boat boat);
+
     BoatLinksAttachment getBoatData(Boat boat);
+
+    void removeBoatData(Boat boat);
 
     void syncBoatData(Boat boat);
 
+    boolean hasPlayerData(Player player);
+
     PlayerLinksAttachment getPlayerData(Player player);
+
+    void removePlayerData(Player player);
 
     void syncPlayerData(Player player);
 
+    boolean hasBoatPenguinData(Boat boat);
+
     BoatPenguinsAttachment getBoatPenguinData(Boat boat);
-    
+
+    void removeBoatPenguinData(Boat boat);
+
     void syncBoatPenguinData(Boat boat);
 
     boolean runAndIsBreedEventCancelled(Animal parent, Animal otherParent);

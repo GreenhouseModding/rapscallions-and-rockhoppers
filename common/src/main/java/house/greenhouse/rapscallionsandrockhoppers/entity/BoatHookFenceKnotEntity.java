@@ -18,10 +18,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class BoatHookFenceKnotEntity extends BlockAttachedEntity {
     public BoatHookFenceKnotEntity(EntityType<? extends BoatHookFenceKnotEntity> entityType, Level level) {
@@ -46,33 +48,40 @@ public class BoatHookFenceKnotEntity extends BlockAttachedEntity {
             double max = 10.0D;
             AABB checkBox = new AABB(x - max, y - max, z - max, x + max, y + max, z + max);
 
-            List<Boat> list = this.level().getEntitiesOfClass(Boat.class, checkBox);
+            var playerData = RapscallionsAndRockhoppers.getHelper().hasPlayerData(player) ? RapscallionsAndRockhoppers.getHelper().getPlayerData(player) : null;
+            Set<Boat> additions = playerData != null ? playerData.getLinkedBoats(player.level()) : Set.of();
+            List<Boat> removals = this.level().getEntitiesOfClass(Boat.class, checkBox);
 
-            for (Boat boat : list) {
+            for (Boat boat : additions) {
                 var boatData = RapscallionsAndRockhoppers.getHelper().getBoatData(boat);
-                if (boatData.getLinkedPlayer() == player) {
-                    boatData.setHookKnotUuid(this.getUUID());
-                    boatData.setLinkedPlayer(null);
-                    boatData.sync();
-                    attachedToFence = true;
-                }
+                boatData.setHookKnotUuid(this.getUUID());
+                boatData.setLinkedPlayerUuid(null);
+                playerData.removeLinkedBoat(boat.getUUID());
+                if (playerData.getLinkedBoatUUIDs().isEmpty())
+                    RapscallionsAndRockhoppers.getHelper().removePlayerData(player);
+                RapscallionsAndRockhoppers.getHelper().syncBoatData(boat);
+                RapscallionsAndRockhoppers.getHelper().syncPlayerData(player);
+                playPlacementSound();
+                attachedToFence = true;
             }
 
             boolean removedFromFence = false;
             if (!attachedToFence) {
-                this.discard();
-                if (player.getAbilities().instabuild) {
-                    for (Boat boat : list) {
-                        var boatData = RapscallionsAndRockhoppers.getHelper().getBoatData(boat);
-                            if (boatData.getHookKnot() == this) {
-                                boatData.setHookKnotUuid(null);
-                                boatData.sync();
-                                removedFromFence = true;
-                                boat.spawnAtLocation(RockhoppersItems.BOAT_HOOK);
-                                
-                        }
+                for (Boat boat : removals) {
+                    var boatData = RapscallionsAndRockhoppers.getHelper().getBoatData(boat);
+                    if (boatData.getHookKnot(player.level()) == this) {
+                        boatData.setHookKnotUuid(null);
+                        RapscallionsAndRockhoppers.getHelper().syncBoatData(boat);
+                        if (!boatData.hasData())
+                            RapscallionsAndRockhoppers.getHelper().removeBoatData(boat);
+                        RapscallionsAndRockhoppers.getHelper().syncBoatData(boat);
+                        removedFromFence = true;
+                        boat.spawnAtLocation(new ItemStack(RockhoppersItems.BOAT_HOOK), 1.0F);
                     }
                 }
+                if (!removedFromFence)
+                    spawnAtLocation(new ItemStack(RockhoppersItems.BOAT_HOOK), 1.1F);
+                this.discard();
             }
 
             if (attachedToFence || removedFromFence) {
@@ -106,6 +115,11 @@ public class BoatHookFenceKnotEntity extends BlockAttachedEntity {
 
     public void playPlacementSound() {
         this.playSound(SoundEvents.LEASH_KNOT_PLACE, 1.0F, 1.0F);
+    }
+
+    @Override
+    public Vec3 getRopeHoldPosition(float partialTicks) {
+        return this.getPosition(partialTicks).add(0.0, getBbHeight() / 2, 0.0);
     }
 
     @Override

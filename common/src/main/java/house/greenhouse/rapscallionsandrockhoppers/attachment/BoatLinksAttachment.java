@@ -15,14 +15,16 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Unique;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,17 +33,18 @@ public class BoatLinksAttachment {
     public static final ResourceLocation ID = RapscallionsAndRockhoppers.asResource("boat_links");
 
     private static final double HOOK_DAMPENING_FACTOR = 0.2D;
-    private Set<UUID> nextLinkedBoats;
-    private Set<UUID> previousLinkedBoats;
+    private final Set<UUID> nextLinkedBoats;
+    private final Set<UUID> previousLinkedBoats;
 
-    private @Nullable UUID linkedPlayer;
-    private @Nullable Boat instance;
-    
+    private Optional<UUID> linkedPlayerUuid = Optional.empty();
     private Optional<UUID> hookKnotUuid = Optional.empty();
+
+    private long lastMovementTime;
 
     public static final Codec<BoatLinksAttachment> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             UUIDUtil.CODEC_SET.fieldOf("linked_boats_after").forGetter(BoatLinksAttachment::getNextLinkedBoatUuids),
             UUIDUtil.CODEC_SET.fieldOf("linked_boats_before").forGetter(BoatLinksAttachment::getPreviousLinkedBoatUuids),
+            UUIDUtil.CODEC.optionalFieldOf("linked_player").forGetter(BoatLinksAttachment::getLinkedPlayerUuid),
             UUIDUtil.CODEC.optionalFieldOf("hook_knot_uuid").forGetter(BoatLinksAttachment::getHookKnotUuid)
     ).apply(inst, BoatLinksAttachment::new));
 
@@ -50,16 +53,24 @@ public class BoatLinksAttachment {
         this.previousLinkedBoats = new HashSet<>();
     }
 
-    public BoatLinksAttachment(Set<UUID> nextLinkedBoats, Set<UUID> previousLinkedBoats, @Nullable Optional<UUID> hookKnotUuid) {
+    public BoatLinksAttachment(Set<UUID> nextLinkedBoats, Set<UUID> previousLinkedBoats, Optional<UUID> linkedPlayerUuid, Optional<UUID> hookKnotUuid) {
         this.nextLinkedBoats = nextLinkedBoats;
         this.previousLinkedBoats = previousLinkedBoats;
+        this.linkedPlayerUuid = linkedPlayerUuid;
         this.hookKnotUuid = hookKnotUuid;
     }
 
     public void setFrom(BoatLinksAttachment other) {
-        this.nextLinkedBoats = other.nextLinkedBoats;
-        this.previousLinkedBoats = other.previousLinkedBoats;
-        this.hookKnotUuid = other.hookKnotUuid;
+        nextLinkedBoats.clear();
+        previousLinkedBoats.clear();
+        nextLinkedBoats.addAll(other.nextLinkedBoats);
+        previousLinkedBoats.addAll(other.previousLinkedBoats);
+        linkedPlayerUuid = other.linkedPlayerUuid;
+        hookKnotUuid = other.hookKnotUuid;
+    }
+
+    public boolean hasData() {
+        return !previousLinkedBoats.isEmpty() || !nextLinkedBoats.isEmpty() || hookKnotUuid.isPresent() || linkedPlayerUuid != null;
     }
 
     public Set<UUID> getNextLinkedBoatUuids() {
@@ -78,12 +89,12 @@ public class BoatLinksAttachment {
         this.previousLinkedBoats.clear();
     }
 
-    public @Nullable UUID getLinkedPlayerUuid() {
-        return linkedPlayer;
+    public Optional<UUID> getLinkedPlayerUuid() {
+        return linkedPlayerUuid;
     }
 
-    public void setLinkedPlayer(@Nullable UUID player) {
-        this.linkedPlayer = player;
+    public void setLinkedPlayerUuid(@Nullable UUID player) {
+        this.linkedPlayerUuid = Optional.ofNullable(player);
     }
 
     public void addNextLinkedBoat(@Nullable UUID boat) {
@@ -101,16 +112,6 @@ public class BoatLinksAttachment {
     public void removePreviousLinkedBoat(@Nullable UUID boat) {
         this.previousLinkedBoats.remove(boat);
     }
-
-    public @Nullable Boat getProvider() {
-        return instance;
-    }
-
-    public void setProvider(Boat boat) {
-        if (instance != null)
-            return;
-        instance = boat;
-    }
     
     public Optional<UUID> getHookKnotUuid() {
         return hookKnotUuid;
@@ -120,95 +121,93 @@ public class BoatLinksAttachment {
         this.hookKnotUuid = Optional.ofNullable(hookKnotUuid);
     }
 
-    public Set<Boat> getNextLinkedBoats() {
-        if (getProvider() != null) {
-            return this.getNextLinkedBoatUuids().stream().map(uuid -> {
-                Entity entity = EntityGetUtil.getEntityFromUuid(this.getProvider().level(), uuid);
-                if (entity instanceof Boat boat) {
-                    return boat;
-                }
-                return null;
-            }).filter(Objects::nonNull).collect(Collectors.toSet());
-        }
-        return Set.of();
-    }
-
-    public Set<Boat> getPreviousLinkedBoats() {
-        if (getProvider() != null) {
-            return this.getPreviousLinkedBoatUuids().stream().map(uuid -> {
-                Entity entity = EntityGetUtil.getEntityFromUuid(this.getProvider().level(), uuid);
-                if (entity instanceof Boat boat) {
-                    return boat;
-                }
-                return null;
-            }).filter(Objects::nonNull).collect(Collectors.toSet());
-        }
-        return Set.of();
-    }
-
-    public @Nullable Player getLinkedPlayer() {
-        if (getProvider() != null) {
-            Entity entity = EntityGetUtil.getEntityFromUuid(this.getProvider().level(), linkedPlayer);
-            if (entity instanceof Player player) {
-                return player;
+    public Set<Boat> getNextLinkedBoats(Level level) {
+        return this.getNextLinkedBoatUuids().stream().map(uuid -> {
+            Entity entity = EntityGetUtil.getEntityFromUuid(level, uuid);
+            if (entity instanceof Boat boat) {
+                return boat;
             }
+            return null;
+        }).filter(Objects::nonNull).collect(Collectors.toSet());
+    }
+
+    public Set<Boat> getPreviousLinkedBoats(Level level) {
+        return this.getPreviousLinkedBoatUuids().stream().map(uuid -> {
+            Entity entity = EntityGetUtil.getEntityFromUuid(level, uuid);
+            if (entity instanceof Boat boat) {
+                return boat;
+            }
+            return null;
+        }).filter(Objects::nonNull).collect(Collectors.toSet());
+    }
+
+    public @Nullable Player getLinkedPlayer(Level level) {
+        Entity entity = EntityGetUtil.getEntityFromUuid(level, linkedPlayerUuid.orElse(null));
+        if (entity instanceof Player player) {
+            return player;
         }
         return null;
     }
     
-    public @Nullable BoatHookFenceKnotEntity getHookKnot() {
-        if (getProvider() != null) {
-            Entity entity = EntityGetUtil.getEntityFromUuid(this.getProvider().level(), hookKnotUuid.orElse(null));
-            if (entity instanceof BoatHookFenceKnotEntity knot) {
-                return knot;
-            }
+    public @Nullable BoatHookFenceKnotEntity getHookKnot(Level level) {
+        Entity entity = EntityGetUtil.getEntityFromUuid(level, hookKnotUuid.orElse(null));
+        if (entity instanceof BoatHookFenceKnotEntity knot) {
+            return knot;
         }
         return null;
     }
 
-    public boolean canLinkTo(Boat otherBoat) {
-            BoatLinksAttachment otherBoatData = RapscallionsAndRockhoppers.getHelper().getBoatData(otherBoat);
-        return !this.getPreviousLinkedBoats().contains(otherBoat) && !this.getNextLinkedBoats().contains(otherBoat) && !otherBoatData.getPreviousLinkedBoats().contains(this.getProvider()) && !otherBoatData.getNextLinkedBoats().contains(this.getProvider());
+    public static boolean canLinkTo(Boat boat, Boat otherBoat) {
+        BoatLinksAttachment boatData = RapscallionsAndRockhoppers.getHelper().getBoatData(boat);
+        BoatLinksAttachment otherBoatData = RapscallionsAndRockhoppers.getHelper().getBoatData(otherBoat);
+        return !boatData.getPreviousLinkedBoats(boat.level()).contains(otherBoat) && !boatData.getNextLinkedBoats(boat.level()).contains(otherBoat) && !otherBoatData.getPreviousLinkedBoats(otherBoat.level()).contains(boat) && !otherBoatData.getNextLinkedBoats(otherBoat.level()).contains(boat);
     }
 
-    public InteractionResult handleInteractionWithBoatHook(Player player, InteractionHand interactionHand) {
-        if (this.getProvider() == null) {
-            return InteractionResult.PASS;
-        }
+    public static InteractionResult handleInteractionWithBoatHook(Boat boat, Player player, InteractionHand interactionHand) {
+        BoatLinksAttachment boatData = RapscallionsAndRockhoppers.getHelper().getBoatData(boat);
         PlayerLinksAttachment playerData = RapscallionsAndRockhoppers.getHelper().getPlayerData(player);
-        if (this.getLinkedPlayer() == player) {
-            this.setLinkedPlayer(null);
-            playerData.removeLinkedBoat(this.getProvider().getUUID());
-            this.sync();
-            playerData.sync();
-            if (!player.getAbilities().instabuild) {
-                this.getProvider().spawnAtLocation(RockhoppersItems.BOAT_HOOK);
+        if (boatData.getLinkedPlayer(boat.level()) == player) {
+            boatData.setLinkedPlayerUuid(null);
+            playerData.removeLinkedBoat(boat.getUUID());
+            if (!boatData.hasData())
+                RapscallionsAndRockhoppers.getHelper().removeBoatData(boat);
+            if (!playerData.getLinkedBoatUUIDs().isEmpty())
+                RapscallionsAndRockhoppers.getHelper().removePlayerData(player);
+            if (!boat.level().isClientSide) {
+                RapscallionsAndRockhoppers.getHelper().syncPlayerData(player);
+                RapscallionsAndRockhoppers.getHelper().syncBoatData(boat);
             }
+            if (!player.getAbilities().instabuild)
+                boat.spawnAtLocation(new ItemStack(RockhoppersItems.BOAT_HOOK), 1.0F);
             return InteractionResult.SUCCESS;
         }
-        if (player.getItemInHand(interactionHand).is(RockhoppersItems.BOAT_HOOK) && (playerData.getLinkedBoats().isEmpty() && this.getPreviousLinkedBoats().isEmpty() && this.getNextLinkedBoats().isEmpty() || player.isShiftKeyDown())) {
-            this.setLinkedPlayer(player.getUUID());
-            playerData.addLinkedBoat(this.getProvider().getUUID());
-            this.sync();
-            playerData.sync();
-            if (!player.getAbilities().instabuild) {
+        if (player.getItemInHand(interactionHand).is(RockhoppersItems.BOAT_HOOK) && (playerData.getLinkedBoats(player.level()).isEmpty() && boatData.getPreviousLinkedBoats(boat.level()).isEmpty() && boatData.getNextLinkedBoats(boat.level()).isEmpty() || player.isShiftKeyDown())) {
+            boatData.setLinkedPlayerUuid(player.getUUID());
+            playerData.addLinkedBoat(boat.getUUID());
+            if (!boat.level().isClientSide) {
+                RapscallionsAndRockhoppers.getHelper().syncBoatData(boat);
+                RapscallionsAndRockhoppers.getHelper().syncPlayerData(player);
+            }
+            if (!player.getAbilities().instabuild)
                 player.getItemInHand(interactionHand).shrink(1);
-            }
             return InteractionResult.SUCCESS;
         }
-        if (this.getLinkedPlayer() == null && !playerData.getLinkedBoats().isEmpty()) {
-            var otherBoats = playerData.getLinkedBoats();
+        if (boatData.getLinkedPlayer(boat.level()) == null && !playerData.getLinkedBoats(player.level()).isEmpty()) {
+            var otherBoats = playerData.getLinkedBoats(player.level());
             for (var otherBoat : otherBoats) {
                 BoatLinksAttachment otherBoatData = RapscallionsAndRockhoppers.getHelper().getBoatData(otherBoat);
-                if (!otherBoat.is(this.getProvider()) && otherBoatData.canLinkTo(this.getProvider())) {
-                    if (otherBoatData.getLinkedPlayer() == player) {
-                        otherBoatData.addPreviousLinkedBoat(this.getProvider().getUUID());
-                        this.addNextLinkedBoat(otherBoat.getUUID());
-                        otherBoatData.setLinkedPlayer(null);
+                if (!otherBoat.is(boat) && canLinkTo(boat, otherBoat)) {
+                    if (otherBoatData.getLinkedPlayer(boat.level()) == player) {
+                        otherBoatData.addPreviousLinkedBoat(boat.getUUID());
+                        boatData.addNextLinkedBoat(otherBoat.getUUID());
+                        otherBoatData.setLinkedPlayerUuid(null);
                         playerData.removeLinkedBoat(otherBoat.getUUID());
-                        this.sync();
-                        otherBoatData.sync();
-                        playerData.sync();
+                        if (!boat.level().isClientSide) {
+                            RapscallionsAndRockhoppers.getHelper().syncBoatData(boat);
+                            RapscallionsAndRockhoppers.getHelper().syncBoatData(otherBoat);
+                            RapscallionsAndRockhoppers.getHelper().syncPlayerData(player);
+                        }
+                        boat.playSound(SoundEvents.LEASH_KNOT_PLACE, 1.0F, 1.0F);
                         return InteractionResult.SUCCESS;
                     }
                 }
@@ -217,78 +216,97 @@ public class BoatLinksAttachment {
         return InteractionResult.PASS;
     }
 
-    public void addBoatMovementCode() {
-        if (this.getProvider() == null || this.getProvider().level().isClientSide()) return;
-        if (this.getLinkedPlayer() != null) {
-            var distanceBetween = this.getLinkedPlayer().distanceTo(this.getProvider());
-            if (distanceBetween > 3 && distanceBetween < 10) {
-                rapscallionsandrockhoppers$moveTowardsNonBoat(this.getLinkedPlayer());
+    public static void addBoatMovementCode(Boat boat) {
+        if (boat == null || boat.level().isClientSide()) return;
+        var data = RapscallionsAndRockhoppers.getHelper().getBoatData(boat);
+        if (data.getLinkedPlayer(boat.level()) != null) {
+            var distanceBetween = data.getLinkedPlayer(boat.level()).distanceTo(boat);
+            if (distanceBetween < 10) {
+                moveTowardsNonBoat(boat, data.getLinkedPlayer(boat.level()));
             }
-            if (distanceBetween > 10 || !this.getLinkedPlayer().isAlive()) {
-                this.getProvider().spawnAtLocation(RockhoppersItems.BOAT_HOOK);
-                this.setLinkedPlayer(null);
+            if (distanceBetween > 10 || !data.getLinkedPlayer(boat.level()).isAlive()) {
+                boat.spawnAtLocation(new ItemStack(RockhoppersItems.BOAT_HOOK), 1.0F);
+                data.setLinkedPlayerUuid(null);
             }
         }
-        if (this.getHookKnot() != null) {
-            var knot = getHookKnot();
-            var distanceBetween = knot.distanceTo(this.getProvider());
+        if (data.getHookKnot(boat.level()) != null) {
+            var knot = data.getHookKnot(boat.level());
+            var distanceBetween = knot.distanceTo(boat);
             if (distanceBetween > 10) {
-                this.getProvider().spawnAtLocation(RockhoppersItems.BOAT_HOOK);
-                this.setHookKnotUuid(null);
-                this.sync();
+                boat.spawnAtLocation(new ItemStack(RockhoppersItems.BOAT_HOOK), 1.0F);
+                data.setHookKnotUuid(null);
+                RapscallionsAndRockhoppers.getHelper().syncBoatData(boat);
             }
         }
-        moveTowardsBoats(this.getNextLinkedBoatUuids(), this.getPreviousLinkedBoatUuids());
+        if (boat.getPaddleState(0) || boat.getPaddleState(1)) {
+            data.lastMovementTime = boat.level().getGameTime();
+        }
+        moveTowardsBoats(boat, data.getNextLinkedBoatUuids(), data.getPreviousLinkedBoatUuids());
     }
-    @Unique
-    private void moveTowardsBoats(Set<UUID> nextUuids, Set<UUID> previousUuids) {
+
+    private static void moveTowardsBoats(Boat boat, Set<UUID> nextUuids, Set<UUID> previousUuids) {
+        var data = RapscallionsAndRockhoppers.getHelper().getBoatData(boat);
         if (!nextUuids.isEmpty()) {
             for (Pair<UUID, Boat> next : nextUuids.stream().map(uuid1 -> {
-                if (((ServerLevel)this.getProvider().level()).getEntity(uuid1) instanceof Boat boat) {
-                    return Pair.of(uuid1, boat);
+                if (((ServerLevel)boat.level()).getEntity(uuid1) instanceof Boat other) {
+                    return Pair.of(uuid1, other);
                 }
                 return Pair.of(uuid1, (Boat)null);
             }).toList()) {
-                if (next.getSecond() == null || next.getSecond().isRemoved() || next.getSecond().distanceTo(this.getProvider()) > 16) {
+                if (next.getSecond() == null || next.getSecond().isRemoved() || next.getSecond().distanceTo(boat) > 16) {
                     if (next.getSecond() != null) {
                         BoatLinksAttachment nextBoatData = RapscallionsAndRockhoppers.getHelper().getBoatData(next.getSecond());
-                        nextBoatData.removePreviousLinkedBoat(this.getProvider().getUUID());
+                        nextBoatData.removePreviousLinkedBoat(boat.getUUID());
+                        if (!nextBoatData.hasData())
+                            RapscallionsAndRockhoppers.getHelper().removeBoatData(next.getSecond());
+                        RapscallionsAndRockhoppers.getHelper().syncBoatData(next.getSecond());
                     }
-                    this.getProvider().spawnAtLocation(RockhoppersItems.BOAT_HOOK);
-                    this.removeNextLinkedBoat(next.getFirst());
+                    boat.spawnAtLocation(new ItemStack(RockhoppersItems.BOAT_HOOK), 1.0F);
+                    data.removeNextLinkedBoat(next.getFirst());
+                    if (!data.hasData())
+                        RapscallionsAndRockhoppers.getHelper().removeBoatData(boat);
+                    RapscallionsAndRockhoppers.getHelper().syncBoatData(boat);
                     return;
                 }
-                doBoatLinkedMovementTo(next.getSecond());
+                doBoatLinkedMovementTo(boat, next.getSecond());
             }
         }
         if (!previousUuids.isEmpty()) {
             for (Pair<UUID, Boat> previous : previousUuids.stream().map(uuid1 -> {
-                if (((ServerLevel)this.getProvider().level()).getEntity(uuid1) instanceof Boat boat) {
-                    return Pair.of(uuid1, boat);
+                if (((ServerLevel)boat.level()).getEntity(uuid1) instanceof Boat previous) {
+                    return Pair.of(uuid1, previous);
                 }
                 return Pair.of(uuid1, (Boat)null);
             }).toList()) {
-                if (previous.getSecond() == null || previous.getSecond().isRemoved() || previous.getSecond().distanceTo(this.getProvider()) > 16) {
+                if (previous.getSecond() == null || previous.getSecond().isRemoved() || previous.getSecond().distanceTo(boat) > 16) {
                     if (previous.getSecond() != null) {
                         BoatLinksAttachment nextBoatData = RapscallionsAndRockhoppers.getHelper().getBoatData(previous.getSecond());
-                        nextBoatData.removePreviousLinkedBoat(this.getProvider().getUUID());
+                        nextBoatData.removeNextLinkedBoat(boat.getUUID());
+                        if (!nextBoatData.hasData())
+                            RapscallionsAndRockhoppers.getHelper().removeBoatData(previous.getSecond());
+                        RapscallionsAndRockhoppers.getHelper().syncBoatData(previous.getSecond());
                     }
-                    this.getProvider().spawnAtLocation(RockhoppersItems.BOAT_HOOK);
-                    this.removePreviousLinkedBoat(previous.getFirst());
+                    boat.spawnAtLocation(new ItemStack(RockhoppersItems.BOAT_HOOK), 1.0F);
+                    data.removePreviousLinkedBoat(previous.getFirst());
+                    if (!data.hasData())
+                        RapscallionsAndRockhoppers.getHelper().removeBoatData(boat);
+                    RapscallionsAndRockhoppers.getHelper().syncBoatData(boat);
                     return;
                 }
-                doBoatLinkedMovementTo(previous.getSecond());
+                doBoatLinkedMovementTo(boat, previous.getSecond());
             }
         }
 
     }
 
-    @Unique
-    private void doBoatLinkedMovementTo(Boat other) {
-        // METHOD 2:
-        var thisPos = this.getProvider().position();
+    private static void doBoatLinkedMovementTo(Boat boat, Boat other) {
+        // Determines
+        if (RapscallionsAndRockhoppers.getHelper().getBoatData(boat).lastMovementTime >= RapscallionsAndRockhoppers.getHelper().getBoatData(other).lastMovementTime || boat.hasControllingPassenger())
+            return;
+
+        var thisPos = boat.position();
         var otherPos = other.position();
-        var distanceBetween = other.distanceTo(this.getProvider());
+        var distanceBetween = other.distanceTo(boat);
         if (distanceBetween <= 3 || distanceBetween > 16) return;
         var distanceFactor = (distanceBetween - 3) / 7;
 
@@ -298,30 +316,36 @@ public class BoatLinksAttachment {
         // If the delta is forcing this backwards, don't do it
         // if (thisDelta.dot(this.getDeltaMovement()) < 0) return;
         thisDelta.multiply(1f, 0f, 1f);
-        thisDelta.add(0f, this.getProvider().getDeltaMovement().y(), 0f);
-        this.getProvider().setDeltaMovement(thisDelta);
+        thisDelta.add(0f, boat.getDeltaMovement().y(), 0f);
+        boat.setDeltaMovement(thisDelta);
 
-        if (this.getProvider().getDeltaMovement().horizontalDistance() > 0.05 && (!this.getProvider().hasControllingPassenger() || !(this.getProvider().getControllingPassenger() instanceof Player))) {
-            float cross = (float) (otherPos.subtract(thisPos).cross(this.getProvider().getForward()).y());
-            this.getProvider().setYRot(this.getProvider().getYRot() + cross);
+        if (boat.getDeltaMovement().horizontalDistance() > 0.05 && (!boat.hasControllingPassenger() || !(boat.getControllingPassenger() instanceof Player))) {
+            float cross = (float) (otherPos.subtract(thisPos).cross(boat.getForward()).y()) * 1.4F;
+            boat.setYRot(boat.getYRot() + cross);
         }
     }
-    public void rapscallionsandrockhoppers$moveTowardsNonBoat(Entity other) {
-        var thisPos = this.getProvider().position();
+
+    public static void moveTowardsNonBoat(Boat boat, Entity other) {
+        var thisPos = boat.position();
         var otherPos = other.position();
         if (other.getDeltaMovement().horizontalDistance() > 0.05) {
-            float cross = (float) (otherPos.subtract(thisPos).cross(this.getProvider().getForward()).y());
-            this.getProvider().setYRot(this.getProvider().getYRot() + cross);
+            float cross = (float) (otherPos.subtract(thisPos).cross(boat.getForward()).y());
+            boat.setYRot(boat.getYRot() + cross);
         }
 
-        if (this.getProvider().level().isClientSide()) return;
-        var distanceBetween = other.position().multiply(1.0, 0.0, 1.0).distanceTo(this.getProvider().position().multiply(1.0, 0.0, 1.0));
-        if (distanceBetween > 3) {
-            var distanceFactor = (distanceBetween - 3) / 7;
-            Vec3 delta = this.getProvider().position().vectorTo(other.position()).normalize().scale(distanceBetween).scale(distanceFactor);
-            if (((BoatAccessor)this.getProvider()).rapscallionsandrockhoppers$getStatus() != null && ((BoatAccessor)this.getProvider()).rapscallionsandrockhoppers$getStatus().equals(Boat.Status.IN_WATER) && delta.y() < 0.0)
-                delta = new Vec3(delta.x(), this.getProvider().getDeltaMovement().y(), delta.z());
-            this.getProvider().setDeltaMovement(delta);
+        if (boat.level().isClientSide()) return;
+        var distanceBetween = other.position().multiply(1.0, 0.0, 1.0).distanceTo(boat.position().multiply(1.0, 0.0, 1.0));
+        if (distanceBetween > 2) {
+            var distanceFactor = (distanceBetween - 2) / 7;
+            Vec3 delta = boat.position().vectorTo(other.position()).normalize().scale(distanceBetween).scale(distanceFactor).multiply(1.0F, other.getY() - boat.getY() > 1.8F ? 1.0F : 0.0F, 1.0F);
+            if (((BoatAccessor)boat).rapscallionsandrockhoppers$getStatus() != null && ((BoatAccessor)boat).rapscallionsandrockhoppers$getStatus().equals(Boat.Status.IN_WATER) && delta.y() < 0.0)
+                delta = new Vec3(delta.x(), boat.getDeltaMovement().y(), delta.z());
+            boat.setDeltaMovement(delta);
+        }
+
+        if (boat.getDeltaMovement().horizontalDistance() > 0.05 && (!boat.hasControllingPassenger() || !(boat.getControllingPassenger() instanceof Player))) {
+            float cross = (float) (otherPos.subtract(thisPos).cross(boat.getForward()).y()) * 2.4F;
+            boat.setYRot(boat.getYRot() + cross);
         }
     }
 
@@ -347,11 +371,5 @@ public class BoatLinksAttachment {
 //                this.addFollowingPenguin(NbtUtils.loadUUID(penguin));
 //            }
 //        }
-    }
-
-    public void sync() {
-        if (getProvider() == null || getProvider().level().isClientSide())
-            return;
-        RapscallionsAndRockhoppers.getHelper().syncBoatData(getProvider());
     }
 }

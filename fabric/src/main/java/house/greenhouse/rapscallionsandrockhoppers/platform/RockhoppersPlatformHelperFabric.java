@@ -16,6 +16,8 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 
+import java.util.Optional;
+
 public class RockhoppersPlatformHelperFabric implements RockhoppersPlatformHelper {
 
     @Override
@@ -41,29 +43,48 @@ public class RockhoppersPlatformHelperFabric implements RockhoppersPlatformHelpe
     }
 
     @Override
+    public boolean hasBoatData(Boat boat) {
+        return boat.hasAttached(RockhoppersAttachments.BOAT_LINKS);
+    }
+
+    @Override
     public BoatLinksAttachment getBoatData(Boat boat) {
-        BoatLinksAttachment attachment = boat.getAttachedOrCreate(RockhoppersAttachments.BOAT_LINKS);
-        if (attachment.getProvider() == null)
-            attachment.setProvider(boat);
-        return attachment;
+        return boat.getAttachedOrCreate(RockhoppersAttachments.BOAT_LINKS);
+    }
+
+    @Override
+    public void removeBoatData(Boat boat) {
+        boat.removeAttached(RockhoppersAttachments.BOAT_LINKS);
     }
 
     @Override
     public void syncBoatData(Boat boat) {
-        sendS2CTracking(new SyncBoatLinksAttachmentPacketS2C(boat.getId(), getBoatData(boat)), boat);
+        sendS2CTracking(new SyncBoatLinksAttachmentPacketS2C(boat.getId(), Optional.ofNullable(boat.getAttached(RockhoppersAttachments.BOAT_LINKS))), boat);
+    }
+
+    @Override
+    public boolean hasPlayerData(Player player) {
+        return player.hasAttached(RockhoppersAttachments.PLAYER_LINKS);
     }
 
     @Override
     public PlayerLinksAttachment getPlayerData(Player player) {
-        PlayerLinksAttachment attachment = player.getAttachedOrCreate(RockhoppersAttachments.PLAYER_LINKS);
-        if (attachment.getProvider() == null)
-            attachment.setProvider(player);
-        return attachment;
+        return player.getAttachedOrCreate(RockhoppersAttachments.PLAYER_LINKS);
+    }
+
+    @Override
+    public void removePlayerData(Player player) {
+        player.removeAttached(RockhoppersAttachments.PLAYER_LINKS);
     }
 
     @Override
     public void syncPlayerData(Player player) {
-        sendS2CTracking(new SyncPlayerLinksAttachmentPacketS2C(player.getId(), getPlayerData(player)), player);
+        sendS2CTracking(new SyncPlayerLinksAttachmentPacketS2C(player.getId(), Optional.ofNullable(player.getAttached(RockhoppersAttachments.PLAYER_LINKS))), player);
+    }
+
+    @Override
+    public boolean hasBoatPenguinData(Boat boat) {
+        return boat.hasAttached(RockhoppersAttachments.BOAT_PENGUINS);
     }
 
     @Override
@@ -75,8 +96,13 @@ public class RockhoppersPlatformHelperFabric implements RockhoppersPlatformHelpe
     }
 
     @Override
+    public void removeBoatPenguinData(Boat boat) {
+        boat.removeAttached(RockhoppersAttachments.BOAT_PENGUINS);
+    }
+
+    @Override
     public void syncBoatPenguinData(Boat boat) {
-        sendS2CTracking(new SyncBoatPenguinsAttachmentPacketS2C(boat.getId(), getBoatPenguinData(boat)), boat);
+        sendS2CTracking(new SyncBoatPenguinsAttachmentPacketS2C(boat.getId(), Optional.ofNullable(boat.getAttached(RockhoppersAttachments.BOAT_PENGUINS))), boat);
     }
 
     @Override

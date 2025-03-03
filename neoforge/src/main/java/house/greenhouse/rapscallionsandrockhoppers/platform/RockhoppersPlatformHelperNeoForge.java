@@ -43,29 +43,48 @@ public class RockhoppersPlatformHelperNeoForge implements RockhoppersPlatformHel
     }
 
     @Override
+    public boolean hasBoatData(Boat boat) {
+        return boat.hasData(RockhoppersAttachments.BOAT_LINKS);
+    }
+
+    @Override
     public BoatLinksAttachment getBoatData(Boat boat) {
-        BoatLinksAttachment attachment = boat.getData(RockhoppersAttachments.BOAT_LINKS);
-        if (attachment.getProvider() == null)
-            attachment.setProvider(boat);
-        return attachment;
+        return boat.getData(RockhoppersAttachments.BOAT_LINKS);
+    }
+
+    @Override
+    public void removeBoatData(Boat boat) {
+        boat.removeData(RockhoppersAttachments.BOAT_LINKS);
     }
 
     @Override
     public void syncBoatData(Boat boat) {
-        sendS2CTracking(new SyncBoatLinksAttachmentPacketS2C(boat.getId(), getBoatData(boat)), boat);
+        sendS2CTracking(new SyncBoatLinksAttachmentPacketS2C(boat.getId(), boat.getExistingData(RockhoppersAttachments.BOAT_LINKS)), boat);
+    }
+
+    @Override
+    public boolean hasPlayerData(Player player) {
+        return player.hasData(RockhoppersAttachments.PLAYER_LINKS);
     }
 
     @Override
     public PlayerLinksAttachment getPlayerData(Player player) {
-        PlayerLinksAttachment attachment = player.getData(RockhoppersAttachments.PLAYER_LINKS);
-        if (attachment.getProvider() == null)
-            attachment.setProvider(player);
-        return attachment;
+        return player.getData(RockhoppersAttachments.PLAYER_LINKS);
+    }
+
+    @Override
+    public void removePlayerData(Player player) {
+        player.removeData(RockhoppersAttachments.PLAYER_LINKS);
     }
 
     @Override
     public void syncPlayerData(Player player) {
-        sendS2CTracking(new SyncPlayerLinksAttachmentPacketS2C(player.getId(), getPlayerData(player)), player);
+        sendS2CTracking(new SyncPlayerLinksAttachmentPacketS2C(player.getId(), player.getExistingData(RockhoppersAttachments.PLAYER_LINKS)), player);
+    }
+
+    @Override
+    public boolean hasBoatPenguinData(Boat boat) {
+        return boat.hasData(RockhoppersAttachments.BOAT_PENGUINS);
     }
 
     @Override
@@ -77,8 +96,13 @@ public class RockhoppersPlatformHelperNeoForge implements RockhoppersPlatformHel
     }
 
     @Override
+    public void removeBoatPenguinData(Boat boat) {
+        boat.removeData(RockhoppersAttachments.BOAT_PENGUINS);
+    }
+
+    @Override
     public void syncBoatPenguinData(Boat boat) {
-        sendS2CTracking(new SyncBoatPenguinsAttachmentPacketS2C(boat.getId(), getBoatPenguinData(boat)), boat);
+        sendS2CTracking(new SyncBoatPenguinsAttachmentPacketS2C(boat.getId(), boat.getExistingData(RockhoppersAttachments.BOAT_PENGUINS)), boat);
     }
 
     @Override

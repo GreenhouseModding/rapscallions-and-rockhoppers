@@ -14,7 +14,7 @@
     "VehicleEntityMixin"
   ],
   "client": [
-    "client.BoatRendererMixin",
+    "client.EntityRendererMixin",
     "client.ClientLevelAccessor"
   ],
   "injectors": {

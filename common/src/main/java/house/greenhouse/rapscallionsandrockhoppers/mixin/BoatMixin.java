@@ -38,7 +38,7 @@ public abstract class BoatMixin extends VehicleEntity {
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void rapscallionsandrockhoppers$tickMovement(CallbackInfo ci) {
-        RapscallionsAndRockhoppers.getHelper().getBoatData((Boat)(Object)this).addBoatMovementCode();
+        RapscallionsAndRockhoppers.getHelper().getBoatData((Boat)(Object)this).addBoatMovementCode((Boat)(Object)this);
     }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;controlBoat()V", shift = At.Shift.BY, by = 2))

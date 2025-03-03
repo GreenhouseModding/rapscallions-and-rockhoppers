@@ -14,7 +14,7 @@ public class PlayerMixin {
     private void rapscallionsandrockhoppers$removeInvalidLinkedBoats(CallbackInfo ci) {
         PlayerLinksAttachment attachment = ((Player)(Object)this).getAttached(RockhoppersAttachments.PLAYER_LINKS);
         if (attachment != null && ((Player)(Object)this).tickCount % 20 == 0) {
-            attachment.invalidateNonExistentBoats();
+            attachment.invalidateNonExistentBoats(((Player)(Object)this).level());
         }
     }
 }

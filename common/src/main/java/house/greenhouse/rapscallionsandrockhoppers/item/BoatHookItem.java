@@ -12,9 +12,8 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.phys.AABB;
 
-import java.util.List;
+import java.util.Set;
 
 public class BoatHookItem extends Item {
     public BoatHookItem(Properties properties) {
@@ -29,7 +28,10 @@ public class BoatHookItem extends Item {
         if (blockstate.is(BlockTags.FENCES)) {
             Player player = context.getPlayer();
             if (!level.isClientSide && player != null) {
-                attemptCreateBoatKnot(player, level, blockpos);
+                if (attemptCreateBoatKnot(player, level, blockpos).consumesAction()) {
+                    if (!player.getAbilities().instabuild)
+                        context.getItemInHand().shrink(1);
+                }
             }
 
             return InteractionResult.sidedSuccess(level.isClientSide);
@@ -39,39 +41,38 @@ public class BoatHookItem extends Item {
     }
 
     public static InteractionResult attemptCreateBoatKnot(Player player, Level level, BlockPos pos) {
-        BoatHookFenceKnotEntity boathookFenceKnot = null;
-        double x = pos.getX();
-        double y = pos.getY();
-        double z = pos.getZ();
-        double max = 10.0D;
-        AABB checkBox = new AABB(x - max, y - max, z - max, x + max, y + max, z + max);
+        if (!RapscallionsAndRockhoppers.getHelper().hasPlayerData(player))
+            return InteractionResult.PASS;
+        BoatHookFenceKnotEntity boatHookFenceKnot = null;
 
-        List<Boat> list = level.getEntitiesOfClass(Boat.class, checkBox);
-
+        var playerData = RapscallionsAndRockhoppers.getHelper().getPlayerData(player);
+        Set<Boat> set = playerData.getLinkedBoats(level);
 
         Boat boat;
-        for (Boat value : list) {
+        for (Boat value : set) {
             boat = value;
             var boatData = RapscallionsAndRockhoppers.getHelper().getBoatData(boat);
-            if (boathookFenceKnot == null) {
-                boathookFenceKnot = BoatHookFenceKnotEntity.getOrCreate(level, pos);
-                boathookFenceKnot.playPlacementSound();
+            if (boatHookFenceKnot == null) {
+                boatHookFenceKnot = BoatHookFenceKnotEntity.getOrCreate(level, pos);
+                boatHookFenceKnot.playPlacementSound();
             }
-            if (boatData.getLinkedPlayer() == player) {
-                boatData.setHookKnotUuid(boathookFenceKnot.getUUID());
-                boatData.setLinkedPlayer(null);
-                var playerData = RapscallionsAndRockhoppers.getHelper().getPlayerData(player);
-                playerData.removeLinkedBoat(boat.getUUID());
-                boatData.sync();
-                playerData.sync();
-            }
+            boatData.setHookKnotUuid(boatHookFenceKnot.getUUID());
+            boatData.setLinkedPlayerUuid(null);
+            playerData.removeLinkedBoat(boat.getUUID());
+            if (!boatData.hasData())
+                RapscallionsAndRockhoppers.getHelper().removeBoatData(boat);
+            if (playerData.getLinkedBoatUUIDs().isEmpty())
+                RapscallionsAndRockhoppers.getHelper().removePlayerData(player);
+            if (!boat.level().isClientSide())
+                RapscallionsAndRockhoppers.getHelper().syncBoatData(boat);
         }
+        if (!player.level().isClientSide())
+            RapscallionsAndRockhoppers.getHelper().syncPlayerData(player);
 
-        if (!list.isEmpty()) {
+        if (!set.isEmpty()) {
             level.gameEvent(GameEvent.BLOCK_ATTACH, pos, GameEvent.Context.of(player));
             return InteractionResult.SUCCESS;
-        } else {
-            return InteractionResult.PASS;
         }
+        return InteractionResult.PASS;
     }
 }
