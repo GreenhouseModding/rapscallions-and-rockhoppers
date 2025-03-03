@@ -5,6 +5,7 @@ import house.greenhouse.rapscallionsandrockhoppers.entity.PenguinVariant;
 import house.greenhouse.rapscallionsandrockhoppers.network.RockhoppersPackets;
 import house.greenhouse.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacketS2C;
 import house.greenhouse.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacketS2C;
+import house.greenhouse.rapscallionsandrockhoppers.platform.RockhoppersPlatformHelperFabric;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersActivities;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersAttachments;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersBlockEntityTypes;
@@ -27,7 +28,6 @@ import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
@@ -44,7 +44,7 @@ import java.util.function.Predicate;
 public class RapscallionsAndRockhoppersFabric implements ModInitializer {
     @Override
     public void onInitialize() {
-        RapscallionsAndRockhoppers.init();
+        RapscallionsAndRockhoppers.init(new RockhoppersPlatformHelperFabric());
         RockhoppersAttachments.init();
         handleRegistration();
         handleBiomeModifications();

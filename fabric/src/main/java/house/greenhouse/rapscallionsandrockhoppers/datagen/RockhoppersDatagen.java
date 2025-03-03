@@ -17,6 +17,7 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.SimpleFabricLootTableProvider;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
@@ -101,15 +102,15 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
             HolderSet.Named<Biome> rockhopperSpawnBiomes = registries.lookupOrThrow(Registries.BIOME).getOrThrow(RockhoppersTags.BiomeTags.SPAWNS_ROCKHOPPER_PENGUINS);
             HolderSet.Named<Biome> chinstrapSpawnBiomes = registries.lookupOrThrow(Registries.BIOME).getOrThrow(RockhoppersTags.BiomeTags.SPAWNS_CHINSTRAP_PENGUINS);
 
-            entries.add(RockhoppersResourceKeys.PenguinTypeKeys.ROCKHOPPER, new PenguinVariant(
+            entries.add(RockhoppersResourceKeys.PenguinVariantKeys.ROCKHOPPER, new PenguinVariant(
                     RapscallionsAndRockhoppers.asResource("entity/penguin/rockhopper_penguin"), RapscallionsAndRockhoppers.asResource("entity/penguin/rockhopper_penguin_surprised"),
                     SimpleWeightedRandomList.single(rockhopperSpawnBiomes),
                     new PenguinVariant.PenguinSounds(idleSound, hurtSound, deathSound, waterJumpSound), Optional.empty()));
-            entries.add(RockhoppersResourceKeys.PenguinTypeKeys.CHINSTRAP, new PenguinVariant(
+            entries.add(RockhoppersResourceKeys.PenguinVariantKeys.CHINSTRAP, new PenguinVariant(
                     RapscallionsAndRockhoppers.asResource("entity/penguin/chinstrap_penguin"), RapscallionsAndRockhoppers.asResource("entity/penguin/chinstrap_penguin_surprised"),
                     SimpleWeightedRandomList.single(chinstrapSpawnBiomes),
                     new PenguinVariant.PenguinSounds(idleSound, hurtSound, deathSound, waterJumpSound), Optional.empty()));
-            entries.add(RockhoppersResourceKeys.PenguinTypeKeys.GUNTER, new PenguinVariant(
+            entries.add(RockhoppersResourceKeys.PenguinVariantKeys.GUNTER, new PenguinVariant(
                     RapscallionsAndRockhoppers.asResource("entity/penguin/gunter_penguin"), RapscallionsAndRockhoppers.asResource("entity/penguin/gunter_penguin"),
                     SimpleWeightedRandomList.empty(),
                     new PenguinVariant.PenguinSounds(idleSound, hurtSound, deathSound, waterJumpSound), Optional.of("Gunter")));
@@ -144,6 +145,7 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
         public void generateItemModels(ItemModelGenerators itemModelGenerator) {
             itemModelGenerator.generateFlatItem(RockhoppersItems.BOAT_HOOK, ModelTemplates.FLAT_ITEM);
             itemModelGenerator.generateFlatItem(RockhoppersItems.FISH_BONES, ModelTemplates.FLAT_ITEM);
+            itemModelGenerator.generateFlatItem(RockhoppersItems.FISH_SCALE, ModelTemplates.FLAT_ITEM);
             itemModelGenerator.generateFlatItem(RockhoppersItems.PENGUIN_EGG, ModelTemplates.FLAT_ITEM);
             itemModelGenerator.generateFlatItem(RockhoppersItems.PENGUIN_SPAWN_EGG, RockhoppersModelTemplates.SPAWN_EGG);
         }
@@ -162,6 +164,7 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
             blockModelGenerators.blockStateOutput.accept(multiVariant);
         }
     }
+
     public static class RockhoppersBlockLootProvider extends FabricBlockLootTableProvider {
         protected RockhoppersBlockLootProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
             super(dataOutput, registryLookup);
@@ -203,14 +206,39 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
 
         @Override
         public void buildRecipes(RecipeOutput exporter) {
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.BONE_MEAL, 3).group("bonemeal").requires(RockhoppersItems.FISH_BONES)
-                    .unlockedBy("has_bone_block", FabricRecipeProvider.has(RockhoppersItems.FISH_BONES))
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.BONE_MEAL, 3)
+                    .group("bonemeal")
+                    .requires(RockhoppersItems.FISH_BONES)
+                    .unlockedBy("has_Fish_bones", FabricRecipeProvider.has(RockhoppersItems.FISH_BONES))
                     .save(exporter, "bone_meal_from_fish_bones");
             ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, RockhoppersItems.BOAT_HOOK).pattern("F~ ").pattern("~O ").pattern("  ~")
-                    .define('F', RockhoppersItems.FISH_BONES).define('~', Items.STRING).define('O', Items.SLIME_BALL)
+                    .define('F', RockhoppersItems.FISH_BONES)
+                    .define('~', Items.STRING)
+                    .define('O', Items.SLIME_BALL)
                     .unlockedBy("has_fish_bones", FabricRecipeProvider.has(RockhoppersItems.FISH_BONES))
                     .save(exporter, "boat_hook");
-            //TODO: The recipes for the fish scale blocks themselves.
+
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, RockhoppersItems.SEAHORSE_FISH_SCALE_BLOCK)
+                    .requires(RockhoppersItems.FISH_SCALE)
+                    .requires(RockhoppersItems.FISH_SCALE)
+                    .requires(RockhoppersItems.FISH_SCALE)
+                    .requires(RockhoppersTags.ItemTags.SEAHORSE_FISH_SCALE_BLOCK_DYES);
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, RockhoppersItems.EEL_FISH_SCALE_BLOCK)
+                    .requires(RockhoppersItems.FISH_SCALE)
+                    .requires(RockhoppersItems.FISH_SCALE)
+                    .requires(RockhoppersItems.FISH_SCALE)
+                    .requires(RockhoppersTags.ItemTags.EEL_FISH_SCALE_BLOCK_DYES);
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, RockhoppersItems.JELLYFISH_FISH_SCALE_BLOCK)
+                    .requires(RockhoppersItems.FISH_SCALE)
+                    .requires(RockhoppersItems.FISH_SCALE)
+                    .requires(RockhoppersItems.FISH_SCALE)
+                    .requires(RockhoppersTags.ItemTags.JELLYFISH_FISH_SCALE_BLOCK_DYES);
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, RockhoppersItems.SHARK_FISH_SCALE_BLOCK)
+                    .requires(RockhoppersItems.FISH_SCALE)
+                    .requires(RockhoppersItems.FISH_SCALE)
+                    .requires(RockhoppersItems.FISH_SCALE)
+                    .requires(RockhoppersTags.ItemTags.SHARK_FISH_SCALE_BLOCK_DYES);
+
             generateRecipes(exporter, RockhoppersBlockFamilies.SEAHORSE_FISH_SCALE, FeatureFlagSet.of(FeatureFlags.VANILLA));
             generateRecipes(exporter, RockhoppersBlockFamilies.EEL_FISH_SCALE, FeatureFlagSet.of(FeatureFlags.VANILLA));
             generateRecipes(exporter, RockhoppersBlockFamilies.JELLYFISH_FISH_SCALE, FeatureFlagSet.of(FeatureFlags.VANILLA));
@@ -249,10 +277,19 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
                             .with(LootItem.lootTableItem(Items.PRISMARINE_SHARD).apply(SetItemCountFunction.setCount(UniformGenerator.between(4.0F, 8.0F))).setWeight(1).build())
                             .with(LootItem.lootTableItem(Items.PRISMARINE_CRYSTALS).apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 4.0F))).setWeight(1).build())));
 
-            biConsumer.accept(RockhoppersLootTables.PENGUIN_COUGH_UP, LootTable.lootTable()
+            biConsumer.accept(RockhoppersLootTables.PENGUIN_COUGH_UP_FEED, LootTable.lootTable()
                     .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
                             .with(LootItem.lootTableItem(RockhoppersItems.FISH_BONES).build()))
                     .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                            .with(LootItem.lootTableItem(RockhoppersItems.FISH_SCALE).build()))
+                    .withPool(LootPool.lootPool().setRolls(UniformGenerator.between(2.0F, 3.0F))));
+
+            biConsumer.accept(RockhoppersLootTables.PENGUIN_COUGH_UP_TRAVEL, LootTable.lootTable()
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                            .with(LootItem.lootTableItem(RockhoppersItems.FISH_BONES).build()))
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                            .with(LootItem.lootTableItem(RockhoppersItems.FISH_SCALE).build()))
+                    .withPool(LootPool.lootPool().setRolls(UniformGenerator.between(2.0F, 3.0F))
                             .with(NestedLootTable.lootTableReference(BuiltInLootTables.FISHING_JUNK).setWeight(20).build())
                             .with(NestedLootTable.lootTableReference(RockhoppersLootTables.PENGUIN_COUGH_UP_INK_SAC).setWeight(15).build())
                             .with(NestedLootTable.lootTableReference(RockhoppersLootTables.PENGUIN_COUGH_UP_ROCKS).setWeight(10).build())
@@ -277,6 +314,27 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
             this.tag(RockhoppersTags.ItemTags.PENGUIN_TEMPT_ITEMS)
                     .addTag(RockhoppersTags.ItemTags.PENGUIN_FOOD_ITEMS)
                     .addTag(RockhoppersTags.ItemTags.PENGUIN_BREED_ITEMS);
+
+            getOrCreateTagBuilder(RockhoppersTags.ItemTags.SEAHORSE_FISH_SCALE_BLOCK_DYES)
+                    .forceAddTag(ConventionalItemTags.BROWN_DYES)
+                    .forceAddTag(ConventionalItemTags.ORANGE_DYES)
+                    .forceAddTag(ConventionalItemTags.RED_DYES)
+                    .forceAddTag(ConventionalItemTags.YELLOW_DYES);
+            getOrCreateTagBuilder(RockhoppersTags.ItemTags.EEL_FISH_SCALE_BLOCK_DYES)
+                    .forceAddTag(ConventionalItemTags.CYAN_DYES)
+                    .forceAddTag(ConventionalItemTags.GREEN_DYES)
+                    .forceAddTag(ConventionalItemTags.LIME_DYES);
+            getOrCreateTagBuilder(RockhoppersTags.ItemTags.JELLYFISH_FISH_SCALE_BLOCK_DYES)
+                    .forceAddTag(ConventionalItemTags.BLUE_DYES)
+                    .forceAddTag(ConventionalItemTags.LIGHT_BLUE_DYES)
+                    .forceAddTag(ConventionalItemTags.MAGENTA_DYES)
+                    .forceAddTag(ConventionalItemTags.PINK_DYES)
+                    .forceAddTag(ConventionalItemTags.PURPLE_DYES);
+            getOrCreateTagBuilder(RockhoppersTags.ItemTags.SHARK_FISH_SCALE_BLOCK_DYES)
+                    .forceAddTag(ConventionalItemTags.BLACK_DYES)
+                    .forceAddTag(ConventionalItemTags.GRAY_DYES)
+                    .forceAddTag(ConventionalItemTags.LIGHT_GRAY_DYES)
+                    .forceAddTag(ConventionalItemTags.WHITE_DYES);
         }
     }
     

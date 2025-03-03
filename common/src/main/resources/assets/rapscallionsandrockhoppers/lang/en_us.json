@@ -1,28 +1,37 @@
 {
   "entity.rapscallionsandrockhoppers.penguin": "Penguin",
+
   "subtitles.rapscallionsandrockhoppers.entity.penguin.ambient": "Penguin honks",
   "subtitles.rapscallionsandrockhoppers.entity.penguin.cough": "Penguin coughs",
   "subtitles.rapscallionsandrockhoppers.entity.penguin.death": "Penguin dies",
   "subtitles.rapscallionsandrockhoppers.entity.penguin.eat": "Penguin eats",
   "subtitles.rapscallionsandrockhoppers.entity.penguin.hurt": "Penguin hurts",
   "subtitles.rapscallionsandrockhoppers.entity.pengui.jump": "Penguin jumps",
+
   "block.rapscallionsandrockhoppers.penguin_egg": "Penguin Egg",
   "item.rapscallionsandrockhoppers.penguin_spawn_egg": "Penguin Spawn Egg",
+
   "item.rapscallionsandrockhoppers.boat_hook": "Boat Hook",
   "item.rapscallionsandrockhoppers.fish_bones": "Fish Bones",
+  "item.rapscallionsandrockhoppers.fish_scale": "Fish Scale",
+
   "entity.rapscallionsandrockhoppers.boat_hook_fence_knot": "Boat Hook Fence Knot",
+
   "block.rapscallionsandrockhoppers.seahorse_fish_scale_block": "Seahorse Fish Scale Block",
   "block.rapscallionsandrockhoppers.seahorse_fish_scale_stairs": "Seahorse Fish Scale Stairs",
   "block.rapscallionsandrockhoppers.seahorse_fish_scale_slab": "Seahorse Fish Scale Slab",
   "block.rapscallionsandrockhoppers.seahorse_fish_scale_wall": "Seahorse Fish Scale Wall",
+
   "block.rapscallionsandrockhoppers.eel_fish_scale_block": "Eel Fish Scale Block",
   "block.rapscallionsandrockhoppers.eel_fish_scale_stairs": "Eel Fish Scale Stairs",
   "block.rapscallionsandrockhoppers.eel_fish_scale_slab": "Eel Fish Scale Slab",
   "block.rapscallionsandrockhoppers.eel_fish_scale_wall": "Eel Fish Scale Wall",
+
   "block.rapscallionsandrockhoppers.jellyfish_fish_scale_block": "Jellyfish Fish Scale Block",
   "block.rapscallionsandrockhoppers.jellyfish_fish_scale_stairs": "Jellyfish Fish Scale Stairs",
   "block.rapscallionsandrockhoppers.jellyfish_fish_scale_slab": "Jellyfish Fish Scale Slab",
   "block.rapscallionsandrockhoppers.jellyfish_fish_scale_wall": "Jellyfish Fish Scale Wall",
+
   "block.rapscallionsandrockhoppers.shark_fish_scale_block": "Shark Fish Scale Block",
   "block.rapscallionsandrockhoppers.shark_fish_scale_stairs": "Shark Fish Scale Stairs",
   "block.rapscallionsandrockhoppers.shark_fish_scale_slab": "Shark Fish Scale Slab",

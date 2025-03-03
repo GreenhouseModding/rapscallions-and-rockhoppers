@@ -28,16 +28,14 @@ public class RapscallionsAndRockhoppers {
     private static final List<Pair<Integer, Integer>> PENGUIN_LOADED_CHUNKS = new ArrayList<>();
     private static Registry<PenguinVariant> biomePopulationPenguinTypeRegistry = null;
 
-    public static void init() {
-
+    public static void init(RockhoppersPlatformHelper helper) {
+        if (RapscallionsAndRockhoppers.helper != null)
+            return;
+        RapscallionsAndRockhoppers.helper = helper;
     }
 
     public static RockhoppersPlatformHelper getHelper() {
         return helper;
-    }
-
-    public static void setHelper(RockhoppersPlatformHelper helper) {
-        RapscallionsAndRockhoppers.helper = helper;
     }
 
     /**

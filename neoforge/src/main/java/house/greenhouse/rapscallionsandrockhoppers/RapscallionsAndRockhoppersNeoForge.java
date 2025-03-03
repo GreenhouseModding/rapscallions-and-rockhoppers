@@ -9,8 +9,7 @@ import net.neoforged.fml.common.Mod;
 @Mod(RapscallionsAndRockhoppers.MOD_ID)
 public class RapscallionsAndRockhoppersNeoForge {
     public RapscallionsAndRockhoppersNeoForge(IEventBus eventBus) {
-        RapscallionsAndRockhoppers.setHelper(new RockhoppersPlatformHelperNeoForge());
-        RapscallionsAndRockhoppers.init();
+        RapscallionsAndRockhoppers.init(new RockhoppersPlatformHelperNeoForge());
         RockhoppersAttachments.init(eventBus);
         RockhoppersBiomeModifiers.register(eventBus);
     }

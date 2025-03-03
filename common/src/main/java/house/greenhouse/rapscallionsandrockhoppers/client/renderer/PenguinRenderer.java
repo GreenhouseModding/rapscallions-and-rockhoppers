@@ -1,9 +1,7 @@
 package house.greenhouse.rapscallionsandrockhoppers.client.renderer;
 
-import house.greenhouse.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import house.greenhouse.rapscallionsandrockhoppers.client.renderer.model.PenguinModel;
 import house.greenhouse.rapscallionsandrockhoppers.entity.Penguin;
-import house.greenhouse.rapscallionsandrockhoppers.entity.PenguinVariant;
 import house.greenhouse.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -34,7 +32,7 @@ public class PenguinRenderer extends MobRenderer<Penguin, PenguinModel> {
             if (PENGUIN_TEXTURE_CACHE.getOrDefault(textureLocation, false))
                 return textureLocation;
         }
-        return penguin.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getOrThrow(RockhoppersResourceKeys.PenguinTypeKeys.ROCKHOPPER).texture();
+        return penguin.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getOrThrow(RockhoppersResourceKeys.PenguinVariantKeys.ROCKHOPPER).texture();
     }
 
     private void addToTextureCache(ResourceLocation textureLocation) {

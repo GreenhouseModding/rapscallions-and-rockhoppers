@@ -12,8 +12,6 @@ import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.RegistryOps;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -42,7 +40,7 @@ public class PenguinEggBlockEntity extends BlockEntity {
         if (babyVariant != null) {
             tag.put("penguin_type", PenguinVariant.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), babyVariant).getOrThrow());
         } else {
-            tag.put("penguin_type", PenguinVariant.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), registries.lookupOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getOrThrow(RockhoppersResourceKeys.PenguinTypeKeys.ROCKHOPPER)).getOrThrow());
+            tag.put("penguin_type", PenguinVariant.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), registries.lookupOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getOrThrow(RockhoppersResourceKeys.PenguinVariantKeys.ROCKHOPPER)).getOrThrow());
         }
     }
 
@@ -53,7 +51,7 @@ public class PenguinEggBlockEntity extends BlockEntity {
         if (tag.contains("penguin_type"))
             babyVariant = PenguinVariant.CODEC.decode(RegistryOps.create(NbtOps.INSTANCE, registries), tag.get("penguin_type")).getOrThrow().getFirst();
         else
-            babyVariant = registries.lookupOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getOrThrow(RockhoppersResourceKeys.PenguinTypeKeys.ROCKHOPPER);
+            babyVariant = registries.lookupOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getOrThrow(RockhoppersResourceKeys.PenguinVariantKeys.ROCKHOPPER);
     }
 
     @Override

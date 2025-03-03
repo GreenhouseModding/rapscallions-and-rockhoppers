@@ -10,7 +10,7 @@ import net.minecraft.sounds.SoundEvent;
 public class RockhoppersResourceKeys {
     public static final ResourceKey<Registry<PenguinVariant>> PENGUIN_VARIANT = ResourceKey.createRegistryKey(RapscallionsAndRockhoppers.asResource("penguin_variant"));
 
-    public static class PenguinTypeKeys {
+    public static class PenguinVariantKeys {
         public static final ResourceKey<PenguinVariant> ROCKHOPPER = ResourceKey.create(PENGUIN_VARIANT, RapscallionsAndRockhoppers.asResource("rockhopper"));
         public static final ResourceKey<PenguinVariant> CHINSTRAP = ResourceKey.create(PENGUIN_VARIANT, RapscallionsAndRockhoppers.asResource("chinstrap"));
         public static final ResourceKey<PenguinVariant> GUNTER = ResourceKey.create(PENGUIN_VARIANT, RapscallionsAndRockhoppers.asResource("gunter"));

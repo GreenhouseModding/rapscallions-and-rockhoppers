@@ -330,10 +330,10 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 Activity.SWIM, new BrainActivityGroup<Penguin>(Activity.SWIM)
                         .priority(10)
                         .behaviours(
+                                new BreatheAir(),
                                 new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
                                 new BreedWithPartner<>(),
                                 new StayWithinHome().setRadius(8),
-                                new BreatheAir(),
                                 new SetAttackTarget<Penguin>().attackPredicate(penguin -> BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) && penguin.tickCount > BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) - 300),
                                 new PenguinPeck(8),
                                 new AvoidEntity<>().avoiding(entity -> entity instanceof Pufferfish),
@@ -348,11 +348,11 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                                 )
                         ).onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT),
                 RockhoppersActivities.FOLLOW_BOAT, new BrainActivityGroup<Penguin>(RockhoppersActivities.FOLLOW_BOAT)
-                        .priority(10)
+                        .priority(20)
                         .behaviours(
                                 new LeaveBoat(),
-                                new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
                                 new BreatheAir(),
+                                new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
                                 new SetAttackTarget<Penguin>().attackPredicate(penguin -> {
                                     if  (!BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.HUNGRY_TIME) || penguin.getAirSupply() < 260) {
                                         return false;
@@ -384,21 +384,18 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                         ).onlyStartWithMemoryStatus(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_PRESENT)
                         .onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW, MemoryStatus.VALUE_PRESENT),
                 RockhoppersActivities.COUGH_UP, new BrainActivityGroup<Penguin>(RockhoppersActivities.COUGH_UP)
-                        .priority(10)
+                        .priority(30)
                         .behaviours(
                                 new BreatheAir(),
-                                new Panic<>().panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
-                                new BreedWithPartner<>(),
                                 new WalkToRewardedPlayer(),
-                                new CoughUpRewards(4),
-                                new FollowTemptation<>()
+                                new CoughUpRewards(4)
                         )
                         .onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.FISH_EATEN, MemoryStatus.VALUE_PRESENT)
-                        .onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR, MemoryStatus.VALUE_PRESENT),
+                        .onlyStartWithMemoryStatus(RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR, MemoryStatus.VALUE_PRESENT)
+                        .onlyStartWithMemoryStatus(MemoryModuleType.IS_PANICKING, MemoryStatus.VALUE_ABSENT),
                 RockhoppersActivities.WAIT_AROUND_BOBBER, new BrainActivityGroup<Penguin>(RockhoppersActivities.WAIT_AROUND_BOBBER)
-                        .priority(10)
+                        .priority(30)
                         .behaviours(
-                                new BreedWithPartner<>(),
                                 new SitAtSurfaceOfWater(),
                                 new SwimToFishingBobber().setRadius(3),
                                 new JumpTowardsCatch()
@@ -848,14 +845,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     }
 
     public Holder<PenguinVariant> getVariant() {
-        if (variant == null) {
-            ResourceLocation variantLocation = ResourceLocation.tryParse(getEntityData().get(DATA_VARIANT));
-            if (variantLocation == null)
-                variantLocation = RapscallionsAndRockhoppers.asResource("rapscallionsandrockhoppers:rockhopper");
-            level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getHolder(variantLocation).ifPresentOrElse(v -> variant = v, () ->
-                    variant = level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getHolderOrThrow(RockhoppersResourceKeys.PenguinTypeKeys.ROCKHOPPER));
-        }
-        return variant;
+        return level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getHolder(ResourceLocation.tryParse(getEntityData().get(DATA_VARIANT)))
+                .orElse(level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getHolderOrThrow(RockhoppersResourceKeys.PenguinVariantKeys.ROCKHOPPER));
     }
 
     public void setCustomName(@Nullable Component name) {
@@ -871,11 +862,8 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     }
 
     public void onNameChange(Component newName) {
-        if (newName == null) {
-            return;
-        }
         Registry<PenguinVariant> registry = this.level().registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT);
-        Optional<Holder.Reference<PenguinVariant>> nameReference = registry.holders().filter(penguinType -> penguinType.value().whenNamed().isPresent() && penguinType.value().whenNamed().get().equals(ChatFormatting.stripFormatting(newName.getString()))).findFirst();
+        Optional<Holder.Reference<PenguinVariant>> nameReference = registry.holders().filter(penguinType -> penguinType.value().whenNamed().isPresent() && newName != null && penguinType.value().whenNamed().get().equals(ChatFormatting.stripFormatting(newName.getString()))).findFirst();
         if (nameReference.isPresent()) {
             if (this.getEntityData().get(DATA_PREVIOUS_VARIANT).isEmpty())
                 this.getEntityData().set(DATA_PREVIOUS_VARIANT, this.getEntityData().get(DATA_VARIANT));
@@ -1101,7 +1089,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         public Holder<PenguinVariant> getSpawnType(BlockPos pos, ServerLevelAccessor level, RandomSource random) {
             if (getTotalSpawnWeight(level, pos) > 0)
                 return getSpawnTypeDependingOnBiome(level, pos, random);
-            return level.registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getHolderOrThrow(RockhoppersResourceKeys.PenguinTypeKeys.ROCKHOPPER);
+            return level.registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getHolderOrThrow(RockhoppersResourceKeys.PenguinVariantKeys.ROCKHOPPER);
         }
 
         public Holder<PenguinVariant> getSpawnTypeDependingOnBiome(ServerLevelAccessor level, BlockPos pos, RandomSource random) {
@@ -1127,7 +1115,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                         return variant;
                 }
             }
-            return level.registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getHolderOrThrow(RockhoppersResourceKeys.PenguinTypeKeys.ROCKHOPPER);
+            return level.registryAccess().registryOrThrow(RockhoppersResourceKeys.PENGUIN_VARIANT).getHolderOrThrow(RockhoppersResourceKeys.PenguinVariantKeys.ROCKHOPPER);
         }
     }
 

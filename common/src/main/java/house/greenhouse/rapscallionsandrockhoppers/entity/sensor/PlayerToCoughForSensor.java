@@ -4,6 +4,7 @@ import house.greenhouse.rapscallionsandrockhoppers.entity.Penguin;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersSensorTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.SensorType;
@@ -27,14 +28,14 @@ public class PlayerToCoughForSensor extends PredicateSensor<Boat, Penguin> {
             UUID uuid = BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER);
             if (uuid == null) return;
             Entity entity = level.getEntity(uuid);
-            if (entity != null && entity.onGround() && !entity.isInWaterOrBubble() && entity.level().getBlockState(entity.getOnPos()).isCollisionShapeFullBlock(entity.level(), entity.getOnPos()) && penguin.distanceTo(entity) < 16.0F) {
+            if (entity != null && entity.onGround() && !entity.isEyeInFluid(FluidTags.WATER) && entity.level().getBlockState(entity.getOnPos()).isCollisionShapeFullBlock(entity.level(), entity.getOnPos()) && penguin.distanceTo(entity) < 16.0F) {
                 BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR, uuid);
             }
         } else {
             UUID uuid = BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR);
             if (uuid == null) return;
             Entity entity = level.getEntity(uuid);
-            if (entity == null || !entity.level().getBlockState(entity.getOnPos()).isCollisionShapeFullBlock(entity.level(), entity.getOnPos())  || penguin.distanceTo(entity) > 16.0F) {
+            if (entity == null || entity.isEyeInFluid(FluidTags.WATER) || !entity.level().getBlockState(entity.getOnPos()).isCollisionShapeFullBlock(entity.level(), entity.getOnPos())  || penguin.distanceTo(entity) > 16.0F) {
                 BrainUtils.clearMemory(penguin, RockhoppersMemoryModuleTypes.PLAYER_TO_COUGH_FOR);
             }
         }

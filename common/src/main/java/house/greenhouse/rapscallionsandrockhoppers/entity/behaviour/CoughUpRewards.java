@@ -5,6 +5,7 @@ import house.greenhouse.rapscallionsandrockhoppers.entity.Penguin;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersLootTables;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersSoundEvents;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
@@ -45,7 +46,9 @@ public class CoughUpRewards extends DelayedBehaviour<Penguin> {
     @Override
     protected void doDelayedAction(Penguin penguin) {
         BrainUtils.setMemory(penguin, MemoryModuleType.LOOK_TARGET, new EntityTracker(this.playerToCoughFor, true));
-        LootTable lootTable = penguin.level().getServer().reloadableRegistries().getLootTable(RockhoppersLootTables.PENGUIN_COUGH_UP);
+        ResourceKey<LootTable> lootTableKey = BrainUtils.hasMemory(penguin, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER) && BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER) == playerToCoughFor.getUUID() ?
+                        RockhoppersLootTables.PENGUIN_COUGH_UP_TRAVEL : RockhoppersLootTables.PENGUIN_COUGH_UP_FEED;
+        LootTable lootTable = penguin.level().getServer().reloadableRegistries().getLootTable(lootTableKey);
         LootParams.Builder builder = (new LootParams.Builder((ServerLevel)penguin.level())).withParameter(LootContextParams.THIS_ENTITY, penguin).withParameter(LootContextParams.ORIGIN, penguin.position());
         LootParams params = builder.create(LootContextParamSets.GIFT);
         for (int i = 0; i < Math.min(penguin.getFishEaten(), 12); ++i) {

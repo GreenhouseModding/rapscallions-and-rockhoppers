@@ -1,4 +1,8 @@
-// 1.21.1	2025-02-28T21:24:54.5468958	Rapscallions and Rockhoppers/Tags for minecraft:item
+// 1.21.1	2025-03-03T12:09:19.4673577	Rapscallions and Rockhoppers/Tags for minecraft:item
+ea36134bf277b7e6cbbe9b9d7f728cab6792b67f data\rapscallionsandrockhoppers\tags\item\fish_scale_block_dyes\eel.json
 9b3ac93e722736054eabedf486f0a2edaa58c063 data\rapscallionsandrockhoppers\tags\item\penguin_tempt_items.json
+7ddabe2cac78e605dc89996b81c6ba1c9ff45dea data\rapscallionsandrockhoppers\tags\item\fish_scale_block_dyes\jellyfish.json
+e17613c86ee5ba2be390d3171939d4ded00b64ba data\rapscallionsandrockhoppers\tags\item\fish_scale_block_dyes\seahorse.json
+d725765f4db72338e0a4d95ce2e886fe37fbbf47 data\rapscallionsandrockhoppers\tags\item\fish_scale_block_dyes\shark.json
 4fa4ef3fee986b3a9f5d145b9430d8c911716691 data\rapscallionsandrockhoppers\tags\item\penguin_food_items.json
 a80223091f20c8bf855cff6a66b21f7d0aee345e data\rapscallionsandrockhoppers\tags\item\penguin_breed_items.json
