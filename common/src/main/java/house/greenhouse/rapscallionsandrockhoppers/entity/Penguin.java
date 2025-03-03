@@ -662,7 +662,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
     @Override
     public double getFluidJumpThreshold() {
-        return isSwimming() ? 0.1 : super.getFluidJumpThreshold();
+        return isSwimming() ? 0.0 : super.getFluidJumpThreshold();
     }
 
     @Override
@@ -949,9 +949,9 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     @Override
     protected EntityDimensions getDefaultDimensions(Pose pose) {
         if (this.getStumbleTicksBeforeGettingUp() != Integer.MIN_VALUE && this.getStumbleTicks() >= STUMBLE_ANIMATION_LENGTH + 2 && this.getStumbleTicks() < this.getStumbleTicksBeforeGettingUp() + 5) {
-            return super.getDefaultDimensions(pose).scale(1.33F, 0.5F);
+            return super.getDefaultDimensions(pose).scale(1.0F, 0.5F);
         } else if (this.getPose() == Pose.SWIMMING) {
-            return super.getDefaultDimensions(pose).scale(1.28333F, 0.7F);
+            return super.getDefaultDimensions(pose).scale(1.0F, 0.7F);
         }
         return super.getDefaultDimensions(pose);
     }
