@@ -31,6 +31,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -260,7 +261,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 new BoatToFollowSensor().setUpdatePenguinRadius(9.0F, 6.0F).setRadius(32.0F),
                 new PenguinHomeSensor(),
                 new NearbyShoveableSensor(),
-                new NearbyBlocksSensor<Penguin>().setRadius(12.0F).setPredicate((blockState, penguin) -> true),
+                new NearbyBlocksSensor<Penguin>().setRadius(4.0F, 5.0F).setPredicate((blockState, penguin) -> blockState.isAir()),
                 new NearbyLivingEntitySensor<Penguin>().setRadius(16.0F),
                 new NearbyPlayersSensor<Penguin>().setRadius(16.0F),
                 new NearbyAdultSensor<>(),
@@ -1086,6 +1087,12 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             }
         }
         return getVariant();
+    }
+
+    @Override
+    protected void sendDebugPackets() {
+        super.sendDebugPackets();
+        DebugPackets.sendEntityBrain(this);
     }
 
     public static class PenguinGroupData extends AgeableMobGroupData {

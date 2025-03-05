@@ -20,6 +20,8 @@ object Versions {
 
     const val SMART_BRAIN_LIB = "1.16.7"
     const val SBL_VERSION_RANGE = "[1.16.7,)"
+    
+    const val DEBUG_UTILS_FABRIC = "vxIbWg9a"
 
     const val FABRIC_MIXIN = "0.15.5+mixin.0.8.7"
     const val MIXIN_EXTRAS = "0.4.1"

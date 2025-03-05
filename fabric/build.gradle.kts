@@ -14,6 +14,17 @@ repositories {
         name = "TerraformersMC"
         url = uri("https://maven.terraformersmc.com/")
     }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = uri("https://api.modrinth.com/maven");
+            }
+        }
+        filter {
+            includeGroup("maven.modrinth");
+        }
+    }
 }
 
 dependencies {
@@ -26,6 +37,7 @@ dependencies {
 
     modImplementation("net.tslat.smartbrainlib:SmartBrainLib-fabric-${Versions.MINECRAFT}:${Versions.SMART_BRAIN_LIB}")
     include("net.tslat.smartbrainlib:SmartBrainLib-fabric-${Versions.MINECRAFT}:${Versions.SMART_BRAIN_LIB}")
+    modLocalRuntime("maven.modrinth:debugutils:${Versions.DEBUG_UTILS_FABRIC}")
 }
 
 loom {

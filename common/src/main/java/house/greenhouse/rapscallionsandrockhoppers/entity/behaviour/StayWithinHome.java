@@ -41,8 +41,10 @@ public class StayWithinHome extends ExtendedBehaviour<Penguin> {
             return false;
         }
 
-        Vec3 runPos = DefaultRandomPos.getPosTowards(penguin, this.radius, 10, target.pos().getCenter(), Mth.HALF_PI);
-
+        Vec3 runPos = DefaultRandomPos.getPosTowards(penguin, this.radius * 2, 3, Vec3.atBottomCenterOf(target.pos()), Mth.PI / 10.0F);
+        if (runPos == null) {
+            runPos = DefaultRandomPos.getPosTowards(penguin, this.radius, 7, Vec3.atBottomCenterOf(target.pos()), Mth.HALF_PI);
+        }
         if (runPos == null || target.pos().distSqr(BlockPos.containing(runPos)) > distToTarget)
             return false;
 
