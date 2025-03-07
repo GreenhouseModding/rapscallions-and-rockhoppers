@@ -5,16 +5,7 @@ import house.greenhouse.rapscallionsandrockhoppers.attachment.PlayerLinksAttachm
 import house.greenhouse.rapscallionsandrockhoppers.entity.Penguin;
 import house.greenhouse.rapscallionsandrockhoppers.entity.PenguinVariant;
 import house.greenhouse.rapscallionsandrockhoppers.network.s2c.*;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersActivities;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersAttachments;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersBlockEntityTypes;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersBlocks;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersDataComponents;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersItems;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersSensorTypes;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersSoundEvents;
+import house.greenhouse.rapscallionsandrockhoppers.registry.*;
 import house.greenhouse.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerPlayer;
@@ -28,6 +19,7 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -65,6 +57,10 @@ public class RapscallionsAndRockhoppersEvents {
                 RockhoppersBlockEntityTypes.registerBlockEntityTypes();
             if (event.getRegistryKey() == Registries.DATA_COMPONENT_TYPE)
                 RockhoppersDataComponents.registerDataComponents();
+            if (event.getRegistryKey() == Registries.MOB_EFFECT)
+                RockhoppersMobEffects.registerEffects();
+            if (event.getRegistryKey() == Registries.POTION)
+                RockhoppersPotions.registerPotions();
         }
 
         @SubscribeEvent
@@ -147,6 +143,11 @@ public class RapscallionsAndRockhoppersEvents {
         public static void onStartTracking(PlayerEvent.StartTracking event) {
             event.getTarget().getExistingData(RockhoppersAttachments.BOAT_LINKS).ifPresent(attachment -> PacketDistributor.sendToPlayer((ServerPlayer) event.getEntity(), new SyncBoatLinksAttachmentPacketS2C(event.getTarget().getId(), Optional.of(attachment))));
             event.getTarget().getExistingData(RockhoppersAttachments.PLAYER_LINKS).ifPresent(attachment -> PacketDistributor.sendToPlayer((ServerPlayer) event.getEntity(), new SyncPlayerLinksAttachmentPacketS2C(event.getTarget().getId(), Optional.of(attachment))));
+        }
+        
+        @SubscribeEvent
+        public static void onRegisterBrewingRecipes(RegisterBrewingRecipesEvent event) {
+            RockhoppersPotions.createRecipes(event.getBuilder());
         }
     }
 }

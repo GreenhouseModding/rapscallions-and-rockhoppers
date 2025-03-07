@@ -8,16 +8,7 @@ import house.greenhouse.rapscallionsandrockhoppers.network.RockhoppersPackets;
 import house.greenhouse.rapscallionsandrockhoppers.network.s2c.SyncBoatLinksAttachmentPacketS2C;
 import house.greenhouse.rapscallionsandrockhoppers.network.s2c.SyncPlayerLinksAttachmentPacketS2C;
 import house.greenhouse.rapscallionsandrockhoppers.platform.RockhoppersPlatformHelperFabric;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersActivities;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersAttachments;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersBlockEntityTypes;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersBlocks;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersDataComponents;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersEntityTypes;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersItems;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersSensorTypes;
-import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersSoundEvents;
+import house.greenhouse.rapscallionsandrockhoppers.registry.*;
 import house.greenhouse.rapscallionsandrockhoppers.util.RockhoppersResourceKeys;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
@@ -31,6 +22,7 @@ import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
@@ -111,6 +103,8 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
         RockhoppersItems.registerItems();
         RockhoppersDataComponents.registerDataComponents();
         RockhoppersEntityTypes.registerEntityTypes();
+        RockhoppersMobEffects.registerEffects();
+        RockhoppersPotions.registerPotions();
         RockhoppersSoundEvents.registerSoundEvents();
         RockhoppersActivities.registerActivities();
         RockhoppersMemoryModuleTypes.registerMemoryModuleTypes();
@@ -124,6 +118,7 @@ public class RapscallionsAndRockhoppersFabric implements ModInitializer {
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.NATURAL_BLOCKS).register(entries -> RockhoppersItems.addAfterNaturalBlocksTab(entries::addAfter));
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.SPAWN_EGGS).register(entries -> RockhoppersItems.addSpawnEggsTab(entries::accept));
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS).register(entries -> RockhoppersItems.addAfterBuildingBlocksTab(entries::addAfter));
+        FabricBrewingRecipeRegistryBuilder.BUILD.register(RockhoppersPotions::createRecipes);
     }
 
     public static void handlePenguinTypeRegistryEvents() {
