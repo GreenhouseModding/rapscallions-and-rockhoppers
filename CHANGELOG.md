@@ -4,6 +4,9 @@
   - These come in **four** variations, Seahorse (Reds/Yellows), Eel (Greens) Jellyfish (Blues/Purples) and Shark (Blacks/Whites).\
   - Fish Scale Blocks are craftable with 3 fish scales and a dye.
   - Fish Scale Blocks also come in Slabs, Stairs and Walls.
+- Added Floating and Sinking potions.
+  - Floating Potions may be crafted by using Fish Scales in a Brewing Stand.
+  - You may use a Fermented Spider Eye to invert the Floating Potion into a Sinking Potion.
 - Penguin items may now be obtained by more casually feeding a penguin. 
   - To gain stuff like rocks, junk and treasure, you will need to still travel with the penguin.
 - The Boat Hook crafting recipe has been changed to be similar to an upgrade to the lead.

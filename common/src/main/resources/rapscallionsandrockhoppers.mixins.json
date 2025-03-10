@@ -14,8 +14,9 @@
     "VehicleEntityMixin"
   ],
   "client": [
+    "client.ClientLevelAccessor",
     "client.EntityRendererMixin",
-    "client.ClientLevelAccessor"
+    "client.LocalPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1,

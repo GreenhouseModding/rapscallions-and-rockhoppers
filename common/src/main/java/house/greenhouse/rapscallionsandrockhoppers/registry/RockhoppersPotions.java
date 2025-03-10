@@ -11,15 +11,14 @@ import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
 
 public class RockhoppersPotions {
-    public static final Holder<Potion> FLOATING = register("floating", new Potion("rapscallionsandrockhoppers.floating", new MobEffectInstance(RockhoppersMobEffects.FLOATING, 400)));
-    public static final Holder<Potion> LONG_FLOATING = register("long_floating", new Potion("rapscallionsandrockhoppers.floating", new MobEffectInstance(RockhoppersMobEffects.FLOATING, 800)));
-    public static final Holder<Potion> STRONG_FLOATING = register("strong_floating", new Potion("rapscallionsandrockhoppers.floating", new MobEffectInstance(RockhoppersMobEffects.FLOATING, 200, 1)));
+    public static final Holder<Potion> FLOATING = register("floating", new Potion("rapscallionsandrockhoppers.floating", new MobEffectInstance(RockhoppersMobEffects.FLOATING, 160)));
+    public static final Holder<Potion> LONG_FLOATING = register("long_floating", new Potion("rapscallionsandrockhoppers.floating", new MobEffectInstance(RockhoppersMobEffects.FLOATING, 320)));
+    public static final Holder<Potion> STRONG_FLOATING = register("strong_floating", new Potion("rapscallionsandrockhoppers.floating", new MobEffectInstance(RockhoppersMobEffects.FLOATING, 80, 1)));
     public static final Holder<Potion> SINKING = register("sinking", new Potion("rapscallionsandrockhoppers.sinking", new MobEffectInstance(RockhoppersMobEffects.SINKING, 3600)));
     public static final Holder<Potion> LONG_SINKING = register("long_sinking", new Potion("rapscallionsandrockhoppers.sinking", new MobEffectInstance(RockhoppersMobEffects.SINKING, 9600)));
     public static final Holder<Potion> STRONG_SINKING = register("strong_sinking", new Potion("rapscallionsandrockhoppers.sinking", new MobEffectInstance(RockhoppersMobEffects.SINKING, 1800, 1)));
 
     public static void registerPotions() {
-        
     }
 
     

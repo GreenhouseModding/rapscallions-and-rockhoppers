@@ -20,6 +20,9 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 public abstract class EntityMixin {
     @Shadow public abstract void setSwimming(boolean swimming);
 
+    @Shadow public abstract boolean isSwimming();
+
+    // TODO: Move to custom DFU.
     @Inject(method = "load", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"), locals = LocalCapture.CAPTURE_FAILHARD)
     private void bovinesandbuttercups$loadFromLegacyAttachments(CompoundTag tag, CallbackInfo ci) {
         if ((Entity) (Object) this instanceof Boat boat) {
@@ -38,10 +41,12 @@ public abstract class EntityMixin {
         }
     }
     
-    @Inject(method = "updateSwimming", at = @At("TAIL"))
+    @Inject(method = "updateSwimming", at = @At("HEAD"), cancellable = true)
     private void rapscallionsandrockhoppers$shouldUnsetSwimmingIfSinking(CallbackInfo ci) {
-        if ((Entity)(Object)this instanceof LivingEntity livingEntity && livingEntity.hasEffect(RockhoppersMobEffects.SINKING)) {
-            this.setSwimming(false);
+        if ((Entity)(Object)this instanceof LivingEntity living && living.hasEffect(RockhoppersMobEffects.SINKING)) {
+            if (isSwimming())
+                setSwimming(false);
+            ci.cancel();
         }
     }
 }

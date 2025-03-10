@@ -15,8 +15,8 @@ public class FloatingMobEffect extends MobEffect {
     public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
         if (livingEntity.isInWater() && livingEntity.getFluidHeight(FluidTags.WATER) >= 0.5) {
             Vec3 movement = livingEntity.getDeltaMovement();
-            var maxSpeed = (0.5f + 0.1 * amplifier);
-            var buildUp = (0.15f + (0.02 * (amplifier + 1))) * (livingEntity.getFluidHeight(FluidTags.WATER) / 3.0);
+            var maxSpeed = (1.2f + 0.1 * amplifier);
+            var buildUp = (0.15f + (0.04 * (amplifier + 1))) * (livingEntity.getFluidHeight(FluidTags.WATER) / 3.0);
             if (livingEntity.isSwimming()) {
                 buildUp *= 2;
             }
