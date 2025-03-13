@@ -7,7 +7,7 @@ object Properties {
     const val MOD_AUTHOR = "Greenhouse Team"
     val MOD_CONTRIBUTORS = listOf("MerchantPug", "Omniv", "UltrusBot")
     const val DESCRIPTION = "A reimagining of Mojang's Penguin mob."
-    const val LICENSE = "MIT"
+    const val LICENSE = "MPL-2.0"
 
     const val CURSEFORGE_PAGE = "https://www.curseforge.com/minecraft/mc-mods/rapscallions-and-rockhoppers"
     const val CURSEFORGE_PROJECT_ID = "956678"
