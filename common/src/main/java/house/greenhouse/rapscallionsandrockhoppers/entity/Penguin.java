@@ -506,11 +506,11 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
     @Override
     public void tick() {
+        super.tick();
         if (this.isNoAi()) {
             this.setAirSupply(this.getMaxAirSupply());
             return;
         }
-        super.tick();
 
         if (!previousWaterValue && this.isInWater() && this.getVehicle() == null) {
             this.setPose(Pose.SWIMMING);
@@ -702,7 +702,6 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         }
     }
 
-    // TODO: There's probably a better algorithm for calculating this... Oh well.
     private BlockPos getRandomPos(BlockPos home) {
         int xOffset = this.getRandom().nextIntBetweenInclusive(8, 12);
         int zOffset = this.getRandom().nextIntBetweenInclusive(8, 12);
