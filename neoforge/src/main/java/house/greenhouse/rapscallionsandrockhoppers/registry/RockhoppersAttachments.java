@@ -23,7 +23,7 @@ public class RockhoppersAttachments {
                     .serialize(PlayerLinksAttachment.CODEC)
                     .build());
     public static final Supplier<AttachmentType<BoatPenguinsAttachment>> BOAT_PENGUINS = ATTACHMENT_TYPES.register(
-            BoatLinksAttachment.ID.getPath(), () -> AttachmentType.builder(iAttachmentHolder -> new BoatPenguinsAttachment())
+            BoatPenguinsAttachment.ID.getPath(), () -> AttachmentType.builder(iAttachmentHolder -> new BoatPenguinsAttachment())
                     .serialize(BoatPenguinsAttachment.CODEC)
                     .build());
 

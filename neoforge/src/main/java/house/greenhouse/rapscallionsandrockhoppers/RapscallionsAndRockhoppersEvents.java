@@ -70,7 +70,7 @@ public class RapscallionsAndRockhoppersEvents {
 
         @SubscribeEvent(priority = EventPriority.HIGHEST)
         public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
-            event.register(RockhoppersEntityTypes.PENGUIN, SpawnPlacementTypes.IN_WATER, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Penguin::checkPenguinSpawnRules, RegisterSpawnPlacementsEvent.Operation.AND);
+            event.register(RockhoppersEntityTypes.PENGUIN, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Penguin::checkPenguinSpawnRules, RegisterSpawnPlacementsEvent.Operation.OR);
         }
 
         @SubscribeEvent
@@ -83,8 +83,6 @@ public class RapscallionsAndRockhoppersEvents {
                     .playToClient(SyncPlayerLinksAttachmentPacketS2C.TYPE, SyncPlayerLinksAttachmentPacketS2C.STREAM_CODEC, (payload, context) -> payload.handle())
                     .playToClient(SyncBoatPenguinsAttachmentPacketS2C.TYPE, SyncBoatPenguinsAttachmentPacketS2C.STREAM_CODEC, (payload, context) -> payload.handle());
         }
-
-
 
         @SubscribeEvent
         public static void createEntityAttributes(EntityAttributeCreationEvent event) {

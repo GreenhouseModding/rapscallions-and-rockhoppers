@@ -34,7 +34,7 @@ public class RockhoppersMemoryModuleTypes {
         Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("boat_to_follow"), BOAT_TO_FOLLOW);
         Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("last_following_boat_controller"), LAST_FOLLOWING_BOAT_CONTROLLER);
         Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("player_to_cough_for"), PLAYER_TO_COUGH_FOR);
-        Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("fed_by"), PLAYER_TO_COUGH_FOR);
+        Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("fed_by"), FED_BY);
         Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("fish_eaten"), FISH_EATEN);
         Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("hungry_time"), HUNGRY_TIME);
         Registry.register(BuiltInRegistries.MEMORY_MODULE_TYPE, RapscallionsAndRockhoppers.asResource("nearest_visible_shoveable"), NEAREST_VISIBLE_SHOVEABLE);
