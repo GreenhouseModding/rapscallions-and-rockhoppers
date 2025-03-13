@@ -118,7 +118,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     private static final EntityDataAccessor<Float> DATA_STUMBLE_CHANCE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> DATA_SHOVE_CHANCE = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<String> DATA_EGG = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.STRING);
-
+    private static final EntityDataAccessor<Boolean> IS_STARING_AT_PLAYER = SynchedEntityData.defineId(Penguin.class, EntityDataSerializers.BOOLEAN);
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState waddleAnimationState = new AnimationState();
     public final AnimationState shockArmAnimationState = new AnimationState();
@@ -135,6 +135,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     public final AnimationState shoveAnimationState = new AnimationState();
     public final AnimationState peckAnimationState = new AnimationState();
     public final AnimationState coughUpAnimationState = new AnimationState();
+    public final AnimationState stareAnimationState = new AnimationState();
     public int walkTime = 0;
 
     private boolean areAnimationsWater = false;
@@ -469,6 +470,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         builder.define(DATA_PECK_TICKS, Integer.MIN_VALUE);
         builder.define(DATA_EGG, "");
         builder.define(DATA_COUGH_TICKS, Integer.MIN_VALUE);
+        builder.define(IS_STARING_AT_PLAYER, false);
     }
 
     @Override
@@ -555,7 +557,12 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                     this.setShoveTicks(previousValue - 1);
                 }
             }
-
+            //TODO: Look more at this later, memory seems to not be init at this point.
+//            if (BrainUtils.hasMemory(this, MemoryModuleType.LOOK_TARGET) && BrainUtils.getMemory(this, MemoryModuleType.LOOK_TARGET) instanceof Player) {
+//                this.entityData.set(IS_STARING_AT_PLAYER, true);
+//            } else {
+//                this.entityData.set(IS_STARING_AT_PLAYER, false);
+//            }
             if (getHungryTime() > 0)
                 setHungryTime(Optional.of(getHungryTime() - 1));
             if (getTimeAllowedToEat() > 0)
@@ -612,11 +619,10 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 if (this.easeOutAnimTime != Integer.MIN_VALUE) {
                     ++this.easeOutAnimTime;
                 }
-
-                this.idleAnimationState.animateWhen(!this.walkAnimation.isMoving() && !this.isStumbling(), this.tickCount);
+                this.stareAnimationState.animateWhen(!this.walkAnimation.isMoving() && !this.isStumbling() && shouldStare(), this.tickCount);
+                this.idleAnimationState.animateWhen(!this.walkAnimation.isMoving() && !this.isStumbling() && !shouldStare(), this.tickCount);
                 this.waddleAnimationState.animateWhen(this.walkAnimation.isMoving() && !this.isStumbling(), this.tickCount);
                 this.shockArmAnimationState.animateWhen(this.isShocked() && !this.isStumbling() && !this.isDeadOrDying(), this.tickCount);
-
                 if (this.isStumbling()) {
                     this.stumbleFallingAnimationState.animateWhen(this.getDeltaMovement().y() < -0.1, this.tickCount);
                     if (!this.previousStumbleValue) {
@@ -1010,6 +1016,10 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
 
     public void setCoughTicks(int peckTime) {
         this.entityData.set(DATA_COUGH_TICKS, peckTime);
+    }
+    
+    public boolean shouldStare() {
+        return this.entityData.get(IS_STARING_AT_PLAYER) && onGround();
     }
 
     public boolean isCoughingUpItems() {
