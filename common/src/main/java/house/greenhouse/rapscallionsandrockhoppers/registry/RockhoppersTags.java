@@ -29,6 +29,8 @@ public class RockhoppersTags {
     public static class BiomeTags {
         public static final TagKey<Biome> SPAWNS_ROCKHOPPER_PENGUINS = TagKey.create(Registries.BIOME, RapscallionsAndRockhoppers.asResource("spawns_rockhopper_penguins"));
         public static final TagKey<Biome> SPAWNS_CHINSTRAP_PENGUINS = TagKey.create(Registries.BIOME, RapscallionsAndRockhoppers.asResource("spawns_chinstrap_penguins"));
+        public static final TagKey<Biome> SPAWNS_FAIRY_PENGUINS = TagKey.create(Registries.BIOME, RapscallionsAndRockhoppers.asResource("spawns_fairy_penguins"));
+
     }
 
     public static class EntityTypeTags {

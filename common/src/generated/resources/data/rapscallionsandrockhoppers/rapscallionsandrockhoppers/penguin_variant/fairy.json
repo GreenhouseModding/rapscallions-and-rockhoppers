@@ -1,0 +1,17 @@
+{
+  "biomes": [
+    {
+      "data": "#rapscallionsandrockhoppers:spawns_fairy_penguins",
+      "weight": 1
+    }
+  ],
+  "size": 0.67,
+  "sounds": {
+    "ambient": "rapscallionsandrockhoppers:entity.penguin.ambient",
+    "death": "rapscallionsandrockhoppers:entity.penguin.death",
+    "hurt": "rapscallionsandrockhoppers:entity.penguin.hurt",
+    "water_jump": "rapscallionsandrockhoppers:entity.penguin.jump"
+  },
+  "surprised_texture": "rapscallionsandrockhoppers:entity/penguin/fairy_penguin_surprised",
+  "texture": "rapscallionsandrockhoppers:entity/penguin/fairy_penguin"
+}

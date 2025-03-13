@@ -1,0 +1,10 @@
+{
+  "values": [
+    "minecraft:beach",
+    "minecraft:snowy_beach",
+    {
+      "id": "#c:is_beach",
+      "required": false
+    }
+  ]
+}

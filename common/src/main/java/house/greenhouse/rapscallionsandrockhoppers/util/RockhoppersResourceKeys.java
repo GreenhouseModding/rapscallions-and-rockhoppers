@@ -14,6 +14,8 @@ public class RockhoppersResourceKeys {
         public static final ResourceKey<PenguinVariant> ROCKHOPPER = ResourceKey.create(PENGUIN_VARIANT, RapscallionsAndRockhoppers.asResource("rockhopper"));
         public static final ResourceKey<PenguinVariant> CHINSTRAP = ResourceKey.create(PENGUIN_VARIANT, RapscallionsAndRockhoppers.asResource("chinstrap"));
         public static final ResourceKey<PenguinVariant> GUNTER = ResourceKey.create(PENGUIN_VARIANT, RapscallionsAndRockhoppers.asResource("gunter"));
+        public static final ResourceKey<PenguinVariant> FAIRY = ResourceKey.create(PENGUIN_VARIANT, RapscallionsAndRockhoppers.asResource("fairy"));
+
     }
 
     public static class SoundEventKeys {

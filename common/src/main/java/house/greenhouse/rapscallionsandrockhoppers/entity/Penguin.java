@@ -49,6 +49,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -866,6 +867,9 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         this.getEntityData().set(DATA_VARIANT, value.unwrapKey().orElseThrow().location().toString());
         if (value.isBound() && value.value().whenNamed().isEmpty()) {
             this.getEntityData().set(DATA_PREVIOUS_VARIANT, "");
+        }
+        if (value.isBound()) {
+            this.getAttribute(Attributes.SCALE).setBaseValue(value.value().size());
         }
     }
 

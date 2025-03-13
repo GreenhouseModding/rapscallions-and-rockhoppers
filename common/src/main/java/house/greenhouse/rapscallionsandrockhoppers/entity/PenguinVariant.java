@@ -19,15 +19,16 @@ import net.minecraft.world.level.biome.Biome;
 import java.util.Optional;
 
 public record PenguinVariant(ResourceLocation texture, ResourceLocation surprisedTexture,
-                             SimpleWeightedRandomList<HolderSet<Biome>> biomes, PenguinSounds sounds, Optional<String> whenNamed) {
-    public static final PenguinVariant MISSING = new PenguinVariant(RapscallionsAndRockhoppers.asResource("entity/penguin/missing_penguin"), RapscallionsAndRockhoppers.asResource("entity/penguin/missing_penguin_surprised"), SimpleWeightedRandomList.empty(), PenguinSounds.NO_SOUNDS, Optional.empty());
+                             SimpleWeightedRandomList<HolderSet<Biome>> biomes, PenguinSounds sounds, Optional<String> whenNamed, float size) {
+    public static final PenguinVariant MISSING = new PenguinVariant(RapscallionsAndRockhoppers.asResource("entity/penguin/missing_penguin"), RapscallionsAndRockhoppers.asResource("entity/penguin/missing_penguin_surprised"), SimpleWeightedRandomList.empty(), PenguinSounds.NO_SOUNDS, Optional.empty(), 1.0F);
 
     public static final Codec<PenguinVariant> DIRECT_CODEC = RecordCodecBuilder.create(inst -> inst.group(
             ResourceLocation.CODEC.fieldOf("texture").forGetter(PenguinVariant::texture),
             ResourceLocation.CODEC.fieldOf("surprised_texture").forGetter(PenguinVariant::surprisedTexture),
             SimpleWeightedRandomList.wrappedCodec(Biome.LIST_CODEC).optionalFieldOf("biomes", SimpleWeightedRandomList.empty()).forGetter(PenguinVariant::biomes),
             PenguinSounds.CODEC.optionalFieldOf("sounds", PenguinSounds.NO_SOUNDS).forGetter(PenguinVariant::sounds),
-            Codec.STRING.optionalFieldOf("when_named").forGetter(PenguinVariant::whenNamed)
+            Codec.STRING.optionalFieldOf("when_named").forGetter(PenguinVariant::whenNamed),
+            Codec.floatRange(0.25F, 2.0F).optionalFieldOf("size", 1.0F).forGetter(PenguinVariant::size)
     ).apply(inst, PenguinVariant::new));
     public static final Codec<Holder<PenguinVariant>> CODEC = RegistryFixedCodec.create(RockhoppersResourceKeys.PENGUIN_VARIANT);
     public static final StreamCodec<RegistryFriendlyByteBuf, Holder<PenguinVariant>> STREAM_CODEC = ByteBufCodecs.holderRegistry(RockhoppersResourceKeys.PENGUIN_VARIANT);
