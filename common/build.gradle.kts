@@ -70,8 +70,6 @@ publishMods {
         repository = Properties.GITHUB_REPO
         tagName = "${Versions.MOD}+${Versions.MINECRAFT}"
         commitish = Properties.GITHUB_COMMITISH
-
-        file(project(":fabric"))
-        additionalFile(project(":neoforge"))
+        allowEmptyFiles = true
     }
 }
