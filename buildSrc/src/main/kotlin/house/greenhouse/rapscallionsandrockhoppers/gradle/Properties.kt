@@ -1,7 +1,7 @@
 package house.greenhouse.rapscallionsandrockhoppers.gradle
 
 object Properties {
-    const val GROUP = "dev.greenhouseteam"
+    const val GROUP = "house.greenhouse"
     const val MOD_NAME = "Rapscallions and Rockhoppers"
     const val ARCHIVES_NAME = "rapscallions-and-rockhoppers"
     const val MOD_ID = "rapscallionsandrockhoppers"

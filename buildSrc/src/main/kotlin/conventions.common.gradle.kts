@@ -134,7 +134,7 @@ publishing {
     repositories {
         maven {
             name = "Greenhouse"
-            url = uri("https://maven.greenhouseteam.dev/releases")
+            url = uri("https://repo.greenhouse.house/releases")
             credentials {
                 username = System.getenv("MAVEN_USERNAME")
                 password = System.getenv("MAVEN_PASSWORD")
