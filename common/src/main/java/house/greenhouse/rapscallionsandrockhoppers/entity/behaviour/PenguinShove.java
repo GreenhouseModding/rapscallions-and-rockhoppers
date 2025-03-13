@@ -35,7 +35,7 @@ public class PenguinShove extends ExtendedBehaviour<Penguin> {
         if (penguin.getRandom().nextFloat() < Mth.clamp(penguin.getShoveChance(), 0.0F, 1.0F)) {
             Penguin shoveTarget = BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.NEAREST_VISIBLE_SHOVEABLE);
 
-            if (shoveTarget != null && shoveTarget.distanceTo(penguin) < 1.5)
+            if (shoveTarget != null && shoveTarget.distanceTo(penguin) < 2.5)
                 this.shoveTarget = shoveTarget;
             else
                 return false;
