@@ -5,7 +5,6 @@ import house.greenhouse.rapscallionsandrockhoppers.RapscallionsAndRockhoppers;
 import house.greenhouse.rapscallionsandrockhoppers.entity.Penguin;
 import house.greenhouse.rapscallionsandrockhoppers.network.s2c.SyncBlockPosLookPacketS2C;
 import house.greenhouse.rapscallionsandrockhoppers.registry.RockhoppersMemoryModuleTypes;
-import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -42,7 +41,7 @@ public class PenguinShove extends ExtendedBehaviour<Penguin> {
 
             BlockPos lookPos = BrainUtils.getMemory(penguin, RockhoppersMemoryModuleTypes.NEAREST_WATER);
             if (lookPos != null) {
-                this.lookPos = lookPos.getCenter();
+                this.lookPos = new Vec3(lookPos.getX(), penguin.getY(), lookPos.getZ());
                 return true;
             }
 
@@ -54,13 +53,12 @@ public class PenguinShove extends ExtendedBehaviour<Penguin> {
 
     @Override
     public void start(Penguin penguin) {
-        penguin.lookAt(EntityAnchorArgument.Anchor.FEET, this.lookPos);
-        this.shoveTarget.lookAt(EntityAnchorArgument.Anchor.FEET, this.lookPos);
+        penguin.getLookControl().setLookAt(lookPos);
+        shoveTarget.getLookControl().setLookAt(lookPos);
+        RapscallionsAndRockhoppers.getHelper().sendS2CTracking(new SyncBlockPosLookPacketS2C(penguin.getId(), this.shoveTarget.getId(), this.lookPos), penguin);
 
         penguin.setShoveTicks(Penguin.SHOVE_ANIMATION_LENGTH);
-        this.shoveTarget.stumbleWithoutInitialAnimation();
-
-        RapscallionsAndRockhoppers.getHelper().sendS2CTracking(new SyncBlockPosLookPacketS2C(penguin.getId(), this.shoveTarget.getId(), this.lookPos), penguin);
+        shoveTarget.stumbleWithoutInitialAnimation();
     }
 
     @Override

@@ -35,7 +35,7 @@ public class NearbyWaterSensor extends ExtendedSensor<Penguin> {
 
     @Override
     protected void doTick(ServerLevel level, Penguin entity) {
-        Optional<BlockPos> waterPos = BlockPos.findClosestMatch(entity.blockPosition(), xzRadius, yRadius, (pos) -> level.getFluidState(pos).is(FluidTags.WATER));
+        Optional<BlockPos> waterPos = BlockPos.findClosestMatch(entity.blockPosition(), xzRadius, yRadius, (pos) -> level.getFluidState(pos).is(FluidTags.WATER) && level.getFluidState(pos.above()).isEmpty() && level.getBlockState(pos.above()).isAir());
         BrainUtils.setMemory(entity, RockhoppersMemoryModuleTypes.NEAREST_WATER, waterPos.orElse(null));
     }
 

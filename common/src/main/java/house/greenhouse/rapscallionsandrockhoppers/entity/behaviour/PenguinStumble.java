@@ -44,9 +44,7 @@ public class PenguinStumble extends ExtendedBehaviour<Penguin> {
     public void tick(Penguin penguin) {
         if (penguin.getStumbleTicks() > Penguin.STUMBLE_ANIMATION_LENGTH && !this.hasSlid) {
             float i = Mth.PI / 180.0F;
-            float x = -Mth.sin(penguin.getYRot() * i) * Mth.cos(penguin.getXRot() * i);
-            float z = Mth.cos(penguin.getYRot() * i) * Mth.cos(penguin.getXRot() * i);
-            penguin.addDeltaMovement(new Vec3(x, 0, z).normalize().multiply(0.4, 0.0, 0.4));
+            penguin.addDeltaMovement(penguin.getViewVector(0.0F).multiply(1, 0, 1).normalize().multiply(0.4, 0.0, 0.4));
             penguin.hurtMarked = true;
             this.hasSlid = true;
         }

@@ -936,6 +936,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         this.stumbleFallingAnimationState.stop();
         this.stumbleGroundAnimationState.stop();
         this.stumbleGetUpAnimationState.stop();
+        this.stareAnimationState.stop();
         this.animationArmState = false;
     }
 
