@@ -101,7 +101,7 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
 
             HolderSet.Named<Biome> rockhopperSpawnBiomes = registries.lookupOrThrow(Registries.BIOME).getOrThrow(RockhoppersTags.BiomeTags.SPAWNS_ROCKHOPPER_PENGUINS);
             HolderSet.Named<Biome> chinstrapSpawnBiomes = registries.lookupOrThrow(Registries.BIOME).getOrThrow(RockhoppersTags.BiomeTags.SPAWNS_CHINSTRAP_PENGUINS);
-            HolderSet.Named<Biome> fairySpawnBiomes = registries.lookupOrThrow(Registries.BIOME).getOrThrow(RockhoppersTags.BiomeTags.SPAWNS_FAIRY_PENGUINS);
+            HolderSet.Named<Biome> littleSpawnBiomes = registries.lookupOrThrow(Registries.BIOME).getOrThrow(RockhoppersTags.BiomeTags.SPAWNS_LITTLE_PENGUINS);
 
             entries.add(RockhoppersResourceKeys.PenguinVariantKeys.ROCKHOPPER, new PenguinVariant(
                     RapscallionsAndRockhoppers.asResource("entity/penguin/rockhopper_penguin"), RapscallionsAndRockhoppers.asResource("entity/penguin/rockhopper_penguin_surprised"),
@@ -115,9 +115,9 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
                     RapscallionsAndRockhoppers.asResource("entity/penguin/gunter_penguin"), RapscallionsAndRockhoppers.asResource("entity/penguin/gunter_penguin"),
                     SimpleWeightedRandomList.empty(),
                     new PenguinVariant.PenguinSounds(idleSound, hurtSound, deathSound, waterJumpSound), Optional.of("Gunter"), 1.0F));
-            entries.add(RockhoppersResourceKeys.PenguinVariantKeys.FAIRY, new PenguinVariant(
-                    RapscallionsAndRockhoppers.asResource("entity/penguin/fairy_penguin"), RapscallionsAndRockhoppers.asResource("entity/penguin/fairy_penguin_surprised"),
-                    SimpleWeightedRandomList.single(fairySpawnBiomes),
+            entries.add(RockhoppersResourceKeys.PenguinVariantKeys.LITTLE, new PenguinVariant(
+                    RapscallionsAndRockhoppers.asResource("entity/penguin/little_penguin"), RapscallionsAndRockhoppers.asResource("entity/penguin/little_penguin_surprised"),
+                    SimpleWeightedRandomList.single(littleSpawnBiomes),
                     new PenguinVariant.PenguinSounds(idleSound, hurtSound, deathSound, waterJumpSound), Optional.empty(), 0.67F));
 
         }
@@ -375,10 +375,7 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
         protected void addTags(HolderLookup.Provider provider) {
             this.tag(RockhoppersTags.BiomeTags.SPAWNS_ROCKHOPPER_PENGUINS).add(Biomes.STONY_SHORE);
             this.tag(RockhoppersTags.BiomeTags.SPAWNS_CHINSTRAP_PENGUINS).add(Biomes.FROZEN_OCEAN, Biomes.DEEP_FROZEN_OCEAN);
-            this.tag(RockhoppersTags.BiomeTags.SPAWNS_FAIRY_PENGUINS)
-                    .add(Biomes.BEACH)
-                    .add(Biomes.SNOWY_BEACH)
-                    .addOptionalTag(ConventionalBiomeTags.IS_BEACH.location());
+            this.tag(RockhoppersTags.BiomeTags.SPAWNS_LITTLE_PENGUINS).add(Biomes.BEACH, Biomes.SNOWY_BEACH).addOptionalTag(ConventionalBiomeTags.IS_BEACH.location());
         }
     }
 

@@ -19,17 +19,12 @@ public class RockhoppersTags {
         public static final TagKey<Item> EEL_FISH_SCALE_BLOCK_DYES = TagKey.create(Registries.ITEM, RapscallionsAndRockhoppers.asResource("fish_scale_block_dyes/eel"));
         public static final TagKey<Item> JELLYFISH_FISH_SCALE_BLOCK_DYES = TagKey.create(Registries.ITEM, RapscallionsAndRockhoppers.asResource("fish_scale_block_dyes/jellyfish"));
         public static final TagKey<Item> SHARK_FISH_SCALE_BLOCK_DYES = TagKey.create(Registries.ITEM, RapscallionsAndRockhoppers.asResource("fish_scale_block_dyes/shark"));
-}
-
-    public static class BlockTags {
-        public static final TagKey<Block> ROCKHOPPER_PENGUIN_SPAWN_BLOCKS = TagKey.create(Registries.BLOCK, RapscallionsAndRockhoppers.asResource("rockhopper_penguin_spawn_blocks"));
-        public static final TagKey<Block> CHINSTRAP_PENGUIN_SPAWN_BLOCKS = TagKey.create(Registries.BLOCK, RapscallionsAndRockhoppers.asResource("chinstrap_penguin_spawn_blocks"));
     }
 
     public static class BiomeTags {
         public static final TagKey<Biome> SPAWNS_ROCKHOPPER_PENGUINS = TagKey.create(Registries.BIOME, RapscallionsAndRockhoppers.asResource("spawns_rockhopper_penguins"));
         public static final TagKey<Biome> SPAWNS_CHINSTRAP_PENGUINS = TagKey.create(Registries.BIOME, RapscallionsAndRockhoppers.asResource("spawns_chinstrap_penguins"));
-        public static final TagKey<Biome> SPAWNS_FAIRY_PENGUINS = TagKey.create(Registries.BIOME, RapscallionsAndRockhoppers.asResource("spawns_fairy_penguins"));
+        public static final TagKey<Biome> SPAWNS_LITTLE_PENGUINS = TagKey.create(Registries.BIOME, RapscallionsAndRockhoppers.asResource("spawns_little_penguins"));
 
     }
 

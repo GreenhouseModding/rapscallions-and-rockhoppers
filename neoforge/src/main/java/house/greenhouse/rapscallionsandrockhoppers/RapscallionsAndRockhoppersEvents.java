@@ -67,8 +67,6 @@ public class RapscallionsAndRockhoppersEvents {
         public static void createNewDataPackRegistries(DataPackRegistryEvent.NewRegistry event) {
             event.dataPackRegistry(RockhoppersResourceKeys.PENGUIN_VARIANT, PenguinVariant.DIRECT_CODEC, PenguinVariant.DIRECT_CODEC);
         }
-        
-      
 
         @SubscribeEvent(priority = EventPriority.HIGHEST)
         public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {

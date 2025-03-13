@@ -13,8 +13,8 @@ public class RockhoppersResourceKeys {
     public static class PenguinVariantKeys {
         public static final ResourceKey<PenguinVariant> ROCKHOPPER = ResourceKey.create(PENGUIN_VARIANT, RapscallionsAndRockhoppers.asResource("rockhopper"));
         public static final ResourceKey<PenguinVariant> CHINSTRAP = ResourceKey.create(PENGUIN_VARIANT, RapscallionsAndRockhoppers.asResource("chinstrap"));
+        public static final ResourceKey<PenguinVariant> LITTLE = ResourceKey.create(PENGUIN_VARIANT, RapscallionsAndRockhoppers.asResource("little"));
         public static final ResourceKey<PenguinVariant> GUNTER = ResourceKey.create(PENGUIN_VARIANT, RapscallionsAndRockhoppers.asResource("gunter"));
-        public static final ResourceKey<PenguinVariant> FAIRY = ResourceKey.create(PENGUIN_VARIANT, RapscallionsAndRockhoppers.asResource("fairy"));
 
     }
 
