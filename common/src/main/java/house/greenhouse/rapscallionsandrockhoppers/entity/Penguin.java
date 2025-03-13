@@ -291,6 +291,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         return BrainActivityGroup.<Penguin>idleTasks(
                 new Panic<>().speedMod(o -> 2.5F).panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
                 new BreedWithPartner<>(),
+                new PenguinHungryStare().startCondition((penguin -> penguin.getHungryTime() > 300)).runFor(penguin -> penguin.random.nextInt(100, 300)),
                 new SetPlayerLookTarget<>(),
                 new SetRandomLookTarget<>().lookChance(ConstantFloat.of(0.6F)),
                 new PenguinSitEgg().startCondition(penguin -> !penguin.isBaby()).runFor((penguin -> penguin.random.nextInt(3600, 9000))).cooldownFor(penguin -> 1000), // Between 180 and 450 seconds
@@ -1020,6 +1021,14 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     
     public boolean shouldStare() {
         return this.entityData.get(IS_STARING_AT_PLAYER) && onGround();
+    }
+    
+    public void setIsStaringAtPlayer(boolean isStaringAtPlayer) {
+        this.entityData.set(IS_STARING_AT_PLAYER, isStaringAtPlayer);
+    }
+    
+    public boolean isStaringAtPlayer() {
+        return this.entityData.get(IS_STARING_AT_PLAYER);
     }
 
     public boolean isCoughingUpItems() {
