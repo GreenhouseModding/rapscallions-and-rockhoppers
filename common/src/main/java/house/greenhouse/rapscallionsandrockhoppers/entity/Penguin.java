@@ -291,7 +291,6 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
         return BrainActivityGroup.<Penguin>idleTasks(
                 new Panic<>().speedMod(o -> 2.5F).panicIf((mob, damageSource) -> mob.isFreezing() || mob.isOnFire() || damageSource.getEntity() instanceof LivingEntity || this.isShocked()),
                 new BreedWithPartner<>(),
-                new PenguinHungryStare().startCondition((penguin -> penguin.getHungryTime() > 300)).runFor(penguin -> penguin.random.nextInt(100, 300)),
                 new SetPlayerLookTarget<>(),
                 new SetRandomLookTarget<>().lookChance(ConstantFloat.of(0.6F)),
                 new PenguinSitEgg().startCondition(penguin -> !penguin.isBaby()).runFor((penguin -> penguin.random.nextInt(3600, 9000))).cooldownFor(penguin -> 1000), // Between 180 and 450 seconds
@@ -305,6 +304,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
                 new FirstApplicableBehaviour<>(
                         new FollowTemptation<>(),
                         new SetWalkTargetToAttackTarget<>(),
+                        new PenguinHungryStare().startCondition((penguin -> penguin.getHungryTime() > 600)).runFor(penguin -> penguin.random.nextInt(250, 600)),
                         new OneRandomBehaviour<>(
                                 Pair.of(new SetRandomWalkTarget<Penguin>().setRadius(4, 3).avoidWaterWhen(penguin -> penguin.getRandom().nextFloat() > 0.06F), 9),
                                 Pair.of(new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)), 1)
