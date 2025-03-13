@@ -321,12 +321,12 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
 
         @Override
         protected void addTags(HolderLookup.Provider provider) {
-            this.tag(RockhoppersTags.ItemTags.PENGUIN_FOOD_ITEMS)
+            this.tag(RockhoppersTags.ItemTags.PENGUIN_FOOD)
                     .add(this.reverseLookup(Items.COD), this.reverseLookup(Items.SALMON), this.reverseLookup(Items.TROPICAL_FISH));
             this.tag(RockhoppersTags.ItemTags.PENGUIN_BREED_ITEMS)
                     .add(this.reverseLookup(Items.INK_SAC), this.reverseLookup(Items.GLOW_INK_SAC));
             this.tag(RockhoppersTags.ItemTags.PENGUIN_TEMPT_ITEMS)
-                    .addTag(RockhoppersTags.ItemTags.PENGUIN_FOOD_ITEMS)
+                    .addTag(RockhoppersTags.ItemTags.PENGUIN_FOOD)
                     .addTag(RockhoppersTags.ItemTags.PENGUIN_BREED_ITEMS);
 
             getOrCreateTagBuilder(RockhoppersTags.ItemTags.SEAHORSE_FISH_SCALE_BLOCK_DYES)

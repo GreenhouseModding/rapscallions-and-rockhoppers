@@ -1,1 +1,2 @@
-- Fixed Fish Scale block recipes not existing.
+- Translated the mod's item tags.
+- Renamed a `rapscallionsandrockhoppers:penguin_food_items` tag to `rapscallionsandrockhoppers:penguin_food` to be more consistent with vanilla.

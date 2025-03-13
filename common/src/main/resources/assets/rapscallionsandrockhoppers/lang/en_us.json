@@ -62,5 +62,19 @@
   "item.minecraft.tipped_arrow.effect.rapscallionsandrockhoppers.strong_sinking": "Arrow of Sinking",
   "item.minecraft.lingering_potion.effect.rapscallionsandrockhoppers.sinking": "Lingering Potion of Sinking",
   "item.minecraft.lingering_potion.effect.rapscallionsandrockhoppers.long_sinking": "Lingering Potion of Sinking",
-  "item.minecraft.lingering_potion.effect.rapscallionsandrockhoppers.strong_sinking": "Lingering Potion of Sinking"
+  "item.minecraft.lingering_potion.effect.rapscallionsandrockhoppers.strong_sinking": "Lingering Potion of Sinking",
+
+  "tag.item.rapscallionsandrockhoppers.penguin_breed_items": "Penguin Breed Items",
+  "tag.item.rapscallionsandrockhoppers.penguin_tempt_items": "Penguin Tempt Items",
+  "tag.item.rapscallionsandrockhoppers.penguin_food": "Penguin Food",
+  "tag.item.rapscallionsandrockhoppers.fish_scale_block_dyes.seahorse": "Seahorse Fish Scale Block Dyes",
+  "tag.item.rapscallionsandrockhoppers.fish_scale_block_dyes.eel": "Eel Fish Scale Block Dyes",
+  "tag.item.rapscallionsandrockhoppers.fish_scale_block_dyes.jellyfish": "Jellyfish Fish Scale Block Dyes",
+  "tag.item.rapscallionsandrockhoppers.fish_scale_block_dyes.shark": "Shark Fish Scale Block Dyes",
+
+  "tag.biome.rapscallionsandrockhoppers.spawns_rockhopper_penguins": "Spawns Rockhopper Penguins",
+  "tag.biome.rapscallionsandrockhoppers.spawns_chinstrap_penguins": "Spawns Chinstrap Penguins",
+  "tag.biome.rapscallionsandrockhoppers.spawns_little_penguins": "Spawns Little Penguins",
+
+  "tag.entity_type.rapscallionsandrockhoppers.penguin_always_hostiles": "Penguin Always Hostiles"
 }

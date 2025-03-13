@@ -30,7 +30,7 @@ public class FishingHookMixin {
 
     @Inject(method = "retrieve", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/tags/TagKey;)Z"), locals = LocalCapture.CAPTURE_FAILHARD)
     private void rapscallionsandrockhopper$setPenguinUpToCatchFish(ItemStack p_37157_, CallbackInfoReturnable<Integer> cir, Player player, int i, ItemFishedEvent event, LootParams lootparams, LootTable loottable, List list, Iterator iterator, ItemStack stack) {
-        if (!stack.is(RockhoppersTags.ItemTags.PENGUIN_FOOD_ITEMS) || this.rapscallionsandrockhoppers$hasAttractedPenguin) return;
+        if (!stack.is(RockhoppersTags.ItemTags.PENGUIN_FOOD) || this.rapscallionsandrockhoppers$hasAttractedPenguin) return;
         Optional<Penguin> penguin = ((FishingHook) (Object) this).level().getEntitiesOfClass(Penguin.class, ((FishingHook) (Object) this).getBoundingBox().inflate(24.0F), penguin1 -> penguin1.getBrain().getActiveNonCoreActivity().map(activity -> activity == RockhoppersActivities.WAIT_AROUND_BOBBER).orElse(false)).stream().min(Comparator.comparing(penguin1 -> ((FishingHook) (Object) this).distanceTo(penguin1)));
         penguin.ifPresent(value -> BrainUtils.setMemory(value, RockhoppersMemoryModuleTypes.CAUGHT_BOBBER, ((FishingHook) (Object) this)));
         this.rapscallionsandrockhoppers$hasAttractedPenguin = true;

@@ -483,7 +483,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (stack.is(RockhoppersTags.ItemTags.PENGUIN_FOOD_ITEMS)) {
+        if (stack.is(RockhoppersTags.ItemTags.PENGUIN_FOOD)) {
             if (this.level().isClientSide()) {
                 return InteractionResult.SUCCESS;
             }

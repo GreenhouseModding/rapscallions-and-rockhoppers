@@ -63,7 +63,7 @@ public class JumpTowardsCatch extends ExtendedBehaviour<Penguin> {
             penguin.playSound(penguin.getWaterJumpSound(), 1.0F, 1.0F);
 
         if (penguin.getTimeAllowedToEat() <= 0) {
-            Optional<ItemEntity> item = penguin.level().getEntitiesOfClass(ItemEntity.class, penguin.getBoundingBox().inflate(1.25), itemEntity -> itemEntity.getItem().is(RockhoppersTags.ItemTags.PENGUIN_FOOD_ITEMS)).stream().min(Comparator.comparing(penguin::distanceTo));
+            Optional<ItemEntity> item = penguin.level().getEntitiesOfClass(ItemEntity.class, penguin.getBoundingBox().inflate(1.25), itemEntity -> itemEntity.getItem().is(RockhoppersTags.ItemTags.PENGUIN_FOOD)).stream().min(Comparator.comparing(penguin::distanceTo));
             if (item.isPresent()) {
                 penguin.setHungryTime(Optional.of(2400));
                 penguin.setTimeAllowedToEat(Optional.of(120));

@@ -13,7 +13,9 @@ public class RockhoppersTags {
     public static class ItemTags {
         public static final TagKey<Item> PENGUIN_TEMPT_ITEMS = TagKey.create(Registries.ITEM, RapscallionsAndRockhoppers.asResource("penguin_tempt_items"));
         public static final TagKey<Item> PENGUIN_BREED_ITEMS = TagKey.create(Registries.ITEM, RapscallionsAndRockhoppers.asResource("penguin_breed_items"));
-        public static final TagKey<Item> PENGUIN_FOOD_ITEMS = TagKey.create(Registries.ITEM, RapscallionsAndRockhoppers.asResource("penguin_food_items"));
+        public static final TagKey<Item> PENGUIN_FOOD = TagKey.create(Registries.ITEM, RapscallionsAndRockhoppers.asResource("penguin_food"));
+        @Deprecated
+        public static final TagKey<Item> PENGUIN_FOOD_ITEMS = PENGUIN_FOOD;
 
         public static final TagKey<Item> SEAHORSE_FISH_SCALE_BLOCK_DYES = TagKey.create(Registries.ITEM, RapscallionsAndRockhoppers.asResource("fish_scale_block_dyes/seahorse"));
         public static final TagKey<Item> EEL_FISH_SCALE_BLOCK_DYES = TagKey.create(Registries.ITEM, RapscallionsAndRockhoppers.asResource("fish_scale_block_dyes/eel"));
