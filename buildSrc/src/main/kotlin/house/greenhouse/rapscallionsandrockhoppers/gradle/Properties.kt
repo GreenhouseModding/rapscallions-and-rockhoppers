@@ -15,5 +15,5 @@ object Properties {
     const val MODRINTH_PAGE = "https://modrinth.com/mod/rapscallions-and-rockhoppers"
     const val MODRINTH_PROJECT_ID = "9pGITjpO"
     const val GITHUB_REPO = "GreenhouseModding/rapscallions-and-rockhoppers"
-    const val GITHUB_COMMITISH = Versions.MINECRAFT
+    const val GITHUB_COMMITISH = "1.21"
 }
