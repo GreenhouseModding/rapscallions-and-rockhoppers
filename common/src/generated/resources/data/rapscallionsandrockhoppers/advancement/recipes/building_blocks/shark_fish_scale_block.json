@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_fish_scale": {
+      "conditions": {
+        "items": [
+          {
+            "items": "rapscallionsandrockhoppers:fish_scale"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "rapscallionsandrockhoppers:shark_fish_scale_block"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_fish_scale"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "rapscallionsandrockhoppers:shark_fish_scale_block"
+    ]
+  }
+}

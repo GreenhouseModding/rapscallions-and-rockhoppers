@@ -3,7 +3,6 @@ package house.greenhouse.rapscallionsandrockhoppers.gradle
 object Properties {
     const val GROUP = "house.greenhouse"
     const val MOD_NAME = "Rapscallions and Rockhoppers"
-    const val ARCHIVES_NAME = "rapscallions-and-rockhoppers"
     const val MOD_ID = "rapscallionsandrockhoppers"
     const val MOD_AUTHOR = "Greenhouse Team"
     val MOD_CONTRIBUTORS = listOf("MerchantPug", "Omniv", "UltrusBot")

@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "rapscallionsandrockhoppers:fish_scale"
+    },
+    {
+      "item": "rapscallionsandrockhoppers:fish_scale"
+    },
+    {
+      "item": "rapscallionsandrockhoppers:fish_scale"
+    },
+    {
+      "tag": "rapscallionsandrockhoppers:fish_scale_block_dyes/seahorse"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "rapscallionsandrockhoppers:seahorse_fish_scale_block"
+  }
+}

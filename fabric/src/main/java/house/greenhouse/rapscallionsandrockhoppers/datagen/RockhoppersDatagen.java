@@ -155,6 +155,7 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
             itemModelGenerator.generateFlatItem(RockhoppersItems.PENGUIN_EGG, ModelTemplates.FLAT_ITEM);
             itemModelGenerator.generateFlatItem(RockhoppersItems.PENGUIN_SPAWN_EGG, RockhoppersModelTemplates.SPAWN_EGG);
         }
+
         public void createEgg(Block egg, BlockModelGenerators blockModelGenerators) {
             TextureMapping textureMapping = RockhoppersTextureMappings.createEggMapping(egg);
             TextureMapping slightlyCrackedTextureMapping = RockhoppersTextureMappings.createEggMapping(egg, "_slightly_cracked");
@@ -227,22 +228,30 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
                     .requires(RockhoppersItems.FISH_SCALE)
                     .requires(RockhoppersItems.FISH_SCALE)
                     .requires(RockhoppersItems.FISH_SCALE)
-                    .requires(RockhoppersTags.ItemTags.SEAHORSE_FISH_SCALE_BLOCK_DYES);
+                    .requires(RockhoppersTags.ItemTags.SEAHORSE_FISH_SCALE_BLOCK_DYES)
+                    .unlockedBy("has_fish_scale", has(RockhoppersItems.FISH_SCALE))
+                    .save(exporter, RapscallionsAndRockhoppers.asResource("seahorse_fish_scale_block"));
             ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, RockhoppersItems.EEL_FISH_SCALE_BLOCK)
                     .requires(RockhoppersItems.FISH_SCALE)
                     .requires(RockhoppersItems.FISH_SCALE)
                     .requires(RockhoppersItems.FISH_SCALE)
-                    .requires(RockhoppersTags.ItemTags.EEL_FISH_SCALE_BLOCK_DYES);
+                    .requires(RockhoppersTags.ItemTags.EEL_FISH_SCALE_BLOCK_DYES)
+                    .unlockedBy("has_fish_scale", has(RockhoppersItems.FISH_SCALE))
+                    .save(exporter, RapscallionsAndRockhoppers.asResource("eel_fish_scale_block"));
             ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, RockhoppersItems.JELLYFISH_FISH_SCALE_BLOCK)
                     .requires(RockhoppersItems.FISH_SCALE)
                     .requires(RockhoppersItems.FISH_SCALE)
                     .requires(RockhoppersItems.FISH_SCALE)
-                    .requires(RockhoppersTags.ItemTags.JELLYFISH_FISH_SCALE_BLOCK_DYES);
+                    .requires(RockhoppersTags.ItemTags.JELLYFISH_FISH_SCALE_BLOCK_DYES)
+                    .unlockedBy("has_fish_scale", has(RockhoppersItems.FISH_SCALE))
+                    .save(exporter, RapscallionsAndRockhoppers.asResource("jellyfish_fish_scale_block"));
             ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, RockhoppersItems.SHARK_FISH_SCALE_BLOCK)
                     .requires(RockhoppersItems.FISH_SCALE)
                     .requires(RockhoppersItems.FISH_SCALE)
                     .requires(RockhoppersItems.FISH_SCALE)
-                    .requires(RockhoppersTags.ItemTags.SHARK_FISH_SCALE_BLOCK_DYES);
+                    .requires(RockhoppersTags.ItemTags.SHARK_FISH_SCALE_BLOCK_DYES)
+                    .unlockedBy("has_fish_scale", has(RockhoppersItems.FISH_SCALE))
+                    .save(exporter, RapscallionsAndRockhoppers.asResource("shark_fish_scale_block"));
 
             generateRecipes(exporter, RockhoppersBlockFamilies.SEAHORSE_FISH_SCALE, FeatureFlagSet.of(FeatureFlags.VANILLA));
             generateRecipes(exporter, RockhoppersBlockFamilies.EEL_FISH_SCALE, FeatureFlagSet.of(FeatureFlags.VANILLA));

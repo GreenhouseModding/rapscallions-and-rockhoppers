@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "rapscallionsandrockhoppers:fish_scale"
+    },
+    {
+      "item": "rapscallionsandrockhoppers:fish_scale"
+    },
+    {
+      "item": "rapscallionsandrockhoppers:fish_scale"
+    },
+    {
+      "tag": "rapscallionsandrockhoppers:fish_scale_block_dyes/jellyfish"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "rapscallionsandrockhoppers:jellyfish_fish_scale_block"
+  }
+}
