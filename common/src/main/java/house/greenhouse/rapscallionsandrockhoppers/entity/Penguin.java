@@ -484,18 +484,20 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (stack.is(RockhoppersTags.ItemTags.PENGUIN_FOOD)) {
-            if (this.level().isClientSide()) {
+            if (level().isClientSide()) {
                 return InteractionResult.SUCCESS;
             }
-            if (this.tickCount > this.getTimeAllowedToEat()) {
-                this.setHungryTime(Optional.of(2400));
-                this.setTimeAllowedToEat(Optional.of(120));
-                this.incrementFishEaten();
-                BrainUtils.setMemory(this, RockhoppersMemoryModuleTypes.FED_BY, player.getUUID());
-                stack.consume(1, player);
-                ((ServerLevel) this.level()).sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(0.5), this.getRandomY() + 0.5, this.getRandomZ(0.5), 7, 0.25, 0.1, 0.25, 0);
-                this.playSound(RockhoppersSoundEvents.PENGUIN_EAT);
-                return InteractionResult.SUCCESS;
+            if (this.getTimeAllowedToEat() <= 0) {
+                if (!level().isClientSide) {
+                    this.setHungryTime(Optional.of(2400));
+                    this.setTimeAllowedToEat(Optional.of(120));
+                    this.incrementFishEaten();
+                    BrainUtils.setMemory(this, RockhoppersMemoryModuleTypes.FED_BY, player.getUUID());
+                    stack.consume(1, player);
+                    ((ServerLevel) this.level()).sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(0.5), this.getRandomY() + 0.5, this.getRandomZ(0.5), 7, 0.25, 0.1, 0.25, 0);
+                    this.playSound(RockhoppersSoundEvents.PENGUIN_EAT);
+                    return InteractionResult.SUCCESS;
+                }
             } else {
                 ((ServerLevel) this.level()).sendParticles(ParticleTypes.SMOKE, this.getRandomX(0.5), this.getRandomY() + 0.5, this.getRandomZ(0.5), 7, 0.25, 0.1, 0.25, 0);
                 return InteractionResult.CONSUME;
@@ -567,7 +569,7 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             if (getHungryTime() > 0)
                 setHungryTime(Optional.of(getHungryTime() - 1));
             if (getTimeAllowedToEat() > 0)
-                setTimeAllowedToEat(Optional.of(getTimeAllowedToWaterJump() - 1));
+                setTimeAllowedToEat(Optional.of(getTimeAllowedToEat() - 1));
             if (getTimeAllowedToWaterJump() > 0)
                 setTimeAllowedToWaterJump(Optional.of(getTimeAllowedToWaterJump() - 1));
             if (getTimeAllowedToFollowBoat() > 0)

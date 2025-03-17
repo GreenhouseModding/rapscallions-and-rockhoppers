@@ -294,9 +294,8 @@ public class RockhoppersDatagen implements DataGeneratorEntrypoint {
             biConsumer.accept(RockhoppersLootTables.PENGUIN_COUGH_UP_FEED, LootTable.lootTable()
                     .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
                             .with(LootItem.lootTableItem(RockhoppersItems.FISH_BONES).build()))
-                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
-                            .with(LootItem.lootTableItem(RockhoppersItems.FISH_SCALE).build()))
-                    .withPool(LootPool.lootPool().setRolls(UniformGenerator.between(2.0F, 3.0F))));
+                    .withPool(LootPool.lootPool().setRolls(UniformGenerator.between(2.0F, 3.0F))
+                            .with(LootItem.lootTableItem(RockhoppersItems.FISH_SCALE).build())));
 
             biConsumer.accept(RockhoppersLootTables.PENGUIN_COUGH_UP_TRAVEL, LootTable.lootTable()
                     .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))

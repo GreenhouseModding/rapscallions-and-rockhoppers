@@ -37,7 +37,7 @@ public class PenguinPeck extends AnimatableMeleeAttack<Penguin> {
                 if (!this.target.isAlive()) {
                     this.target.remove(Entity.RemovalReason.KILLED);
                     penguin.setHungryTime(Optional.of(2400));
-                    penguin.setTimeAllowedToEat(Optional.of(400));
+                    penguin.setTimeAllowedToEat(Optional.of(120));
                     penguin.incrementFishEaten();
                     BrainUtils.clearMemory(penguin, MemoryModuleType.ATTACK_TARGET);
                     BrainUtils.clearMemory(penguin, MemoryModuleType.WALK_TARGET);
