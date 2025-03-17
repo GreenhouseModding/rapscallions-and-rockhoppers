@@ -1,0 +1,80 @@
+{
+  "entity.rapscallionsandrockhoppers.penguin": "Penguen",
+
+  "subtitles.rapscallionsandrockhoppers.entity.penguin.ambient": "Penguen honkladı",
+  "subtitles.rapscallionsandrockhoppers.entity.penguin.cough": "Penguen öksürdü",
+  "subtitles.rapscallionsandrockhoppers.entity.penguin.death": "Penguen öldü",
+  "subtitles.rapscallionsandrockhoppers.entity.penguin.eat": "Penguen yedi",
+  "subtitles.rapscallionsandrockhoppers.entity.penguin.hurt": "Penguen hasar aldı",
+  "subtitles.rapscallionsandrockhoppers.entity.pengui.jump": "Penguen zıpladı",
+
+  "block.rapscallionsandrockhoppers.penguin_egg": "Penguen Yumurtası",
+  "item.rapscallionsandrockhoppers.penguin_spawn_egg": "Penguen Çağırma Yumurtası",
+
+  "item.rapscallionsandrockhoppers.boat_hook": "Tekne Kancası",
+  "item.rapscallionsandrockhoppers.fish_bones": "Balık Kılçığı",
+  "item.rapscallionsandrockhoppers.fish_scale": "Balık Pulu",
+
+  "entity.rapscallionsandrockhoppers.boat_hook_fence_knot": "Tekne Kancası Çit Düğümü",
+
+  "block.rapscallionsandrockhoppers.seahorse_fish_scale_block": "Denizatı Balık Pulu Bloğu",
+  "block.rapscallionsandrockhoppers.seahorse_fish_scale_stairs": "Denizatı Balık Pulu Merdiven",
+  "block.rapscallionsandrockhoppers.seahorse_fish_scale_slab": "Denizatı Balık Pulu Basamak",
+  "block.rapscallionsandrockhoppers.seahorse_fish_scale_wall": "Denizatı Balık Pulu Duvar",
+
+  "block.rapscallionsandrockhoppers.eel_fish_scale_block": "Yılan Balığı Balık Pulu Bloğu",
+  "block.rapscallionsandrockhoppers.eel_fish_scale_stairs": "Yılan Balığı Balık Pulu Merdiven",
+  "block.rapscallionsandrockhoppers.eel_fish_scale_slab": "Yılan Balığı Balık Pulu Basamak",
+  "block.rapscallionsandrockhoppers.eel_fish_scale_wall": "Yılan Balığı Balık Pulu Duvar",
+
+  "block.rapscallionsandrockhoppers.jellyfish_fish_scale_block": "Denizanası Balık Pulu Bloğu",
+  "block.rapscallionsandrockhoppers.jellyfish_fish_scale_stairs": "Denizanası Balık Pulu Merdiven",
+  "block.rapscallionsandrockhoppers.jellyfish_fish_scale_slab": "Denizanası Balık Pulu Basamak",
+  "block.rapscallionsandrockhoppers.jellyfish_fish_scale_wall": "Denizanası Balık Pulu Duvar",
+
+  "block.rapscallionsandrockhoppers.shark_fish_scale_block": "Köpek Balığı Balık Pulu Bloğu",
+  "block.rapscallionsandrockhoppers.shark_fish_scale_stairs": "Köpek Balığı Balık Pulu Merdiven",
+  "block.rapscallionsandrockhoppers.shark_fish_scale_slab": "Köpek Balığı Balık Pulu Basamak",
+  "block.rapscallionsandrockhoppers.shark_fish_scale_wall": "Köpek Balığı Balık Pulu Duvar",
+
+  "effect.rapscallionsandrockhoppers.floating": "Batmama",
+  "effect.rapscallionsandrockhoppers.sinking": "Batma",
+  "item.minecraft.potion.effect.rapscallionsandrockhoppers.floating": "Batmama İksiri",
+  "item.minecraft.potion.effect.rapscallionsandrockhoppers.long_floating": "Batmama İksiri",
+  "item.minecraft.potion.effect.rapscallionsandrockhoppers.strong_floating": "Batmama İksiri",
+  "item.minecraft.splash_potion.effect.rapscallionsandrockhoppers.floating": "Patlayıcı Batmama İksiri",
+  "item.minecraft.splash_potion.effect.rapscallionsandrockhoppers.long_floating": "Patlayıcı Batmama İksiri",
+  "item.minecraft.splash_potion.effect.rapscallionsandrockhoppers.strong_floating": "Patlayıcı Batmama İksiri",
+  "item.minecraft.tipped_arrow.effect.rapscallionsandrockhoppers.floating": "Batmama Oku",
+  "item.minecraft.tipped_arrow.effect.rapscallionsandrockhoppers.long_floating": "Batmama Oku",
+  "item.minecraft.tipped_arrow.effect.rapscallionsandrockhoppers.strong_floating": "Batmama Oku",
+  "item.minecraft.lingering_potion.effect.rapscallionsandrockhoppers.floating": "Kalıcı Batmama İksiri",
+  "item.minecraft.lingering_potion.effect.rapscallionsandrockhoppers.long_floating": "Kalıcı Batmama İksiri",
+  "item.minecraft.lingering_potion.effect.rapscallionsandrockhoppers.strong_floating": "Kalıcı Batmama İksiri",
+  "item.minecraft.potion.effect.rapscallionsandrockhoppers.sinking": "Batma İksiri",
+  "item.minecraft.potion.effect.rapscallionsandrockhoppers.long_sinking": "Batma İksiri",
+  "item.minecraft.potion.effect.rapscallionsandrockhoppers.strong_sinking": "Batma İksiri",
+  "item.minecraft.splash_potion.effect.rapscallionsandrockhoppers.sinking": "Patlayıcı Batma İksiri",
+  "item.minecraft.splash_potion.effect.rapscallionsandrockhoppers.long_sinking": "Patlayıcı Batma İksiri",
+  "item.minecraft.splash_potion.effect.rapscallionsandrockhoppers.strong_sinking": "Patlayıcı Batma İksiri",
+  "item.minecraft.tipped_arrow.effect.rapscallionsandrockhoppers.sinking": "Batma Oku",
+  "item.minecraft.tipped_arrow.effect.rapscallionsandrockhoppers.long_sinking": "Batma Oku",
+  "item.minecraft.tipped_arrow.effect.rapscallionsandrockhoppers.strong_sinking": "Batma Oku",
+  "item.minecraft.lingering_potion.effect.rapscallionsandrockhoppers.sinking": "Kalıcı Batma İksiri",
+  "item.minecraft.lingering_potion.effect.rapscallionsandrockhoppers.long_sinking": "Kalıcı Batma İksiri",
+  "item.minecraft.lingering_potion.effect.rapscallionsandrockhoppers.strong_sinking": "Kalıcı Batma İksiri",
+
+  "tag.item.rapscallionsandrockhoppers.penguin_breed_items": "Penguen Çiftleştirme Eşyaları",
+  "tag.item.rapscallionsandrockhoppers.penguin_tempt_items": "Penguen Dikkat Çekme Eşyaları",
+  "tag.item.rapscallionsandrockhoppers.penguin_food": "Penguen Yemekleri",
+  "tag.item.rapscallionsandrockhoppers.fish_scale_block_dyes.seahorse": "Denizatı Balık Pulu Bloğu Boyaları",
+  "tag.item.rapscallionsandrockhoppers.fish_scale_block_dyes.eel": "Yılan Balığı Balık Pulu Bloğu Boyaları",
+  "tag.item.rapscallionsandrockhoppers.fish_scale_block_dyes.jellyfish": "Denizanası Balık Pulu Bloğu Boyaları",
+  "tag.item.rapscallionsandrockhoppers.fish_scale_block_dyes.shark": "Köpek Balığı Balık Pulu Bloğu Boyaları",
+
+  "tag.biome.rapscallionsandrockhoppers.spawns_rockhopper_penguins": "Rockhopper Penguenleri Oluşturur",
+  "tag.biome.rapscallionsandrockhoppers.spawns_chinstrap_penguins": "Chinstrap Penguenleri Oluşturur",
+  "tag.biome.rapscallionsandrockhoppers.spawns_little_penguins": "Küçük Penguenler Oluşturur",
+
+  "tag.entity_type.rapscallionsandrockhoppers.penguin_always_hostiles": "Penguenler Hep Saldırgan"
+}
