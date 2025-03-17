@@ -44,11 +44,13 @@ public class LeaveBoat extends ExtendedBehaviour<Penguin> {
 
     @Override
     protected void start(Penguin penguin) {
-        var boatData = RapscallionsAndRockhoppers.getHelper().getBoatPenguinData(penguin.getBoatToFollow());
+        if (penguin.getBoatToFollow() != null) {
+            var boatData = RapscallionsAndRockhoppers.getHelper().getBoatPenguinData(penguin.getBoatToFollow());
 
-        boatData.removeFollowingPenguin(penguin.getUUID());
-        if (boatData.getFollowingPenguins().isEmpty())
-            RapscallionsAndRockhoppers.getHelper().removeBoatPenguinData(penguin.getBoatToFollow());
+            boatData.removeFollowingPenguin(penguin.getUUID());
+            if (boatData.getFollowingPenguins().isEmpty())
+                RapscallionsAndRockhoppers.getHelper().removeBoatPenguinData(penguin.getBoatToFollow());
+        }
 
         BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.BOAT_TO_FOLLOW, null);
         BrainUtils.setMemory(penguin, RockhoppersMemoryModuleTypes.LAST_FOLLOWING_BOAT_CONTROLLER, null);
