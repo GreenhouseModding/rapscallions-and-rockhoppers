@@ -1,7 +1,7 @@
 package house.greenhouse.rapscallionsandrockhoppers.gradle
 
 object Versions {
-    const val MOD = "2.0.2"
+    const val MOD = "2.0.3"
 
     const val MINECRAFT = "1.21.1"
     const val PARCHMENT_MINECRAFT = "1.21"
