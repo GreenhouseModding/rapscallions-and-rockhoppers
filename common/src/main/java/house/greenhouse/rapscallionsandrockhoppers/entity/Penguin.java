@@ -685,16 +685,20 @@ public class Penguin extends Animal implements SmartBrainOwner<Penguin> {
             if (this.level() instanceof ServerLevel serverLevel && serverLevel.getChunk(xSection, zSection, ChunkStatus.FULL, true) == null) {
                 RapscallionsAndRockhoppers.loadNearbyChunks(home.pos(), serverLevel);
             }
-            for (int i = 0; i < 10 || !this.level().getBlockState(randomPos).isPathfindable(PathComputationType.WATER); ++i) {
+            for (int i = 0; i < 10; ++i) {
                 randomPos = getRandomPos(home.pos());
+                if (!this.level().getBlockState(randomPos).isPathfindable(PathComputationType.WATER))
+                    break;
             }
             if (!this.level().getBlockState(randomPos).isPathfindable(PathComputationType.WATER)) {
                 randomPos = null;
             }
             if (randomPos == null) {
                 randomPos = home.pos();
-                for (int i = 0; i < 10 || !this.level().getBlockState(randomPos).isPathfindable(PathComputationType.LAND); ++i) {
+                for (int i = 0; i < 10; ++i) {
                     randomPos = home.pos().above();
+                    if (!this.level().getBlockState(randomPos).isPathfindable(PathComputationType.LAND))
+                        break;
                 }
             }
             this.teleportTo(randomPos.getX(), randomPos.getY(), randomPos.getZ());
