@@ -5,7 +5,7 @@ object Properties {
     const val MOD_NAME = "Rapscallions and Rockhoppers"
     const val MOD_ID = "rapscallionsandrockhoppers"
     const val MOD_AUTHOR = "Greenhouse Team"
-    val MOD_CONTRIBUTORS = listOf("MerchantPug", "Omniv", "UltrusBot")
+    val MOD_CONTRIBUTORS = listOf("MerchantCalico", "Omniv", "UltrusBot")
     const val DESCRIPTION = "A reimagining of Mojang's Penguin mob."
     const val LICENSE = "MPL-2.0"
 
