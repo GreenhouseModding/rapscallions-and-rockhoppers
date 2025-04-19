@@ -1,1 +1,1 @@
-- Updated credits from referencing MerchantPug to MerchantCalico.
+- Added support for [Barricade](https://modrinth.com/mod/barricade)'s mob/passive barriers.
